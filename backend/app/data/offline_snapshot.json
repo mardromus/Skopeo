@@ -1,0 +1,991 @@
+{
+ "description": "Real responses from api.osv.dev and pypi.org, trimmed. Regenerate with scripts/build_offline_snapshot.py.",
+ "generated_at": "2026-10-06",
+ "osv": {
+  "PyPI": {
+   "pyjwt": {
+    "1.7.1": [
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.14.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-101917",
+       "PYSEC-2026-4140"
+      ],
+      "database_specific": {
+       "cwe_ids": [
+        "CWE-770"
+       ],
+       "github_reviewed": true,
+       "github_reviewed_at": "2026-09-29T23:11:51Z",
+       "nvd_published_at": "2026-09-28T21:17:13Z",
+       "severity": "MODERATE"
+      },
+      "id": "GHSA-2gx3-rcp4-g85q",
+      "modified": "2026-10-01T17:56:20.150726241Z",
+      "published": "2026-09-29T23:11:51Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-2gx3-rcp4-g85q"
+       },
+       {
+        "type": "ADVISORY",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101917"
+       },
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/commit/ba4853a75fb9676362da17f67d0f64bd18afd4e1"
+       }
+      ],
+      "summary": "PyJWT: PyJWKClient still amplifies unauthenticated JWKS fetches on unknown kid values (incomplete fix of CVE-2026-48524)"
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.12.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-32597",
+       "PYSEC-2026-120"
+      ],
+      "database_specific": {
+       "cwe_ids": [
+        "CWE-345",
+        "CWE-863"
+       ],
+       "github_reviewed": true,
+       "github_reviewed_at": "2026-03-13T20:05:04Z",
+       "nvd_published_at": "2026-03-13T19:55:09Z",
+       "severity": "HIGH"
+      },
+      "id": "GHSA-752w-5fwx-jx9f",
+      "modified": "2026-09-10T03:50:59.993704484Z",
+      "published": "2026-03-13T20:05:04Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-752w-5fwx-jx9f"
+       },
+       {
+        "type": "ADVISORY",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-32597"
+       },
+       {
+        "type": "PACKAGE",
+        "url": "https://github.com/jpadilla/pyjwt"
+       }
+      ],
+      "summary": "PyJWT accepts unknown `crit` header extensions"
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.14.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-102267",
+       "PYSEC-2026-4144"
+      ],
+      "database_specific": {
+       "cwe_ids": [
+        "CWE-200",
+        "CWE-345",
+        "CWE-918"
+       ],
+       "github_reviewed": true,
+       "github_reviewed_at": "2026-09-29T23:15:00Z",
+       "nvd_published_at": "2026-09-28T21:17:14Z",
+       "severity": "HIGH"
+      },
+      "id": "GHSA-9v7f-9g4p-ffgj",
+      "modified": "2026-10-01T17:56:19.395032954Z",
+      "published": "2026-09-29T23:15:00Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-9v7f-9g4p-ffgj"
+       },
+       {
+        "type": "ADVISORY",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102267"
+       },
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/commit/0a795b8e1f6ef08f634aa7086fc41cc6d5ce3e56"
+       }
+      ],
+      "summary": "PyJWT: PyJWKClient follows redirects when fetching JWKS"
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.14.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-102268",
+       "PYSEC-2026-4145"
+      ],
+      "database_specific": {
+       "cwe_ids": [
+        "CWE-347"
+       ],
+       "github_reviewed": true,
+       "github_reviewed_at": "2026-09-29T23:17:33Z",
+       "nvd_published_at": "2026-09-28T21:17:14Z",
+       "severity": "CRITICAL"
+      },
+      "id": "GHSA-ffc3-869f-jxw9",
+      "modified": "2026-10-01T17:55:42.096970476Z",
+      "published": "2026-09-29T23:17:33Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-ffc3-869f-jxw9"
+       },
+       {
+        "type": "ADVISORY",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102268"
+       },
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/commit/8b4e233a22206b34ec1186e912e75c0b2396ac07"
+       }
+      ],
+      "summary": "PyJWT: Asymmetric-PEM detection bypass: whitespace/line-ending-mutated public keys skip the HS/asymmetric confusion guard"
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "1.5.0"
+           },
+           {
+            "fixed": "2.4.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2022-29217",
+       "PYSEC-2022-202"
+      ],
+      "database_specific": {
+       "cwe_ids": [
+        "CWE-327"
+       ],
+       "github_reviewed": true,
+       "github_reviewed_at": "2022-05-24T22:17:27Z",
+       "nvd_published_at": "2022-05-24T15:15:00Z",
+       "severity": "HIGH"
+      },
+      "id": "GHSA-ffqj-6fqr-9h24",
+      "modified": "2024-10-15T16:27:42.751871Z",
+      "published": "2022-05-24T22:17:27Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-ffqj-6fqr-9h24"
+       },
+       {
+        "type": "ADVISORY",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2022-29217"
+       },
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/commit/9c528670c455b8d948aff95ed50e22940d1ad3fc"
+       }
+      ],
+      "summary": "Key confusion through non-blocklisted public key formats"
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.14.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-102269",
+       "PYSEC-2026-4147"
+      ],
+      "database_specific": {
+       "cwe_ids": [
+        "CWE-180"
+       ],
+       "github_reviewed": true,
+       "github_reviewed_at": "2026-09-29T23:17:55Z",
+       "nvd_published_at": "2026-09-28T21:17:14Z",
+       "severity": "MODERATE"
+      },
+      "id": "GHSA-hxm8-2xgr-2p9m",
+      "modified": "2026-10-01T17:55:59.204638768Z",
+      "published": "2026-09-29T23:17:55Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-hxm8-2xgr-2p9m"
+       },
+       {
+        "type": "ADVISORY",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102269"
+       },
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/commit/e6f48401001609a8f99e71fcaf355fb895d508a8"
+       }
+      ],
+      "summary": "PyJWT: Non-canonical signature segments enable raw-token revocation bypass"
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.14.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-102270",
+       "PYSEC-2026-4148"
+      ],
+      "database_specific": {
+       "cwe_ids": [
+        "CWE-1333"
+       ],
+       "github_reviewed": true,
+       "github_reviewed_at": "2026-09-30T14:40:25Z",
+       "nvd_published_at": "2026-09-28T21:17:14Z",
+       "severity": "MODERATE"
+      },
+      "id": "GHSA-jwrc-g2q2-pq5p",
+      "modified": "2026-10-01T17:55:44.209063147Z",
+      "published": "2026-09-30T14:40:25Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-jwrc-g2q2-pq5p"
+       },
+       {
+        "type": "ADVISORY",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102270"
+       },
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/commit/8b4e233a22206b34ec1186e912e75c0b2396ac07"
+       }
+      ],
+      "summary": "PyJWT: ReDoS vulnerability when calling the `is_pem_format` function."
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.13.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-48526",
+       "PYSEC-2026-179"
+      ],
+      "database_specific": {
+       "cwe_ids": [
+        "CWE-287",
+        "CWE-347"
+       ],
+       "github_reviewed": true,
+       "github_reviewed_at": "2026-06-15T19:28:06Z",
+       "nvd_published_at": "2026-05-28T16:16:29Z",
+       "severity": "HIGH"
+      },
+      "id": "GHSA-xgmm-8j9v-c9wx",
+      "modified": "2026-09-10T03:51:09.678127621Z",
+      "published": "2026-06-15T19:28:06Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-xgmm-8j9v-c9wx"
+       },
+       {
+        "type": "ADVISORY",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-48526"
+       },
+       {
+        "type": "PACKAGE",
+        "url": "https://github.com/jpadilla/pyjwt"
+       }
+      ],
+      "summary": "PyJWT: Public-key JWK accepted as HMAC secret enables forged HS256 tokens when mixed families are allowed"
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "9c528670c455b8d948aff95ed50e22940d1ad3fc"
+           }
+          ],
+          "repo": "https://github.com/jpadilla/pyjwt",
+          "type": "GIT"
+         },
+         {
+          "events": [
+           {
+            "introduced": "1.5.0"
+           },
+           {
+            "fixed": "2.4.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2022-29217",
+       "GHSA-ffqj-6fqr-9h24"
+      ],
+      "database_specific": null,
+      "id": "PYSEC-2022-202",
+      "modified": "2023-11-08T04:09:10.999573Z",
+      "published": "2022-05-24T15:15:00Z",
+      "references": [
+       {
+        "type": "ADVISORY",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-ffqj-6fqr-9h24"
+       },
+       {
+        "type": "FIX",
+        "url": "https://github.com/jpadilla/pyjwt/commit/9c528670c455b8d948aff95ed50e22940d1ad3fc"
+       },
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/releases/tag/2.4.0"
+       }
+      ],
+      "summary": null
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "last_affected": "2.10.1"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2025-45768"
+      ],
+      "database_specific": null,
+      "id": "PYSEC-2025-183",
+      "modified": "2026-05-21T15:00:28.178881228Z",
+      "published": "2025-07-31T21:15:27.320Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla"
+       },
+       {
+        "type": "REPORT",
+        "url": "https://gist.github.com/ZupeiNie/6f65e564f2067b876321d3dfdbb76569"
+       },
+       {
+        "type": "PACKAGE",
+        "url": "https://github.com/jpadilla/pyjwt"
+       }
+      ],
+      "summary": null
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.12.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-32597",
+       "GHSA-752w-5fwx-jx9f"
+      ],
+      "database_specific": null,
+      "id": "PYSEC-2026-120",
+      "modified": "2026-05-20T09:19:15.426301Z",
+      "published": "2026-03-13T19:55:09.500Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://lists.debian.org/debian-lts-announce/2026/05/msg00008.html"
+       },
+       {
+        "type": "EVIDENCE",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-752w-5fwx-jx9f"
+       }
+      ],
+      "summary": null
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.13.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-48522",
+       "GHSA-993g-76c3-p5m4"
+      ],
+      "database_specific": null,
+      "id": "PYSEC-2026-175",
+      "modified": "2026-06-02T12:15:09.282275410Z",
+      "published": "2026-05-28T16:16:29.150Z",
+      "references": [
+       {
+        "type": "EVIDENCE",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-993g-76c3-p5m4"
+       }
+      ],
+      "summary": null
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.13.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-48524",
+       "GHSA-fhv5-28vv-h8m8"
+      ],
+      "database_specific": null,
+      "id": "PYSEC-2026-177",
+      "modified": "2026-06-02T12:15:10.363704191Z",
+      "published": "2026-05-28T16:16:29.403Z",
+      "references": [
+       {
+        "type": "ADVISORY",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-fhv5-28vv-h8m8"
+       }
+      ],
+      "summary": null
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.13.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-48526",
+       "GHSA-xgmm-8j9v-c9wx"
+      ],
+      "database_specific": null,
+      "id": "PYSEC-2026-179",
+      "modified": "2026-06-02T12:15:10.840770477Z",
+      "published": "2026-05-28T16:16:29.657Z",
+      "references": [
+       {
+        "type": "EVIDENCE",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-xgmm-8j9v-c9wx"
+       }
+      ],
+      "summary": null
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.14.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-101917",
+       "GHSA-2gx3-rcp4-g85q"
+      ],
+      "database_specific": null,
+      "id": "PYSEC-2026-4140",
+      "modified": "2026-10-01T17:45:16.627687100Z",
+      "published": "2026-10-01T16:38:40.219548Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-2gx3-rcp4-g85q"
+       },
+       {
+        "type": "ADVISORY",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-101917"
+       },
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/commit/ba4853a75fb9676362da17f67d0f64bd18afd4e1"
+       }
+      ],
+      "summary": "PyJWT: PyJWKClient still amplifies unauthenticated JWKS fetches on unknown kid values (incomplete fix of CVE-2026-48524)"
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.14.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-102267",
+       "GHSA-9v7f-9g4p-ffgj"
+      ],
+      "database_specific": null,
+      "id": "PYSEC-2026-4144",
+      "modified": "2026-10-01T17:45:15.993924492Z",
+      "published": "2026-10-01T16:38:40.431819Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-9v7f-9g4p-ffgj"
+       },
+       {
+        "type": "ADVISORY",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102267"
+       },
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/commit/0a795b8e1f6ef08f634aa7086fc41cc6d5ce3e56"
+       }
+      ],
+      "summary": "PyJWT: PyJWKClient follows redirects when fetching JWKS"
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.14.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-102268",
+       "GHSA-ffc3-869f-jxw9"
+      ],
+      "database_specific": null,
+      "id": "PYSEC-2026-4145",
+      "modified": "2026-10-01T17:45:17.856341315Z",
+      "published": "2026-10-01T16:38:40.589286Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-ffc3-869f-jxw9"
+       },
+       {
+        "type": "ADVISORY",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102268"
+       },
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/commit/8b4e233a22206b34ec1186e912e75c0b2396ac07"
+       }
+      ],
+      "summary": "PyJWT: Asymmetric-PEM detection bypass: whitespace/line-ending-mutated public keys skip the HS/asymmetric confusion guard"
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.14.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-102269",
+       "GHSA-hxm8-2xgr-2p9m"
+      ],
+      "database_specific": null,
+      "id": "PYSEC-2026-4147",
+      "modified": "2026-10-01T17:45:17.859342382Z",
+      "published": "2026-10-01T16:38:40.657304Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-hxm8-2xgr-2p9m"
+       },
+       {
+        "type": "ADVISORY",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102269"
+       },
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/commit/e6f48401001609a8f99e71fcaf355fb895d508a8"
+       }
+      ],
+      "summary": "PyJWT: Non-canonical signature segments enable raw-token revocation bypass"
+     },
+     {
+      "affected": [
+       {
+        "package": {
+         "ecosystem": "PyPI",
+         "name": "pyjwt",
+         "purl": "pkg:pypi/pyjwt"
+        },
+        "ranges": [
+         {
+          "events": [
+           {
+            "introduced": "0"
+           },
+           {
+            "fixed": "2.14.0"
+           }
+          ],
+          "type": "ECOSYSTEM"
+         }
+        ]
+       }
+      ],
+      "aliases": [
+       "CVE-2026-102270",
+       "GHSA-jwrc-g2q2-pq5p"
+      ],
+      "database_specific": null,
+      "id": "PYSEC-2026-4148",
+      "modified": "2026-10-01T17:45:15.991735466Z",
+      "published": "2026-10-01T16:38:40.870806Z",
+      "references": [
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/security/advisories/GHSA-jwrc-g2q2-pq5p"
+       },
+       {
+        "type": "ADVISORY",
+        "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-102270"
+       },
+       {
+        "type": "WEB",
+        "url": "https://github.com/jpadilla/pyjwt/commit/8b4e233a22206b34ec1186e912e75c0b2396ac07"
+       }
+      ],
+      "summary": "PyJWT: ReDoS vulnerability when calling the `is_pem_format` function."
+     }
+    ]
+   },
+   "python-dateutil": {
+    "2.9.0.post0": []
+   }
+  }
+ },
+ "registry": {
+  "PyPI": {
+   "pyjwt": {
+    "latest_release_date": "2026-09-28T18:40:41.429003Z",
+    "latest_version": "2.15.1",
+    "license": "MIT",
+    "name": "PyJWT",
+    "release_dates": {
+     "1.7.1": "2018-12-07T13:40:06.872228Z",
+     "2.15.1": "2026-09-28T18:40:41.429003Z"
+    }
+   },
+   "python-dateutil": {
+    "latest_release_date": "2024-03-01T18:36:18.570437Z",
+    "latest_version": "2.9.0.post0",
+    "license": "Apache Software License OR BSD License",
+    "name": "python-dateutil",
+    "release_dates": {
+     "2.9.0.post0": "2024-03-01T18:36:18.570437Z"
+    }
+   },
+   "requests": {
+    "latest_release_date": "2026-05-14T19:25:26.443000Z",
+    "latest_version": "2.34.2",
+    "license": "Apache-2.0",
+    "name": "requests",
+    "release_dates": {
+     "2.34.2": "2026-05-14T19:25:26.443000Z"
+    }
+   }
+  }
+ }
+}

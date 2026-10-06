@@ -1,0 +1,24 @@
+rules:
+  - id: skopeo.python.subprocess-shell-true
+    languages: [python]
+    severity: ERROR
+    message: subprocess call with shell=True
+    pattern: subprocess.$FUNC(..., shell=True, ...)
+  - id: skopeo.python.jwt-decode-without-algorithms
+    languages: [python]
+    severity: ERROR
+    message: jwt.decode called without an algorithms allow-list
+    patterns:
+      - pattern: jwt.decode(...)
+      - pattern-not: jwt.decode(..., algorithms=$A, ...)
+  - id: skopeo.python.yaml-unsafe-load
+    languages: [python]
+    severity: WARNING
+    message: yaml.load without an explicit safe Loader
+    patterns:
+      - pattern: yaml.load($X)
+  - id: skopeo.js.eval
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: eval of dynamic input
+    pattern: eval($X)

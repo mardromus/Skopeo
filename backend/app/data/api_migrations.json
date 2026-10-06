@@ -1,0 +1,58 @@
+{
+  "description": "Curated, documented breaking API changes in popular packages. Each rule names the call it affects and a machine-checkable condition. Sources: upstream changelogs.",
+  "rules": [
+    {
+      "id": "pyjwt-2.0-decode-requires-algorithms",
+      "package": "pyjwt",
+      "breaking_in": "2.0.0",
+      "call": "jwt.decode",
+      "condition": "missing_keyword",
+      "keyword": "algorithms",
+      "description": "PyJWT 2.0 requires the `algorithms` argument for jwt.decode(); calls without it raise DecodeError.",
+      "fix": "Pass an explicit allow-list, e.g. algorithms=[\"HS256\"].",
+      "source": "https://pyjwt.readthedocs.io/en/stable/changelog.html"
+    },
+    {
+      "id": "pyjwt-2.0-encode-returns-str",
+      "package": "pyjwt",
+      "breaking_in": "2.0.0",
+      "call": "jwt.encode",
+      "condition": "result_method_called",
+      "method": "decode",
+      "description": "jwt.encode() returns str instead of bytes since 2.0; calling .decode() on the result raises AttributeError.",
+      "fix": "Drop the .decode('utf-8') call on the token.",
+      "source": "https://pyjwt.readthedocs.io/en/stable/changelog.html"
+    },
+    {
+      "id": "pyjwt-2.0-verify-kwarg-removed",
+      "package": "pyjwt",
+      "breaking_in": "2.0.0",
+      "call": "jwt.decode",
+      "condition": "has_keyword",
+      "keyword": "verify",
+      "description": "The `verify` argument of jwt.decode() was removed in 2.0.",
+      "fix": "Use options={\"verify_signature\": False} only where intended (tests).",
+      "source": "https://pyjwt.readthedocs.io/en/stable/changelog.html"
+    },
+    {
+      "id": "pydantic-2.0-validator-deprecated",
+      "package": "pydantic",
+      "breaking_in": "2.0.0",
+      "call": "pydantic.validator",
+      "condition": "called",
+      "description": "@validator is deprecated in Pydantic 2 in favour of @field_validator (different signature).",
+      "fix": "Migrate to @field_validator / @model_validator.",
+      "source": "https://docs.pydantic.dev/latest/migration/"
+    },
+    {
+      "id": "flask-2.3-before-first-request-removed",
+      "package": "flask",
+      "breaking_in": "2.3.0",
+      "call": "*.before_first_request",
+      "condition": "called",
+      "description": "Flask.before_first_request was removed in Flask 2.3.",
+      "fix": "Run initialisation code during application setup instead.",
+      "source": "https://flask.palletsprojects.com/en/latest/changes/"
+    }
+  ]
+}
