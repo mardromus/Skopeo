@@ -1,9 +1,10 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { StatusBadge } from "../components/Badges";
+import { HeroAperture } from "../components/HeroAperture";
 import { caseNo, fmtTime, fmtTimeMs, shortAgent } from "../lib/format";
 import { api } from "../services/api";
-import type { ExecutionEvent, Health, InvestigationSummary } from "../types/api";
+import type { ExecutionEvent, Health, InvestigationDetail, InvestigationSummary } from "../types/api";
 
 const NOTABLE = new Set([
   "plan_created",
@@ -19,20 +20,7 @@ const NOTABLE = new Set([
   "investigation_completed",
 ]);
 
-const ROSTER: [string, string][] = [
-  ["Orchestrator", "Plans the investigation, reviews the evidence board after every phase, schedules follow-ups and retries."],
-  ["Security", "Committed secrets, unsafe calls found by AST analysis, AI-directed instructions in docs, use of vulnerable packages."],
-  ["Dependency health", "Manifests in five ecosystems, OSV advisories for exact versions, freshness, pinning."],
-  ["Code quality", "Cyclomatic complexity, nesting, swallowed exceptions, duplicated blocks."],
-  ["API compatibility", "Public API, deprecations still in use, breaking changes an upgrade would cause."],
-  ["Test reliability", "Runs the suite under coverage when allowed; weak assertions; untested critical code."],
-  ["License compliance", "License text against package metadata, copyleft headers, dependency licenses."],
-  ["Maintenance", "Commit cadence, contributor concentration, releases and pull-request activity."],
-  ["Performance", "N+1 queries and network calls in loops; measures them with benchmarks before claiming impact."],
-  ["Correlation", "Links findings across agents into compound risks, shared root causes and contradictions."],
-  ["Red team", "Tries to disprove every finding with its own checks. Its ruling decides what reaches the report."],
-  ["Risk and recommendations", "Scores only verified findings and drafts fixes, issues and draft PRs for approval."],
-];
+const CAP: Record<string, number> = { replan: 3, correlation_created: 3, finding_rejected: 3, finding_verified: 2, challenge: 2, risk_assessed: 2, agent_failed: 3, investigation_requested: 3 };
 
 function tone(t: string): string {
   if (t === "finding_rejected" || t === "agent_failed") return "bad";
@@ -51,7 +39,8 @@ export function HomePage({ health }: { health: Health | null }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<InvestigationSummary[]>([]);
-  const [log, setLog] = useState<{ inv: InvestigationSummary; events: ExecutionEvent[] } | null>(null);
+  const [latest, setLatest] = useState<InvestigationDetail | null>(null);
+  const [log, setLog] = useState<ExecutionEvent[]>([]);
 
   useEffect(() => {
     api
@@ -60,8 +49,17 @@ export function HomePage({ health }: { health: Health | null }) {
         setHistory(list);
         const done = list.find((i) => !["queued", "running"].includes(i.status));
         if (done) {
-          const events = await api.events(done.investigation_id);
-          setLog({ inv: done, events: events.filter((e) => NOTABLE.has(e.event_type)) });
+          const [detail, events] = await Promise.all([api.detail(done.investigation_id), api.events(done.investigation_id)]);
+          setLatest(detail);
+          // tell the whole story: a few of each kind of event, in order
+          const seen: Record<string, number> = {};
+          setLog(
+            events.filter((e) => {
+              if (!NOTABLE.has(e.event_type)) return false;
+              seen[e.event_type] = (seen[e.event_type] ?? 0) + 1;
+              return seen[e.event_type] <= (CAP[e.event_type] ?? 2);
+            }),
+          );
         }
       })
       .catch(() => setHistory([]));
@@ -95,9 +93,11 @@ export function HomePage({ health }: { health: Health | null }) {
   return (
     <main className="page">
       <div className="intake">
-        <section className="minw0">
-          <span className="eyebrow">Open a new investigation</span>
-          <h1>Find what is wrong with a repository, and prove it.</h1>
+        <section className="minw0 intake-copy">
+          <span className="eyebrow">Repository intelligence and risk analysis</span>
+          <h1>
+            Find what is wrong with a repository, <em>and prove it.</em>
+          </h1>
           <p className="lede">
             Eight specialist agents examine the code in parallel. Every finding cites evidence, a red-team agent tries to disprove it, and only findings that survive are scored as risk.
           </p>
@@ -150,45 +150,34 @@ export function HomePage({ health }: { health: Health | null }) {
             </div>
           </div>
         </section>
-
         <section className="minw0">
-          {log ? (
-            <div className="log">
-              <div className="log-head">
-                <span>
-                  {caseNo(log.inv.investigation_id)} · {log.inv.repository}
-                </span>
-                <Link to={`/investigations/${log.inv.investigation_id}`}>open case</Link>
-              </div>
-              <div className="log-body">
-                {log.events.slice(0, 40).map((e) => (
-                  <div key={e.event_id} className={`log-line ${tone(e.event_type)}`}>
-                    <span className="t">{fmtTimeMs(e.timestamp)}</span>
-                    <span className="who">{shortAgent(e.sender)}</span>
-                    <span className="m">{e.message}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div>
-              <span className="eyebrow">The team</span>
-              <table className="roster" style={{ marginTop: 8 }}>
-                <tbody>
-                  {ROSTER.map(([name, job]) => (
-                    <tr key={name}>
-                      <td>{name}</td>
-                      <td>{job}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <HeroAperture detail={latest} />
         </section>
       </div>
 
-      <section className="section" style={{ marginTop: 40 }}>
+      {latest && log.length > 0 && (
+        <section className="section" style={{ marginTop: 28 }}>
+          <div className="section-head">
+            <h2>How the last case unfolded</h2>
+            <Link className="note" to={`/investigations/${latest.investigation_id}?tab=trace`}>
+              full trace of {caseNo(latest.investigation_id)}
+            </Link>
+          </div>
+          <div className="log">
+            <div className="log-body">
+              {log.slice(0, 22).map((e) => (
+                <div key={e.event_id} className={`log-line ${tone(e.event_type)}`}>
+                  <span className="t">{fmtTimeMs(e.timestamp)}</span>
+                  <span className="who">{shortAgent(e.sender)}</span>
+                  <span className="m">{e.message}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="section" style={{ marginTop: 12 }}>
         <div className="section-head">
           <h2>Cases</h2>
           <span className="note">{history.length ? `${history.length} on record` : "None yet. Run the reference case to see a complete one."}</span>

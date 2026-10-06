@@ -1,3 +1,5 @@
+import { AnimatedNumber } from "./AnimatedNumber";
+
 // Priority bands mirror backend/app/services/risk_scoring.py (P4 <12 <= P3 <35 <= P2 <60 <= P1 <80 <= P0).
 const BANDS = [
   { p: "P4", from: 0, to: 12, c: "var(--info)" },
@@ -14,7 +16,7 @@ export function RiskScale({ score, level }: { score: number | null; level: strin
     <div className="scale" role="img" aria-label={`Overall risk ${score ?? "pending"} of 100, ${level ?? "pending"}`}>
       <span className="eyebrow">Overall risk</span>
       <div className="scale-score">
-        <b>{score === null ? "··" : Math.round(v)}</b>
+        <b>{score === null ? "··" : <AnimatedNumber value={v} />}</b>
         <span className="of">/ 100 · {level ? level.toUpperCase() : "PENDING"}</span>
       </div>
       <div className="scale-track">

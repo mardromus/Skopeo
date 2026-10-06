@@ -1,8 +1,14 @@
+<p align="center"><img src="docs/logo.svg" width="96" alt="Skopeo logo: an eight-blade aperture, one blade per specialist agent"></p>
+
 # Skopeo
 
 **Multi-agent repository intelligence and risk analysis.** Skopeo investigates a software
 repository with a team of specialist agents, links their evidence into compound risks, has a
 red-team agent try to disprove every finding, and scores only what survives.
+
+![Landing page with the live aperture](docs/screenshots/home.png)
+
+The mark is an iris aperture with eight blades, one per specialist agent, converging on a single point of focus. On the landing page the blades are coloured by each agent's coverage in the latest case and the opening shows its risk score; while agents work, the iris turns and breathes.
 
 ![Case summary](docs/screenshots/dashboard.png)
 
@@ -236,7 +242,7 @@ OpenAPI at `/docs`.
 
 | | |
 | --- | --- |
-| ![Landing](docs/screenshots/home.png) | ![Agents](docs/screenshots/agents.png) |
+| ![Landing (dark)](docs/screenshots/home-dark.png) | ![Agents](docs/screenshots/agents.png) |
 | ![Correlations](docs/screenshots/correlations.png) | ![Findings](docs/screenshots/findings.png) |
 | ![Trace (dark)](docs/screenshots/trace.png) | ![Fixes and actions](docs/screenshots/actions.png) |
 

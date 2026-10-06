@@ -7,10 +7,9 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      "/api": {
-        target: process.env.SKOPEO_API_URL ?? "http://127.0.0.1:8000",
-        changeOrigin: true,
-      },
+      "/api": { target: process.env.SKOPEO_API_URL ?? "http://127.0.0.1:8000", changeOrigin: true },
+      "/docs": { target: process.env.SKOPEO_API_URL ?? "http://127.0.0.1:8000", changeOrigin: true },
+      "/openapi.json": { target: process.env.SKOPEO_API_URL ?? "http://127.0.0.1:8000", changeOrigin: true },
     },
   },
   build: {

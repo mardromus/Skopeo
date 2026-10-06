@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
+import { AnimatedNumber } from "../components/AnimatedNumber";
+import { Aperture } from "../components/Aperture";
 import { StatusBadge } from "../components/Badges";
 import { RiskScale } from "../components/RiskGauge";
 import { useInvestigation } from "../hooks/useInvestigation";
@@ -15,6 +17,35 @@ import { VerificationTab } from "./investigation/VerificationTab";
 
 type TabId = "overview" | "agents" | "findings" | "correlations" | "verification" | "trace" | "actions";
 const TAB_IDS: TabId[] = ["overview", "agents", "findings", "correlations", "verification", "trace", "actions"];
+
+function Tabs({ tabs, active, onSelect }: { tabs: { id: TabId; label: string; count?: number }[]; active: TabId; onSelect: (t: TabId) => void }) {
+  const refs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [bar, setBar] = useState({ left: 0, width: 0 });
+  useLayoutEffect(() => {
+    const el = refs.current[active];
+    if (el) setBar({ left: el.offsetLeft, width: el.offsetWidth });
+  }, [active, tabs]);
+  return (
+    <nav className="tabs" role="tablist" aria-label="Case sections">
+      {tabs.map((t) => (
+        <button
+          key={t.id}
+          ref={(el) => {
+            refs.current[t.id] = el;
+          }}
+          role="tab"
+          aria-selected={active === t.id}
+          className={`tab ${active === t.id ? "active" : ""}`}
+          onClick={() => onSelect(t.id)}
+        >
+          {t.label}
+          {t.count !== undefined && <span className="count">{t.count}</span>}
+        </button>
+      ))}
+      <span className="tab-bar" style={{ transform: `translateX(${bar.left}px)`, width: bar.width }} aria-hidden />
+    </nav>
+  );
+}
 
 export function InvestigationPage() {
   const { id } = useParams();
@@ -54,8 +85,9 @@ export function InvestigationPage() {
   }
   if (!data) {
     return (
-      <main className="page">
-        <div className="empty">Loading case…</div>
+      <main className="page loading">
+        <Aperture size={96} live gap="var(--paper)" title="Loading" />
+        <span className="muted">Opening case…</span>
       </main>
     );
   }
@@ -70,12 +102,13 @@ export function InvestigationPage() {
 
   return (
     <main className="page">
-      <div className="small">
+      <div className="small crumbs">
         <Link to="/">Cases</Link> <span className="muted">/ {caseNo(d.investigation_id)}</span>
       </div>
-      <header className="docket" style={{ marginTop: 10 }}>
+      <header className="docket">
         <div className="minw0">
-          <div className="row">
+          <div className="row docket-title">
+            <Aperture size={40} live={running} gap="var(--paper)" openness={running ? 0.42 : 0.5} />
             <h1>{d.repository}</h1>
             <StatusBadge status={d.status} />
           </div>
@@ -121,29 +154,41 @@ export function InvestigationPage() {
 
       <div className="tally" aria-label="Case tally">
         <div>
-          <b>{f.length}</b>
+          <b>
+            <AnimatedNumber value={f.length} />
+          </b>
           <span className="lbl">findings · {data.evidence.length} evidence</span>
         </div>
         <div>
-          <b>{f.filter((x) => x.status === "verified").length}</b>
+          <b>
+            <AnimatedNumber value={f.filter((x) => x.status === "verified").length} />
+          </b>
           <span className="lbl">verified</span>
         </div>
         <div>
-          <b>{f.filter((x) => x.status === "rejected").length}</b>
+          <b>
+            <AnimatedNumber value={f.filter((x) => x.status === "rejected").length} />
+          </b>
           <span className="lbl">rejected by red team</span>
         </div>
         <div>
-          <b>{f.filter((x) => x.status === "needs_more_evidence").length}</b>
+          <b>
+            <AnimatedNumber value={f.filter((x) => x.status === "needs_more_evidence").length} />
+          </b>
           <span className="lbl">insufficient evidence</span>
         </div>
         <div>
-          <b>{runs.length}</b>
+          <b>
+            <AnimatedNumber value={runs.length} />
+          </b>
           <span className="lbl">
             agent runs · <em>{failed} failed</em>, {retries} retried, {followUps} follow-ups
           </span>
         </div>
         <div>
-          <b>{replans}</b>
+          <b>
+            <AnimatedNumber value={replans} />
+          </b>
           <span className="lbl">replans</span>
         </div>
         <div>
@@ -152,22 +197,17 @@ export function InvestigationPage() {
         </div>
       </div>
 
-      <nav className="tabs" role="tablist" aria-label="Case sections">
-        {tabs.map((t) => (
-          <button key={t.id} role="tab" aria-selected={tab === t.id} className={`tab ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
-            {t.label}
-            {t.count !== undefined && <span className="count">{t.count}</span>}
-          </button>
-        ))}
-      </nav>
+      <Tabs tabs={tabs} active={tab} onSelect={setTab} />
 
-      {tab === "overview" && <OverviewTab data={data} onNavigate={(t) => setTab(t as TabId)} />}
-      {tab === "agents" && <AgentsTab data={data} />}
-      {tab === "findings" && <FindingsTab data={data} />}
-      {tab === "correlations" && <CorrelationsTab data={data} />}
-      {tab === "verification" && <VerificationTab data={data} />}
-      {tab === "trace" && <TraceTab data={data} />}
-      {tab === "actions" && <ActionsTab data={data} onChange={refresh} />}
+      <div className="tab-panel" key={tab}>
+        {tab === "overview" && <OverviewTab data={data} onNavigate={(t) => setTab(t as TabId)} />}
+        {tab === "agents" && <AgentsTab data={data} />}
+        {tab === "findings" && <FindingsTab data={data} />}
+        {tab === "correlations" && <CorrelationsTab data={data} />}
+        {tab === "verification" && <VerificationTab data={data} />}
+        {tab === "trace" && <TraceTab data={data} />}
+        {tab === "actions" && <ActionsTab data={data} onChange={refresh} />}
+      </div>
     </main>
   );
 }

@@ -1,0 +1,385 @@
+/* Identity and motion. Every animation here is disabled under prefers-reduced-motion (styles.css). */
+:root {
+  --brand: "Michroma", "Eurostile", "Arial Black", sans-serif;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.app-body {
+  flex: 1;
+}
+
+/* ------------------------------------------------------------------ logo & header */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+}
+.logo-type {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  gap: 5px;
+}
+.logo-word {
+  font-family: var(--brand);
+  font-size: 15px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink);
+  transition: color 0.2s var(--ease);
+}
+.logo-tag {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.wordmark:hover .logo-word {
+  color: var(--signal);
+}
+.mainnav {
+  display: flex;
+  gap: 4px;
+  margin-left: 14px;
+  padding-left: 16px;
+  border-left: 1px solid var(--line);
+}
+.mainnav a {
+  color: var(--ink-2);
+  padding: 5px 10px;
+  border-radius: var(--r);
+  font-weight: 500;
+  font-size: 13.5px;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease);
+}
+.mainnav a:hover {
+  background: var(--sunken);
+  color: var(--ink);
+  text-decoration: none;
+}
+.mainnav a.active {
+  color: var(--ink);
+  background: var(--sunken);
+}
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--signal);
+}
+.live-pill i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--signal);
+  animation: ping 1.6s var(--ease) infinite;
+}
+@keyframes ping {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--signal) 60%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+}
+.live-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--signal), transparent) no-repeat;
+  background-size: 40% 100%;
+  animation: sweep 1.6s linear infinite;
+}
+@keyframes sweep {
+  from {
+    background-position: -60% 0;
+  }
+  to {
+    background-position: 160% 0;
+  }
+}
+@media (max-width: 900px) {
+  .hide-sm,
+  .logo-tag {
+    display: none;
+  }
+  .mainnav {
+    margin-left: 2px;
+    padding-left: 8px;
+  }
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  justify-content: space-between;
+  padding: 16px 32px 22px;
+  border-top: 1px solid var(--line);
+  font-size: var(--step--1);
+  color: var(--muted);
+  background: var(--surface);
+}
+@media (max-width: 900px) {
+  .footer {
+    padding: 14px 16px;
+  }
+}
+
+/* ------------------------------------------------------------------ landing hero */
+.intake {
+  align-items: center;
+  min-height: 540px;
+}
+.intake h1 em {
+  font-style: normal;
+  color: var(--signal);
+}
+.intake-copy {
+  animation: rise 0.7s var(--ease) both;
+}
+.hero-aperture {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  animation: rise 0.9s var(--ease) 0.1s both;
+}
+.hero-stage {
+  position: relative;
+  width: 460px;
+  height: 460px;
+  max-width: 100%;
+}
+.hero-rings {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle at center, transparent 0 21px, var(--line) 21px 22px);
+  -webkit-mask-image: radial-gradient(circle at center, #000 34%, transparent 70%);
+  mask-image: radial-gradient(circle at center, #000 34%, transparent 70%);
+  animation: rings 12s ease-in-out infinite;
+}
+@keyframes rings {
+  50% {
+    transform: scale(1.05);
+  }
+}
+.hero-mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 300px;
+  height: 300px;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 18px 28px color-mix(in oklab, var(--ink) 16%, transparent));
+}
+.hero-core {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  line-height: 1;
+}
+.hero-core b {
+  font-family: var(--display);
+  font-size: 40px;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+  color: var(--ink);
+}
+.hero-core > span {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.hero-label {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 3px 7px;
+  border: 0;
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--ink);
+  cursor: default;
+  white-space: nowrap;
+  transition: background 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.hero-label.on,
+.hero-label:hover {
+  background: var(--surface);
+  box-shadow: 0 2px 12px color-mix(in oklab, var(--ink) 12%, transparent);
+}
+.hl-name {
+  font-family: var(--display);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.hl-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+.hero-caption {
+  max-width: 440px;
+  min-height: 44px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.hero-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.hero-legend i {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  margin-right: -6px;
+}
+@media (max-width: 600px) {
+  .hero-stage {
+    width: 300px;
+    height: 300px;
+  }
+  .hero-label {
+    display: none;
+  }
+  .intake {
+    min-height: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ case page */
+.crumbs {
+  animation: rise 0.4s var(--ease) both;
+}
+.docket {
+  margin-top: 10px;
+  animation: rise 0.55s var(--ease) both;
+}
+.docket-title {
+  gap: 12px;
+}
+.tally {
+  animation: rise 0.6s var(--ease) 0.06s both;
+}
+.tabs {
+  position: relative;
+}
+.tab,
+.tab.active {
+  border-bottom-color: transparent;
+  transition: color 0.15s var(--ease);
+}
+.tab-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--signal);
+  transition: transform 0.35s var(--ease), width 0.35s var(--ease);
+}
+.tab-panel {
+  animation: rise 0.4s var(--ease) both;
+}
+.tab-panel .section:nth-of-type(2) {
+  animation: rise 0.45s var(--ease) 0.05s both;
+}
+.tab-panel .section:nth-of-type(3) {
+  animation: rise 0.45s var(--ease) 0.1s both;
+}
+.trace-row,
+.log-line {
+  animation: slide-in 0.35s var(--ease) both;
+}
+.finding,
+.case-card,
+.risk-item,
+.member,
+.prop {
+  animation: rise 0.4s var(--ease) both;
+}
+.loading {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0.25;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes slide-in {
+  from {
+    opacity: 0.3;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------ interaction polish */
+.btn {
+  transition: border-color 0.15s var(--ease), background 0.15s var(--ease), transform 0.08s var(--ease), box-shadow 0.15s var(--ease);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn.primary {
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--ink) 22%, transparent), 0 8px 18px -10px var(--signal);
+}
+.btn.primary:hover {
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--ink) 22%, transparent), 0 12px 24px -12px var(--signal);
+}
+.input {
+  transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.input:hover {
+  border-color: var(--ink-2);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--signal);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--signal) 22%, transparent);
+}
+.finding-head,
+.case-row,
+.trace-row {
+  transition: background 0.15s var(--ease);
+}
+.scale-track span {
+  transition: background 0.5s var(--ease);
+}
