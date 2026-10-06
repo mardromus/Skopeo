@@ -1,0 +1,4 @@
+# Runtime dependencies
+PyJWT==1.7.1
+requests>=2.20
+python-dateutil==2.9.0.post0

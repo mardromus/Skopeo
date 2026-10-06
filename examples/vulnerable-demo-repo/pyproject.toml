@@ -1,0 +1,10 @@
+[project]
+name = "shopfront"
+version = "0.4.2"
+description = "Skopeo demo fixture: a small, intentionally flawed order service."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
