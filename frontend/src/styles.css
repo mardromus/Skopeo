@@ -1251,7 +1251,7 @@ table.ledger {
 }
 .trace-row {
   display: grid;
-  grid-template-columns: 52px 96px 176px 200px minmax(0, 1fr);
+  grid-template-columns: 44px 92px 260px 176px minmax(0, 1fr);
   gap: 12px;
   padding: 4px 14px;
   border-top: 1px solid transparent;
