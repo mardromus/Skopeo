@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.json
+htmlcov/
+
+# Runtime data (databases, cloned repositories, logs)
+backend/data/
+*.db
+*.db-wal
+*.db-shm
+
+# Node
+node_modules/
+frontend/dist/
+*.tsbuildinfo
+
+# Secrets and local config
+.env
+.env.*
+!.env.example
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+.claude/settings.local.json

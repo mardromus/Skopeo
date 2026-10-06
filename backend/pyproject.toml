@@ -1,0 +1,40 @@
+[project]
+name = "skopeo-backend"
+version = "0.1.0"
+description = "Skopeo — Multi-Agent Repository Intelligence & Risk Analysis (backend)"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -p no:cacheprovider"
+markers = [
+    "slow: runs a full multi-agent investigation",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:langchain_core.*",
+]
+
+[tool.ruff]
+line-length = 140
+target-version = "py312"
+extend-exclude = ["migrations/versions", "data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "BLE", "SIM"]
+ignore = [
+    "E501",   # long lines are allowed for readable messages
+    "S101",   # assert is used for internal invariants and in tests
+    "S603",   # subprocess: every call goes through the allowlist in security/command_policy.py
+    "S607",   # partial executable path (git) is allowlisted
+    "B008",
+    "SIM102",
+    "SIM108",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "B011"]
+"scripts/**" = ["S"]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/main.py"]
