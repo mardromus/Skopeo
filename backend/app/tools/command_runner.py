@@ -103,10 +103,22 @@ def scrubbed_env(extra: dict[str, str] | None = None) -> dict[str, str]:
 def _limit_resources() -> None:  # pragma: no cover - POSIX only
     import resource
 
-    resource.setrlimit(resource.RLIMIT_CPU, (300, 300))
-    resource.setrlimit(resource.RLIMIT_AS, (2 * 1024**3, 2 * 1024**3))
-    resource.setrlimit(resource.RLIMIT_NOFILE, (256, 256))
-    os.setsid()
+    try:
+        resource.setrlimit(resource.RLIMIT_CPU, (300, 300))
+    except Exception:
+        pass
+    try:
+        resource.setrlimit(resource.RLIMIT_AS, (2 * 1024**3, 2 * 1024**3))
+    except Exception:
+        pass
+    try:
+        resource.setrlimit(resource.RLIMIT_NOFILE, (256, 256))
+    except Exception:
+        pass
+    try:
+        os.setsid()
+    except Exception:
+        pass
 
 
 class SafeCommandRunner:
