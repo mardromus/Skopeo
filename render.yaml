@@ -1,0 +1,37 @@
+# Render blueprint — "New > Blueprint" in the Render dashboard, or the Deploy button in the README.
+services:
+  - type: web
+    name: skopeo
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: SKOPEO_MODE
+        value: mock
+      - key: SKOPEO_DEMO_MODE
+        value: "true"
+      - key: SKOPEO_DEMO_STEP_DELAY_MS
+        value: "150"
+      - key: DRY_RUN
+        value: "true"
+      # Anyone can run the bundled reference case; scanning other repositories needs this key.
+      - key: SKOPEO_API_KEY
+        generateValue: true
+      - key: SKOPEO_DEMO_PUBLIC
+        value: "true"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "4"
+      - key: MAX_CONCURRENT_INVESTIGATIONS
+        value: "1"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+    # The free plan has no persistent disk: cases are kept until the service restarts.
+    # On a paid plan, uncomment to keep them:
+    # disk:
+    #   name: skopeo-data
+    #   mountPath: /data
+    #   sizeGB: 1

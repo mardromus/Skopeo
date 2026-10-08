@@ -1,19 +1,20 @@
+# One container serves the UI and the API on http://localhost:8000.
+#   docker compose up --build
 services:
-  api:
+  skopeo:
     build:
       context: .
-      dockerfile: backend/Dockerfile
+      dockerfile: Dockerfile
     env_file:
       - path: .env
         required: false
     environment:
       SKOPEO_MODE: ${SKOPEO_MODE:-mock}
       SKOPEO_DEMO_MODE: ${SKOPEO_DEMO_MODE:-true}
-      SKOPEO_DEMO_STEP_DELAY_MS: ${SKOPEO_DEMO_STEP_DELAY_MS:-120}
+      SKOPEO_DEMO_STEP_DELAY_MS: ${SKOPEO_DEMO_STEP_DELAY_MS:-150}
       DRY_RUN: ${DRY_RUN:-true}
-      # Inside the container repository code is isolated from the host; still opt-in.
       SKOPEO_SANDBOX_EXECUTION: ${SKOPEO_SANDBOX_EXECUTION:-false}
-      CORS_ORIGINS: http://localhost:8080
+      SKOPEO_API_KEY: ${SKOPEO_API_KEY:-}
     volumes:
       - skopeo-data:/data
     ports:
@@ -25,17 +26,6 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
-    restart: unless-stopped
-
-  web:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
-    depends_on:
-      api:
-        condition: service_healthy
-    ports:
-      - "8080:8080"
     restart: unless-stopped
 
 volumes:
