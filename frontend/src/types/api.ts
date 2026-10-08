@@ -261,6 +261,9 @@ export interface Health {
   offline: boolean;
   sandbox_execution: boolean;
   github_token_configured: boolean;
+  auth_required?: boolean;
+  demo_public?: boolean;
+  rate_limit_per_minute?: number;
 }
 
 export interface InvestigationBundle {

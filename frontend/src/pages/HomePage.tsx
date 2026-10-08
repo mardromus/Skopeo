@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { StatusBadge } from "../components/Badges";
 import { HeroAperture } from "../components/HeroAperture";
 import { caseNo, fmtTime, fmtTimeMs, shortAgent } from "../lib/format";
-import { api } from "../services/api";
+import { ApiError, api, getAccessKey, setAccessKey } from "../services/api";
 import type { ExecutionEvent, Health, InvestigationDetail, InvestigationSummary } from "../types/api";
 
 const NOTABLE = new Set([
@@ -41,6 +41,17 @@ export function HomePage({ health }: { health: Health | null }) {
   const [history, setHistory] = useState<InvestigationSummary[]>([]);
   const [latest, setLatest] = useState<InvestigationDetail | null>(null);
   const [log, setLog] = useState<ExecutionEvent[]>([]);
+  const [accessKey, setKey] = useState(getAccessKey);
+  const [needKey, setNeedKey] = useState(false);
+  const askKey = Boolean(health?.auth_required) || needKey;
+
+  const explain = (err: unknown): string => {
+    if (err instanceof ApiError && err.status === 401) {
+      setNeedKey(true);
+      return "This server needs an access key to start investigations. Enter it below.";
+    }
+    return err instanceof Error ? err.message : String(err);
+  };
 
   useEffect(() => {
     api
@@ -70,10 +81,11 @@ export function HomePage({ health }: { health: Health | null }) {
     setBusy(true);
     setError(null);
     try {
+      setAccessKey(accessKey.trim());
       const inv = await api.create({ repository_url: url.trim(), branch: branch.trim(), analysis_depth: depth, enable_github_actions: actions });
       nav(`/investigations/${inv.investigation_id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(explain(err));
       setBusy(false);
     }
   }
@@ -82,10 +94,11 @@ export function HomePage({ health }: { health: Health | null }) {
     setBusy(true);
     setError(null);
     try {
+      setAccessKey(accessKey.trim());
       const inv = await api.createDemo({ fault_injection: fault });
       nav(`/investigations/${inv.investigation_id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(explain(err));
       setBusy(false);
     }
   }
@@ -124,6 +137,23 @@ export function HomePage({ health }: { health: Health | null }) {
               <input id="repo-actions" type="checkbox" checked={actions} onChange={(e) => setActions(e.target.checked)} />
               Let approved issues and draft PRs be sent to GitHub
             </label>
+            {askKey && (
+              <label className="field" htmlFor="access-key">
+                Access key
+                <input
+                  id="access-key"
+                  className="input mono"
+                  type="password"
+                  autoComplete="off"
+                  value={accessKey}
+                  onChange={(e) => setKey(e.target.value)}
+                  placeholder="SKOPEO_API_KEY of this server"
+                />
+                <span className="small muted">
+                  Required to scan repositories here{health?.demo_public ? "; the reference case below runs without it" : ""}. Stored only in this browser.
+                </span>
+              </label>
+            )}
             {error && <div className="callout bad">{error}</div>}
             <div className="row">
               <button className="btn primary" type="submit" disabled={busy}>

@@ -24,10 +24,31 @@ export class ApiError extends Error {
   }
 }
 
+const KEY_STORAGE = "skopeo-access-key";
+
+/** Access key for servers started with SKOPEO_API_KEY; kept in this browser only. */
+export function getAccessKey(): string {
+  try {
+    return localStorage.getItem(KEY_STORAGE) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function setAccessKey(key: string): void {
+  try {
+    if (key) localStorage.setItem(KEY_STORAGE, key);
+    else localStorage.removeItem(KEY_STORAGE);
+  } catch {
+    /* storage unavailable: the key is not remembered */
+  }
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const key = getAccessKey();
   const res = await fetch(`${BASE}/api${path}`, {
     ...init,
-    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+    headers: { "Content-Type": "application/json", ...(key ? { "X-Skopeo-Key": key } : {}), ...(init?.headers ?? {}) },
   });
   if (!res.ok) {
     let detail = res.statusText;
