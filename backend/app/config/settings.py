@@ -8,10 +8,10 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import Field, SecretStr, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 _BACKEND_DIR = Path(__file__).resolve().parents[2]
 _PROJECT_ROOT = _BACKEND_DIR.parent
@@ -95,9 +95,22 @@ class Settings(BaseSettings):
     max_file_bytes: int = 400_000
     max_search_results: int = 400
 
-    # --- HTTP API ---------------------------------------------------------------------
-    cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:8080"])
+    # --- HTTP API / deployment -------------------------------------------------------------
+    # Comma-separated in the environment (CORS_ORIGINS=https://a.example,https://b.example).
+    cors_origins: Annotated[list[str], NoDecode] = Field(
+        default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:8080"]
+    )
     max_concurrent_investigations: int = 2
+    skopeo_api_key: SecretStr | None = None
+    """When set, starting, cancelling or approving anything requires this key (X-Skopeo-Key header)."""
+    skopeo_demo_public: bool = True
+    """With an API key set, still let anyone run the bundled reference case (it is offline and cheap)."""
+    rate_limit_per_minute: int = 6
+    """Maximum investigations a single client may start per minute (0 disables the limit)."""
+    skopeo_static_dir: Path | None = None
+    """Built frontend to serve from the API (single-container deploys). Defaults to frontend/dist when present."""
+    skopeo_keep_workspaces: bool = True
+    """Keep cloned repositories after an investigation finishes. Turn off in deployments to save disk."""
 
     # --- Observability -----------------------------------------------------------------
     log_level: str = "INFO"
@@ -117,10 +130,16 @@ class Settings(BaseSettings):
     def secret_values(self) -> list[str]:
         """Concrete secret values that must be redacted from every log line and output."""
         values = []
-        for secret in (self.openai_api_key, self.github_token):
+        for secret in (self.openai_api_key, self.github_token, self.skopeo_api_key):
             if secret is not None and secret.get_secret_value():
                 values.append(secret.get_secret_value())
         return values
+
+    @property
+    def static_dir(self) -> Path | None:
+        """Directory with the built frontend, if one should be served."""
+        candidate = self.skopeo_static_dir or (_PROJECT_ROOT / "frontend" / "dist")
+        return candidate if (candidate / "index.html").is_file() else None
 
 
 @lru_cache(maxsize=1)
