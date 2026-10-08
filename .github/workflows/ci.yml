@@ -16,7 +16,7 @@ permissions:
 jobs:
   backend:
     name: Backend · lint and tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     defaults:
       run:
@@ -38,7 +38,7 @@ jobs:
 
   frontend:
     name: Frontend · lint and build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     defaults:
       run:
@@ -56,7 +56,7 @@ jobs:
 
   container:
     name: Container · build and run the reference case
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     needs: [backend, frontend]
     steps:
