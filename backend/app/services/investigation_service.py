@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import asyncio
+import os
+import shutil
+import stat
 import threading
 import time
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -137,6 +140,34 @@ class InvestigationService:
         except Exception as exc:  # noqa: BLE001 - top-level guard: record, never crash the API process
             log.exception("investigation crashed", extra={"investigation_id": investigation_id})
             self._fail(investigation_id, orch_run, f"{type(exc).__name__}: {exc}")
+        finally:
+            if not self.settings.skopeo_keep_workspaces:
+                self.remove_workspace(investigation_id)
+
+    def remove_workspace(self, investigation_id: str) -> None:
+        """Delete the cloned repository and artifacts once an investigation is over."""
+        path = (self.settings.skopeo_workspace_dir / investigation_id).resolve()
+        if path.parent != self.settings.skopeo_workspace_dir.resolve() or not path.is_dir():
+            return
+
+        def _force(func, target, _exc):  # git object files are read-only on Windows
+            os.chmod(target, stat.S_IWRITE)
+            func(target)
+
+        shutil.rmtree(path, onexc=_force)
+        log.info("workspace removed", extra={"investigation_id": investigation_id, "event_type": "workspace_removed"})
+
+    def recover_interrupted(self) -> int:
+        """Mark investigations left running by a previous process as failed (called on startup)."""
+        count = 0
+        for inv in self.store.list_investigations(limit=500):
+            if inv.status not in ("queued", "running"):
+                continue
+            count += 1
+            message = "Interrupted: the server restarted while this investigation was running. Start it again to finish it."
+            self.store.update_investigation(inv.id, status="failed", error=message, completed_at=utcnow())
+            self.events.emit(inv.id, "orchestrator", EventType.INVESTIGATION_FAILED, message, receiver="human", severity="error")
+        return count
 
     def _fail(self, investigation_id: str, orch_run: str, error: str) -> None:
         self.store.update_investigation(investigation_id, status="failed", error=error[:2000], completed_at=utcnow())
