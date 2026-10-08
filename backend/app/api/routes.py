@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import PlainTextResponse
 
 from app import __version__
 from app.agents.registry import all_agent_descriptions
+from app.api.access import rate_limit, require_demo_access, require_write_access
 from app.schemas import EvidenceOut, FindingOut
 from app.schemas.investigation import (
     ActionProposalOut,
@@ -74,6 +75,9 @@ def health(request: Request) -> dict[str, Any]:
         "offline": s.skopeo_offline,
         "sandbox_execution": s.skopeo_sandbox_execution,
         "github_token_configured": s.github_token is not None,
+        "auth_required": s.skopeo_api_key is not None and bool(s.skopeo_api_key.get_secret_value()),
+        "demo_public": s.skopeo_demo_public,
+        "rate_limit_per_minute": s.rate_limit_per_minute,
     }
 
 
@@ -82,7 +86,12 @@ def agents() -> list[dict[str, str]]:
     return all_agent_descriptions()
 
 
-@router.post("/investigations", status_code=202, response_model=InvestigationSummary)
+@router.post(
+    "/investigations",
+    status_code=202,
+    response_model=InvestigationSummary,
+    dependencies=[Depends(require_write_access), Depends(rate_limit)],
+)
 def create_investigation(body: InvestigationCreate, request: Request) -> dict[str, Any]:
     svc = _svc(request)
     iid = svc.create(body)
@@ -90,7 +99,12 @@ def create_investigation(body: InvestigationCreate, request: Request) -> dict[st
     return _summary(svc.store.get_investigation(iid))
 
 
-@router.post("/demo/investigations", status_code=202, response_model=InvestigationSummary)
+@router.post(
+    "/demo/investigations",
+    status_code=202,
+    response_model=InvestigationSummary,
+    dependencies=[Depends(require_demo_access), Depends(rate_limit)],
+)
 def create_demo_investigation(request: Request, body: DemoInvestigationCreate | None = None) -> dict[str, Any]:
     if not request.app.state.settings.skopeo_demo_mode:
         raise HTTPException(status_code=403, detail="demo mode disabled (SKOPEO_DEMO_MODE=false)")
@@ -191,14 +205,18 @@ def get_events(investigation_id: str, request: Request, after_seq: int = Query(0
     return _svc(request).store.list_events(investigation_id, after_seq=after_seq, limit=limit)
 
 
-@router.post("/investigations/{investigation_id}/cancel")
+@router.post("/investigations/{investigation_id}/cancel", dependencies=[Depends(require_write_access)])
 def cancel(investigation_id: str, request: Request) -> dict[str, Any]:
     _get(request, investigation_id)
     accepted = _svc(request).cancel(investigation_id)
     return {"investigation_id": investigation_id, "cancel_requested": accepted}
 
 
-@router.post("/investigations/{investigation_id}/approve-action", response_model=ActionProposalOut)
+@router.post(
+    "/investigations/{investigation_id}/approve-action",
+    response_model=ActionProposalOut,
+    dependencies=[Depends(require_write_access)],
+)
 def approve_action(investigation_id: str, body: ApproveActionRequest, request: Request):
     _get(request, investigation_id)
     svc = _svc(request)
