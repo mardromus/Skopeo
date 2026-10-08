@@ -2,6 +2,9 @@
 
 # Skopeo
 
+[![CI](https://github.com/mardromus/Skopeo/actions/workflows/ci.yml/badge.svg)](https://github.com/mardromus/Skopeo/actions/workflows/ci.yml)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/mardromus/Skopeo)
+
 **Multi-agent repository intelligence and risk analysis.** Skopeo investigates a software
 repository with a team of specialist agents, links their evidence into compound risks, has a
 red-team agent try to disprove every finding, and scores only what survives.
@@ -177,6 +180,7 @@ Copy `.env.example` to `.env`. The defaults run everything offline-capable in mo
 | `GITHUB_TOKEN` | — | optional; Dependabot, higher rate limits, approved actions |
 | `SKOPEO_SANDBOX_EXECUTION` | `false` | allow running tests/benchmarks of cloned repositories |
 | `SKOPEO_FAULT_INJECTION` | — | controlled failures, e.g. `license_agent@*` |
+| `SKOPEO_API_KEY` / `SKOPEO_DEMO_PUBLIC` / `RATE_LIMIT_PER_MINUTE` | — / `true` / 6 | protect a public instance; see [deployment](docs/deployment.md) |
 | `AGENT_MAX_ITERATIONS`, `AGENT_MAX_TOOL_CALLS`, `AGENT_TIMEOUT_SECONDS`, `AGENT_MAX_RETRIES`, `INVESTIGATION_TIMEOUT_SECONDS` | 40, 400, 180, 1, 1200 | loop and cost limits |
 
 The full list with comments is in [.env.example](.env.example).
@@ -191,13 +195,19 @@ cd backend && .venv/bin/python -m uvicorn app.main:app --port 8000
 cd frontend && npm run dev
 ```
 
-Open http://localhost:5173. The API applies its migrations on start. With Docker:
+Open http://localhost:5173. The API applies its migrations on start.
+
+### Deploying
+
+One container serves the UI and the API:
 
 ```bash
 docker compose up --build
 ```
 
-UI on http://localhost:8080, API on http://localhost:8000.
+Then open http://localhost:8000. For Render, use the button at the top (blueprint in
+`render.yaml`); Railway, Fly.io, Cloud Run and VM instructions, plus the settings for a public
+instance (access key, rate limit, public reference case), are in [docs/deployment.md](docs/deployment.md).
 
 ## 16. Running the demo
 
@@ -215,12 +225,12 @@ The walkthrough is in [docs/demo-scenario.md](docs/demo-scenario.md).
 cd backend && .venv/bin/python -m pytest
 ```
 
-147 tests: unit tests for schemas, the confidence and risk models, URL/branch validation, the
+156 tests: unit tests for schemas, the confidence and risk models, URL/branch validation, the
 command allowlist, path traversal, redaction, prompt-injection defences, manifests, advisories,
 correlation and verification logic; integration tests that run the full multi-agent investigation
 and assert every acceptance criterion (parallelism, replanning, correlation, rejection,
 verification, retry, insufficient evidence, trace completeness, no repository modification, DRY_RUN);
-an end-to-end test through the HTTP API with an untrusted repository. Lint and build:
+end-to-end tests through the HTTP API with an untrusted repository, and deployment tests (access key, public demo, rate limit, SPA serving, CSP, restart recovery, workspace cleanup). CI runs all of them, builds the image and runs the reference case inside the container. Lint and build:
 
 ```bash
 cd backend && .venv/bin/python -m ruff check .
