@@ -48,7 +48,7 @@ class LLMRequest:
 
 
 @dataclass
-class LLMDecision(Generic[V]):
+class LLMDecision(Generic[V]):  # noqa: UP046
     value: V
     decided_by: str  # e.g. "llm:gpt-4o-mini" | "policy" | "policy-fallback"
     latency_ms: int = 0

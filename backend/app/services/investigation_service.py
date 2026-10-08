@@ -151,13 +151,14 @@ class InvestigationService:
         if path.parent != self.settings.skopeo_workspace_dir.resolve() or not path.is_dir():
             return
 
-        if sys.version_info >= (3, 12):
+        def _force(func, target, _exc):  # git object files are read-only on Windows
+            os.chmod(target, stat.S_IWRITE)
+            func(target)
+
+        if sys.version_info >= (3, 12):  # noqa: UP036
             shutil.rmtree(path, onexc=_force)
         else:
-            def _force_legacy(func, target, _exc_info):
-                os.chmod(target, stat.S_IWRITE)
-                func(target)
-            shutil.rmtree(path, onerror=_force_legacy)
+            shutil.rmtree(path, onerror=_force)
         log.info("workspace removed", extra={"investigation_id": investigation_id, "event_type": "workspace_removed"})
 
     def recover_interrupted(self) -> int:

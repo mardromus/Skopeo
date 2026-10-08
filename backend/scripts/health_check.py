@@ -7,17 +7,17 @@ and API health before submitting for Exam Studio evaluation.
 
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
 
 # Add backend to sys.path
 backend_dir = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(backend_dir))
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
 
-from app.config import get_settings
-from app.database import init_db
-from app.services.evidence_store import EvidenceStore
+from app.config import get_settings  # noqa: E402
+from app.database import init_db  # noqa: E402
+from app.services.evidence_store import EvidenceStore  # noqa: E402
 
 
 def check_health() -> bool:
@@ -42,7 +42,7 @@ def check_health() -> bool:
         store = EvidenceStore()
         count = len(store.list_investigations(limit=1))
         print(f"  - Database connection: OK (table initialized, query returned {count} rows)")
-    except Exception as e:
+    except (OSError, RuntimeError) as e:
         print(f"  - Database connection FAILED: {e}")
         all_ok = False
 
@@ -66,6 +66,7 @@ def check_health() -> bool:
 
 def shutil_which(cmd: str) -> str | None:
     import shutil
+
     return shutil.which(cmd)
 
 

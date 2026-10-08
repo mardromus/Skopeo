@@ -1,14 +1,11 @@
 """Unit tests for TraceExporter utility."""
 
 import pytest
-from app.config import get_settings
+
 from app.schemas import AgentTask, EventType
-from app.services.investigation_service import InvestigationService
+from app.services.events import EventBus
 from app.services.evidence_store import EvidenceStore
 from app.utils.trace_exporter import TraceExporter
-
-
-from app.services.events import EventBus
 
 
 @pytest.fixture

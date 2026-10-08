@@ -6,7 +6,6 @@ into Markdown or JSON format required by Exam Studio evaluations.
 
 from __future__ import annotations
 
-import json
 from typing import Any
 
 from app.services.evidence_store import EvidenceStore
@@ -28,7 +27,7 @@ class TraceExporter:
         risks = self.store.list_risks(investigation_id)
 
         lines: list[str] = []
-        lines.append(f"# Skopeo Multi-Agent Execution Trace")
+        lines.append("# Skopeo Multi-Agent Execution Trace")
         lines.append(f"**Investigation ID**: `{investigation_id}`")
         lines.append(f"**Target Repository**: `{inv.repository_url}` (`{inv.commit_sha or inv.branch}`)")
         lines.append(f"**Status**: `{inv.status}`")
