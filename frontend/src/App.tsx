@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
+import { Aperture } from "./components/Aperture";
 import { Logo } from "./components/Logo";
 import { HomePage } from "./pages/HomePage";
-import { InvestigationPage } from "./pages/InvestigationPage";
+
+// The case view (charts, trace, rulings) loads on demand, keeping the landing page light.
+const InvestigationPage = lazy(() => import("./pages/InvestigationPage").then((m) => ({ default: m.InvestigationPage })));
 import { api } from "./services/api";
 import type { Health } from "./types/api";
 
@@ -109,7 +112,21 @@ export default function App() {
       <div className="app-body">
         <Routes>
           <Route path="/" element={<HomePage health={health} />} />
-          <Route path="/investigations/:id" element={<InvestigationPage />} />
+          <Route
+            path="/investigations/:id"
+            element={
+              <Suspense
+                fallback={
+                  <main className="page loading">
+                    <Aperture size={96} live gap="var(--paper)" title="Loading" />
+                    <span className="muted">Opening case…</span>
+                  </main>
+                }
+              >
+                <InvestigationPage />
+              </Suspense>
+            }
+          />
         </Routes>
       </div>
       <footer className="footer">
