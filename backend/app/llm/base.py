@@ -19,7 +19,7 @@ import time
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Literal, TypeVar
+from typing import Any, Generic, Literal, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
@@ -28,6 +28,7 @@ from app.observability import get_logger
 log = get_logger("llm")
 
 T = TypeVar("T", bound=BaseModel)
+V = TypeVar("V", bound=BaseModel)
 ModelTier = Literal["fast", "reasoning"]
 
 
@@ -47,7 +48,7 @@ class LLMRequest:
 
 
 @dataclass
-class LLMDecision[V: BaseModel]:
+class LLMDecision(Generic[V]):  # noqa: UP046
     value: V
     decided_by: str  # e.g. "llm:gpt-4o-mini" | "policy" | "policy-fallback"
     latency_ms: int = 0

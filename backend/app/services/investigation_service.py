@@ -6,6 +6,7 @@ import asyncio
 import os
 import shutil
 import stat
+import sys
 import threading
 import time
 from concurrent.futures import Future, ThreadPoolExecutor
@@ -154,7 +155,10 @@ class InvestigationService:
             os.chmod(target, stat.S_IWRITE)
             func(target)
 
-        shutil.rmtree(path, onexc=_force)
+        if sys.version_info >= (3, 12):  # noqa: UP036
+            shutil.rmtree(path, onexc=_force)
+        else:
+            shutil.rmtree(path, onerror=_force)
         log.info("workspace removed", extra={"investigation_id": investigation_id, "event_type": "workspace_removed"})
 
     def recover_interrupted(self) -> int:
