@@ -264,6 +264,8 @@ export interface Health {
   auth_required?: boolean;
   demo_public?: boolean;
   rate_limit_per_minute?: number;
+  accounts?: "firebase" | "local";
+  email_configured?: boolean;
 }
 
 export interface InvestigationBundle {

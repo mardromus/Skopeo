@@ -112,6 +112,45 @@ class Settings(BaseSettings):
     skopeo_keep_workspaces: bool = True
     """Keep cloned repositories after an investigation finishes. Turn off in deployments to save disk."""
 
+    # --- Accounts (Google sign-in through Firebase Authentication) ---------------------------
+    # Leave FIREBASE_PROJECT_ID empty to run without accounts: everyone shares one local user.
+    firebase_project_id: str = ""
+    firebase_web_api_key: str = ""
+    """Public web API key from the Firebase console (Project settings > Your apps). Not a secret."""
+    firebase_auth_domain: str = ""
+    """Usually <project-id>.firebaseapp.com."""
+    firebase_app_id: str = ""
+    firebase_sdk_version: str = "12.19.0"
+    """Firebase JS SDK loaded by the browser from www.gstatic.com."""
+    auth_require_login: bool = False
+    """With Firebase configured: starting investigations requires signing in (the reference case stays public)."""
+    auth_signed_in_users_can_scan: bool = True
+    """With an access key set, a signed-in Google user may also start investigations without the key."""
+
+    # --- Notifications ---------------------------------------------------------------------
+    public_base_url: str = ""
+    """Base URL used for links in notifications, e.g. https://skopeo.example.com."""
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_username: str = ""
+    smtp_password: SecretStr | None = None
+    smtp_from: str = ""
+    """Sender address, e.g. "Skopeo <alerts@example.com>". Defaults to SMTP_USERNAME."""
+    smtp_security: Literal["starttls", "ssl", "none"] = "starttls"
+    notifications_dry_run: bool = False
+    """Record deliveries without sending anything (useful in development)."""
+    notification_timeout_seconds: float = 10.0
+    notifications_allow_private_webhooks: bool = False
+    """Allow generic webhooks to private / internal addresses (self-hosted setups only)."""
+
+    # --- Projects and upstream watches ---------------------------------------------------------
+    watch_scheduler_enabled: bool = True
+    watch_scheduler_interval_seconds: int = 60
+    watch_max_concurrent_checks: int = 1
+    watch_clone_depth: int = 200
+    project_max_files: int = 400
+    project_max_total_bytes: int = 3_000_000
+
     # --- Observability -----------------------------------------------------------------
     log_level: str = "INFO"
     log_json: bool = True
@@ -130,10 +169,19 @@ class Settings(BaseSettings):
     def secret_values(self) -> list[str]:
         """Concrete secret values that must be redacted from every log line and output."""
         values = []
-        for secret in (self.openai_api_key, self.github_token, self.skopeo_api_key):
+        for secret in (self.openai_api_key, self.github_token, self.skopeo_api_key, self.smtp_password):
             if secret is not None and secret.get_secret_value():
                 values.append(secret.get_secret_value())
         return values
+
+    @property
+    def auth_mode(self) -> Literal["firebase", "local"]:
+        """firebase: Google sign-in; local: no accounts, a single built-in user owns everything."""
+        return "firebase" if self.firebase_project_id.strip() else "local"
+
+    @property
+    def email_configured(self) -> bool:
+        return bool(self.smtp_host.strip() and (self.smtp_from.strip() or self.smtp_username.strip()))
 
     @property
     def static_dir(self) -> Path | None:

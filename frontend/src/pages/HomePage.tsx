@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { StatusBadge } from "../components/Badges";
+import { GettingStarted } from "../components/GettingStarted";
 import { HeroAperture } from "../components/HeroAperture";
 import { caseNo, fmtTime, fmtTimeMs, shortAgent } from "../lib/format";
 import { ApiError, api, getAccessKey, setAccessKey } from "../services/api";
@@ -105,6 +106,7 @@ export function HomePage({ health }: { health: Health | null }) {
 
   return (
     <main className="page">
+      <GettingStarted />
       <div className="intake">
         <section className="minw0 intake-copy">
           <span className="eyebrow">Repository intelligence and risk analysis</span>

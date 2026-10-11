@@ -9,7 +9,9 @@ from fastapi.responses import PlainTextResponse
 
 from app import __version__
 from app.agents.registry import all_agent_descriptions
-from app.api.access import rate_limit, require_demo_access, require_write_access
+from app.api.access import rate_limit, require_demo_access, require_login_for_scans, require_write_access
+from app.api.auth import optional_user
+from app.models import User
 from app.schemas import EvidenceOut, FindingOut
 from app.schemas.investigation import (
     ActionProposalOut,
@@ -78,6 +80,8 @@ def health(request: Request) -> dict[str, Any]:
         "auth_required": s.skopeo_api_key is not None and bool(s.skopeo_api_key.get_secret_value()),
         "demo_public": s.skopeo_demo_public,
         "rate_limit_per_minute": s.rate_limit_per_minute,
+        "accounts": s.auth_mode,
+        "email_configured": s.email_configured,
     }
 
 
@@ -90,11 +94,11 @@ def agents() -> list[dict[str, str]]:
     "/investigations",
     status_code=202,
     response_model=InvestigationSummary,
-    dependencies=[Depends(require_write_access), Depends(rate_limit)],
+    dependencies=[Depends(require_write_access), Depends(require_login_for_scans), Depends(rate_limit)],
 )
-def create_investigation(body: InvestigationCreate, request: Request) -> dict[str, Any]:
+def create_investigation(body: InvestigationCreate, request: Request, user: User | None = Depends(optional_user)) -> dict[str, Any]:
     svc = _svc(request)
-    iid = svc.create(body)
+    iid = svc.create(body, owner_id=user.id if user else None)
     svc.start(iid)
     return _summary(svc.store.get_investigation(iid))
 
@@ -105,17 +109,25 @@ def create_investigation(body: InvestigationCreate, request: Request) -> dict[st
     response_model=InvestigationSummary,
     dependencies=[Depends(require_demo_access), Depends(rate_limit)],
 )
-def create_demo_investigation(request: Request, body: DemoInvestigationCreate | None = None) -> dict[str, Any]:
+def create_demo_investigation(
+    request: Request, body: DemoInvestigationCreate | None = None, user: User | None = Depends(optional_user)
+) -> dict[str, Any]:
     if not request.app.state.settings.skopeo_demo_mode:
         raise HTTPException(status_code=403, detail="demo mode disabled (SKOPEO_DEMO_MODE=false)")
     svc = _svc(request)
-    iid = svc.create_demo(body or DemoInvestigationCreate())
+    iid = svc.create_demo(body or DemoInvestigationCreate(), owner_id=user.id if user else None)
     svc.start(iid)
     return _summary(svc.store.get_investigation(iid))
 
 
 @router.get("/investigations", response_model=list[InvestigationSummary])
-def list_investigations(request: Request, limit: int = Query(25, ge=1, le=100)) -> list[dict[str, Any]]:
+def list_investigations(
+    request: Request, limit: int = Query(25, ge=1, le=100), mine: bool = False, user: User | None = Depends(optional_user)
+) -> list[dict[str, Any]]:
+    if mine:
+        if user is None:
+            raise HTTPException(status_code=401, detail="Sign in to list your own investigations.")
+        return [_summary(i) for i in _svc(request).store.list_investigations(limit, owner_id=user.id)]
     return [_summary(i) for i in _svc(request).store.list_investigations(limit)]
 
 

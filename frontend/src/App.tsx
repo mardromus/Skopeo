@@ -1,11 +1,26 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import { Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
+import { AccountMenu, RequireUser } from "./auth/AccountMenu";
+import { useAuth } from "./auth/context";
 import { Aperture } from "./components/Aperture";
 import { Logo } from "./components/Logo";
 import { HomePage } from "./pages/HomePage";
 
 // The case view (charts, trace, rulings) loads on demand, keeping the landing page light.
 const InvestigationPage = lazy(() => import("./pages/InvestigationPage").then((m) => ({ default: m.InvestigationPage })));
+const ProjectsPage = lazy(() => import("./pages/ProjectsPage").then((m) => ({ default: m.ProjectsPage })));
+const ProjectPage = lazy(() => import("./pages/ProjectPage").then((m) => ({ default: m.ProjectPage })));
+const NotificationsPage = lazy(() => import("./pages/NotificationsPage").then((m) => ({ default: m.NotificationsPage })));
+const AccountPage = lazy(() => import("./pages/AccountPage").then((m) => ({ default: m.AccountPage })));
+
+function Loading({ label }: { label: string }) {
+  return (
+    <main className="page loading">
+      <Aperture size={96} live gap="var(--paper)" title="Loading" />
+      <span className="muted">{label}</span>
+    </main>
+  );
+}
 import { api } from "./services/api";
 import type { Health } from "./types/api";
 
@@ -58,6 +73,7 @@ export default function App() {
   const [healthError, setHealthError] = useState(false);
   const [theme, setTheme] = useState<Theme>(readTheme);
   const live = useAnyLive();
+  const { user } = useAuth();
 
   useEffect(() => {
     api.health().then(setHealth).catch(() => setHealthError(true));
@@ -80,6 +96,12 @@ export default function App() {
           <NavLink to="/" end>
             Cases
           </NavLink>
+          {user && (
+            <>
+              <NavLink to="/projects">Projects</NavLink>
+              <NavLink to="/settings/notifications">Notifications</NavLink>
+            </>
+          )}
           <a href="/docs" target="_blank" rel="noreferrer">
             API
           </a>
@@ -106,6 +128,7 @@ export default function App() {
           <button className="theme-toggle" onClick={nextTheme} title="Switch colour theme">
             {theme === "system" ? "◐ auto" : theme === "light" ? "○ light" : "● dark"}
           </button>
+          <AccountMenu />
         </div>
         {live && <span className="live-bar" aria-hidden />}
       </header>
@@ -115,16 +138,49 @@ export default function App() {
           <Route
             path="/investigations/:id"
             element={
-              <Suspense
-                fallback={
-                  <main className="page loading">
-                    <Aperture size={96} live gap="var(--paper)" title="Loading" />
-                    <span className="muted">Opening case…</span>
-                  </main>
-                }
-              >
+              <Suspense fallback={<Loading label="Opening case…" />}>
                 <InvestigationPage />
               </Suspense>
+            }
+          />
+          <Route
+            path="/projects"
+            element={
+              <RequireUser what="your projects">
+                <Suspense fallback={<Loading label="Loading projects…" />}>
+                  <ProjectsPage />
+                </Suspense>
+              </RequireUser>
+            }
+          />
+          <Route
+            path="/projects/:id"
+            element={
+              <RequireUser what="your projects">
+                <Suspense fallback={<Loading label="Loading project…" />}>
+                  <ProjectPage />
+                </Suspense>
+              </RequireUser>
+            }
+          />
+          <Route
+            path="/settings/notifications"
+            element={
+              <RequireUser what="notifications">
+                <Suspense fallback={<Loading label="Loading…" />}>
+                  <NotificationsPage />
+                </Suspense>
+              </RequireUser>
+            }
+          />
+          <Route
+            path="/settings/account"
+            element={
+              <RequireUser what="your account">
+                <Suspense fallback={<Loading label="Loading…" />}>
+                  <AccountPage />
+                </Suspense>
+              </RequireUser>
             }
           />
         </Routes>

@@ -59,16 +59,33 @@ def require_write_access(
     x_skopeo_key: str | None = Header(default=None),
     authorization: str | None = Header(default=None),
 ) -> None:
-    expected = request.app.state.settings.skopeo_api_key
+    settings = request.app.state.settings
+    expected = settings.skopeo_api_key
     if expected is None or not expected.get_secret_value():
         return
     provided = _provided_key(x_skopeo_key, authorization)
-    if not provided or not hmac.compare_digest(provided.encode(), expected.get_secret_value().encode()):
-        raise HTTPException(
-            status_code=401,
-            detail="This server requires an access key to start or change investigations. Send it as X-Skopeo-Key.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    if provided and hmac.compare_digest(provided.encode(), expected.get_secret_value().encode()):
+        return
+    # With Google sign-in enabled, a signed-in user may act without the shared key.
+    if settings.auth_mode == "firebase" and settings.auth_signed_in_users_can_scan:
+        from app.api.auth import bearer_token, looks_like_jwt
+
+        if looks_like_jwt(bearer_token(authorization)) and request.app.state.user_resolver.resolve(authorization) is not None:
+            return
+    raise HTTPException(
+        status_code=401,
+        detail="This server requires an access key (X-Skopeo-Key) or a Google sign-in to start or change investigations.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
+def require_login_for_scans(request: Request, authorization: str | None = Header(default=None)) -> None:
+    """AUTH_REQUIRE_LOGIN: with Google sign-in enabled, scanning repositories needs an account."""
+    settings = request.app.state.settings
+    if settings.auth_mode != "firebase" or not settings.auth_require_login:
+        return
+    if request.app.state.user_resolver.resolve(authorization) is None:
+        raise HTTPException(status_code=401, detail="Sign in with Google to start investigations.", headers={"WWW-Authenticate": "Bearer"})
 
 
 def require_demo_access(
@@ -90,3 +107,11 @@ def rate_limit(request: Request) -> None:
             detail=f"Too many investigations started from this address. Try again in {wait} s.",
             headers={"Retry-After": str(wait)},
         )
+
+
+def account_rate_limit(request: Request) -> None:
+    """Looser limit for account actions (send a test, resend a code, check a watch now)."""
+    retry = request.app.state.account_rate_limiter.check(client_address(request))
+    if retry is not None:
+        wait = int(retry) + 1
+        raise HTTPException(status_code=429, detail=f"Too many requests. Try again in {wait} s.", headers={"Retry-After": str(wait)})

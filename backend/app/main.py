@@ -18,12 +18,18 @@ from fastapi.staticfiles import StaticFiles
 
 from app import __version__
 from app.api.access import RateLimiter
+from app.api.account_routes import router as account_router
+from app.api.auth import UserResolver
+from app.api.project_routes import router as project_router
 from app.api.routes import router
 from app.config import Settings, get_settings
 from app.database import init_db
+from app.notifications import NotificationService
 from app.observability import configure_logging, get_logger
 from app.security.redaction import redact, register_secrets
+from app.services.account_store import AccountStore
 from app.services.investigation_service import InvestigationService
+from app.watch import WatchService
 
 log = get_logger("api")
 
@@ -33,6 +39,23 @@ SPA_CSP = (
     "font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; "
     "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 )
+
+
+def spa_csp(settings: Settings) -> str:
+    """With Google sign-in on, also allow the Firebase SDK (gstatic), its auth endpoints and the sign-in frame."""
+    if settings.auth_mode != "firebase":
+        return SPA_CSP
+    auth_domain = settings.firebase_auth_domain.strip() or f"{settings.firebase_project_id.strip()}.firebaseapp.com"
+    return (
+        "default-src 'self'; script-src 'self' https://www.gstatic.com https://apis.google.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; "
+        "img-src 'self' data: https://lh3.googleusercontent.com; "
+        "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; "
+        f"frame-src https://{auth_domain} https://accounts.google.com; "
+        "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    )
+
+
 SECURITY_HEADERS = {
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "no-referrer",
@@ -46,12 +69,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     configure_logging(settings.log_level, settings.log_json)
     register_secrets(settings.secret_values())
 
+    accounts = AccountStore()
+    notifier = NotificationService(settings, accounts)
+
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         init_db()
-        service = InvestigationService(settings)
+        service = InvestigationService(settings, notifier)
         recovered = service.recover_interrupted()
         app.state.investigations = service
+        watches = WatchService(settings, accounts, notifier)
+        app.state.watches = watches
+        watches.start_scheduler()
         log.info(
             "skopeo api started",
             extra={
@@ -60,12 +89,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     "mode": settings.skopeo_mode,
                     "dry_run": settings.dry_run,
                     "auth": settings.skopeo_api_key is not None,
+                    "accounts": settings.auth_mode,
+                    "email": settings.email_configured,
                     "static": str(settings.static_dir) if settings.static_dir else None,
                     "recovered_interrupted": recovered,
                 },
             },
         )
         yield
+        watches.shutdown()
         service.shutdown()
 
     app = FastAPI(
@@ -76,10 +108,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = settings
     app.state.rate_limiter = RateLimiter(settings.rate_limit_per_minute)
+    app.state.account_rate_limiter = RateLimiter(0 if settings.rate_limit_per_minute <= 0 else max(30, settings.rate_limit_per_minute * 5))
+    app.state.accounts = accounts
+    app.state.notifier = notifier
+    app.state.user_resolver = UserResolver(settings, accounts)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
-        allow_methods=["GET", "POST"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Content-Type", "X-Skopeo-Key", "Authorization"],
     )
 
@@ -96,19 +132,21 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return JSONResponse(status_code=422, content={"detail": errors})
 
     app.include_router(router)
+    app.include_router(account_router)
+    app.include_router(project_router)
     if settings.static_dir is not None:
-        _mount_frontend(app, settings.static_dir)
+        _mount_frontend(app, settings.static_dir, spa_csp(settings))
     return app
 
 
-def _mount_frontend(app: FastAPI, static: Path) -> None:
+def _mount_frontend(app: FastAPI, static: Path, csp: str = SPA_CSP) -> None:
     root = static.resolve()
     assets = root / "assets"
     if assets.is_dir():
         app.mount("/assets", StaticFiles(directory=assets), name="assets")
 
     def index() -> FileResponse:
-        return FileResponse(root / "index.html", headers={"Cache-Control": "no-cache", "Content-Security-Policy": SPA_CSP})
+        return FileResponse(root / "index.html", headers={"Cache-Control": "no-cache", "Content-Security-Policy": csp})
 
     @app.api_route("/", methods=["GET", "HEAD"], include_in_schema=False)
     async def spa_root() -> FileResponse:

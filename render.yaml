@@ -25,11 +25,32 @@ services:
         value: "4"
       - key: MAX_CONCURRENT_INVESTIGATIONS
         value: "1"
+      # Google sign-in (docs/firebase-setup.md). Leave unset for a single local workspace.
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_WEB_API_KEY
+        sync: false
+      - key: FIREBASE_AUTH_DOMAIN
+        sync: false
+      - key: FIREBASE_APP_ID
+        sync: false
+      # Notifications (docs/notifications.md)
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false
       - key: OPENAI_API_KEY
         sync: false
       - key: GITHUB_TOKEN
         sync: false
-    # The free plan has no persistent disk: cases are kept until the service restarts.
+    # The free plan has no persistent disk: cases, accounts and watches are kept until the service restarts,
+    # and the service sleeps when idle, so scheduled watch checks only run while it is awake.
     # On a paid plan, uncomment to keep them:
     # disk:
     #   name: skopeo-data

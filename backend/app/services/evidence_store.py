@@ -280,9 +280,12 @@ class EvidenceStore:
                 s.expunge(inv)
             return inv
 
-    def list_investigations(self, limit: int = 50) -> list[Investigation]:
+    def list_investigations(self, limit: int = 50, owner_id: str | None = None) -> list[Investigation]:
         with session_scope() as s:
-            rows = list(s.scalars(select(Investigation).order_by(Investigation.created_at.desc()).limit(limit)))
+            q = select(Investigation)
+            if owner_id is not None:
+                q = q.where(Investigation.owner_id == owner_id)
+            rows = list(s.scalars(q.order_by(Investigation.created_at.desc()).limit(limit)))
             for r in rows:
                 s.expunge(r)
             return rows

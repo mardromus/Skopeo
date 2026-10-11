@@ -16,6 +16,8 @@ from app.config import Settings, get_settings
 from app.graph.builder import InvestigationGraph
 from app.llm import create_provider
 from app.models import utcnow
+from app.notifications import NotificationService
+from app.notifications.events import notify_investigation_finished
 from app.observability import get_logger, investigation_id_var
 from app.schemas import AgentTask, EventType
 from app.schemas.investigation import DemoInvestigationCreate, InvestigationCreate
@@ -30,8 +32,9 @@ log = get_logger("investigations")
 
 
 class InvestigationService:
-    def __init__(self, settings: Settings | None = None) -> None:
+    def __init__(self, settings: Settings | None = None, notifier: NotificationService | None = None) -> None:
         self.settings = settings or get_settings()
+        self.notifier = notifier
         self.store = EvidenceStore()
         self.events = EventBus()
         self._executor = ThreadPoolExecutor(max_workers=self.settings.max_concurrent_investigations, thread_name_prefix="investigation")
@@ -39,7 +42,7 @@ class InvestigationService:
         self._cancel_events: dict[str, threading.Event] = {}
 
     # ------------------------------------------------------------------ create
-    def create(self, req: InvestigationCreate) -> str:
+    def create(self, req: InvestigationCreate, owner_id: str | None = None) -> str:
         ref = validate_repository_url(req.repository_url)
         return self.store.create_investigation(
             repository_url=ref.canonical_url,
@@ -49,10 +52,11 @@ class InvestigationService:
             source="github",
             enable_github_actions=req.enable_github_actions,
             status="queued",
+            owner_id=owner_id,
             execution_summary={"options": {"fault_injection": self.settings.skopeo_fault_injection or None}},
         )
 
-    def create_demo(self, req: DemoInvestigationCreate) -> str:
+    def create_demo(self, req: DemoInvestigationCreate, owner_id: str | None = None) -> str:
         spec = ",".join(
             s for s in (self.settings.skopeo_fault_injection, self.settings.skopeo_demo_fault_injection if req.fault_injection else "") if s
         )
@@ -65,6 +69,7 @@ class InvestigationService:
             source="demo_fixture",
             enable_github_actions=False,
             status="queued",
+            owner_id=owner_id,
             execution_summary={"options": {"fault_injection": spec or None, "step_delay_ms": delay, "offline": True}},
         )
 
@@ -144,6 +149,11 @@ class InvestigationService:
         finally:
             if not self.settings.skopeo_keep_workspaces:
                 self.remove_workspace(investigation_id)
+            if self.notifier is not None:
+                try:
+                    notify_investigation_finished(self.notifier, self.store, investigation_id)
+                except Exception:  # noqa: BLE001 - a notification problem must not mask the investigation result
+                    log.exception("could not send investigation notifications", extra={"investigation_id": investigation_id})
 
     def remove_workspace(self, investigation_id: str) -> None:
         """Delete the cloned repository and artifacts once an investigation is over."""

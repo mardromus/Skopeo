@@ -148,10 +148,34 @@ clones, path-traversal protection, scrubbed child environments, redaction everyw
 repository code is not executed unless sandboxed execution is enabled, and nothing reaches GitHub
 without approval. Details: [docs/security.md](docs/security.md).
 
+## 11a. Accounts, notifications and upstream watches
+
+Beyond one-off investigations, Skopeo keeps watch over **your own software**:
+
+* **Sign in with Google** through Firebase Authentication. The API verifies every Firebase ID
+  token itself, so no service account is needed. Without Firebase configured, a single local
+  workspace is used. Setup: [docs/firebase-setup.md](docs/firebase-setup.md).
+* **Notifications** to email (any SMTP provider), Slack, Discord or HMAC-signed webhooks. Rules
+  cover finished or failed cases, P0/P1 risks, upstream changes that affect your project, and
+  failed checks. Each channel has a test button, and a delivery log records every attempt.
+  Details: [docs/notifications.md](docs/notifications.md).
+* **Projects and watches**: connect your project (a GitHub repo, or uploaded manifests and the
+  files that use a library, plus notes) and watch the open-source repositories it depends on.
+  Every check diffs the upstream public API, including contracts hidden in function bodies such
+  as "raises when `algorithms` is missing" or "`verify` is deprecated". The first check starts
+  from the release your manifest pins. Skopeo then finds the exact lines in *your* code that
+  each change touches and checks your arguments against the new signature:
+
+  > **breaking** `app/auth.py:9`: your call to `jwt.decode` will fail. It does not pass
+  > `algorithms`; upstream now raises when it is missing. Fix: pass `algorithms=` explicitly.
+
+  That is a real result for a project pinning `PyJWT==1.7.1`, watched against `jpadilla/pyjwt`
+  master. The full walkthrough is in [docs/user-flow.md](docs/user-flow.md).
+
 ## 12. Tech stack
 
-Python 3.12 · FastAPI · LangGraph · Pydantic 2 · SQLAlchemy 2 + Alembic (SQLite) · httpx ·
-coverage.py / pytest · React 19 + TypeScript + Vite · Recharts · Docker Compose.
+Python 3.12 · FastAPI · LangGraph · Pydantic 2 · SQLAlchemy 2 + Alembic (SQLite) · httpx · PyJWT ·
+coverage.py / pytest · React 19 + TypeScript + Vite · Recharts · Firebase Authentication · Docker Compose.
 
 ## 13. Setup
 
@@ -181,6 +205,12 @@ Copy `.env.example` to `.env`. The defaults run everything offline-capable in mo
 | `SKOPEO_SANDBOX_EXECUTION` | `false` | allow running tests/benchmarks of cloned repositories |
 | `SKOPEO_FAULT_INJECTION` | — | controlled failures, e.g. `license_agent@*` |
 | `SKOPEO_API_KEY` / `SKOPEO_DEMO_PUBLIC` / `RATE_LIMIT_PER_MINUTE` | — / `true` / 6 | protect a public instance; see [deployment](docs/deployment.md) |
+| `FIREBASE_PROJECT_ID` / `FIREBASE_WEB_API_KEY` / `FIREBASE_AUTH_DOMAIN` / `FIREBASE_APP_ID` | — | Google sign-in; empty = single local workspace ([setup](docs/firebase-setup.md)) |
+| `AUTH_REQUIRE_LOGIN` / `AUTH_SIGNED_IN_USERS_CAN_SCAN` | `false` / `true` | who may scan repositories when sign-in is on |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USERNAME` / `SMTP_PASSWORD` / `SMTP_FROM` / `SMTP_SECURITY` | — / 587 / — / — / — / `starttls` | email notifications ([providers](docs/notifications.md)) |
+| `PUBLIC_BASE_URL` | — | links inside notifications |
+| `NOTIFICATIONS_DRY_RUN` | `false` | log deliveries without sending |
+| `WATCH_SCHEDULER_ENABLED`, `WATCH_MAX_CONCURRENT_CHECKS`, `WATCH_CLONE_DEPTH` | `true`, 1, 200 | scheduled upstream checks |
 | `AGENT_MAX_ITERATIONS`, `AGENT_MAX_TOOL_CALLS`, `AGENT_TIMEOUT_SECONDS`, `AGENT_MAX_RETRIES`, `INVESTIGATION_TIMEOUT_SECONDS` | 40, 400, 180, 1, 1200 | loop and cost limits |
 
 The full list with comments is in [.env.example](.env.example).
@@ -225,12 +255,12 @@ The walkthrough is in [docs/demo-scenario.md](docs/demo-scenario.md).
 cd backend && .venv/bin/python -m pytest
 ```
 
-156 tests: unit tests for schemas, the confidence and risk models, URL/branch validation, the
+188 tests: unit tests for schemas, the confidence and risk models, URL/branch validation, the
 command allowlist, path traversal, redaction, prompt-injection defences, manifests, advisories,
 correlation and verification logic; integration tests that run the full multi-agent investigation
 and assert every acceptance criterion (parallelism, replanning, correlation, rejection,
 verification, retry, insufficient evidence, trace completeness, no repository modification, DRY_RUN);
-end-to-end tests through the HTTP API with an untrusted repository, and deployment tests (access key, public demo, rate limit, SPA serving, CSP, restart recovery, workspace cleanup). CI runs all of them, builds the image and runs the reference case inside the container. Lint and build:
+end-to-end tests through the HTTP API with an untrusted repository, the signed-in user flow (Firebase token verification, per-user isolation, channels, rules, verification codes, projects, watches, impact reports and notifications), upstream API diffing and impact analysis, and deployment tests (access key, public demo, rate limit, SPA serving, CSP, restart recovery, workspace cleanup). CI runs all of them, builds the image and runs the reference case inside the container. Lint and build:
 
 ```bash
 cd backend && .venv/bin/python -m ruff check .
@@ -245,7 +275,11 @@ cd frontend && npm run lint && npm run build
 `POST /api/investigations`, `POST /api/demo/investigations`, `GET /api/investigations/{id}` and
 `/agents`, `/findings`, `/evidence`, `/correlations`, `/verifications`, `/risks`,
 `/recommendations`, `/actions`, `/requests`, `/events`, `/report?format=json|markdown`,
-`POST /cancel`, `POST /approve-action`, `GET /api/health`. Schemas: [docs/api.md](docs/api.md);
+`POST /cancel`, `POST /approve-action`, `GET /api/health`.
+Accounts and watches: `GET /api/auth/config`, `GET|DELETE /api/auth/me`,
+`/api/notifications/{catalog,channels,rules,deliveries}` (+ `channels/{id}/verify|resend|test|rotate-secret`),
+`/api/projects` (+ `/{id}/files`, `/{id}/watches`), `/api/watches/{id}` (+ `/check`, `/reports`),
+`GET /api/watch-reports/{id}`. Schemas: [docs/api.md](docs/api.md);
 OpenAPI at `/docs`.
 
 ## 19. Screenshots
@@ -284,7 +318,8 @@ full report in [docs/sample-report.md](docs/sample-report.md)):
 * Reachability is import-graph based; dynamic loading is reported as inconclusive.
 * No transitive resolution for Python without a lockfile.
 * In mock mode decisions come from transparent rules, not a model.
-* The API has no authentication of its own.
+* Without Firebase configured there are no accounts: one local workspace owns all projects and channels.
+* Upstream watch analysis is deepest for Python; JS/TS covers exports, signatures and imports. Scheduled checks run inside the API process.
 
 More in [docs/design-document.md](docs/design-document.md#18-limitations).
 
@@ -294,15 +329,17 @@ More in [docs/design-document.md](docs/design-document.md#18-limitations).
 * Profiling (py-spy) and `pytest-benchmark` result ingestion for performance measurement.
 * SARIF import so existing scanners can feed the blackboard as evidence sources.
 * Incremental re-investigation on new commits, diffing findings between cases.
-* Server-sent events instead of polling; authentication and multi-tenant isolation.
+* Server-sent events instead of polling; organisations and shared projects.
 * PostgreSQL + a job queue for horizontal scaling.
 
 ## Repository layout
 
 ```
-backend/   app/{agents,graph,llm,models,schemas,security,services,tools,api,database,config,observability,data}
+backend/   app/{agents,graph,llm,models,schemas,security,services,tools,api,database,config,observability,data,
+               auth,notifications,watch}
            migrations/  scripts/  tests/{unit,integration,e2e}
-frontend/  src/{components,pages,hooks,services,types,lib}
+frontend/  src/{components,pages,hooks,services,types,lib,auth}
 examples/vulnerable-demo-repo/   the reference case
-docs/      architecture, design document, agent specs, security, trace, demo, API, screenshots
+docs/      architecture, design document, agent specs, security, trace, demo, API, screenshots,
+           user flow, Firebase setup, notifications
 ```

@@ -123,3 +123,50 @@ is sent. Deciding the same proposal twice returns 409.
   "receiver": "security_agent", "event_type": "finding_rejected", "severity": "warning",
   "message": "REJECTED: …", "payload": {}, "timestamp": "…" }
 ```
+
+
+## Accounts, notifications, projects and watches
+
+Requests carry the Firebase ID token as `Authorization: Bearer <token>` when sign-in is enabled
+(local mode needs nothing). Every resource below belongs to the calling user: another user's id
+returns 404. Guides: [user-flow.md](user-flow.md), [firebase-setup.md](firebase-setup.md),
+[notifications.md](notifications.md).
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/api/auth/config` | sign-in mode and the public Firebase web config |
+| GET | `/api/auth/me` | the signed-in account (creates it on first sign-in) |
+| DELETE | `/api/auth/me` | delete the account and everything it owns |
+| GET | `/api/notifications/catalog` | events, channel kinds, whether email is configured |
+| GET / POST | `/api/notifications/channels` | list / add `{kind, name, target, events}`; webhooks return a one-time `signing_secret` |
+| PATCH / DELETE | `/api/notifications/channels/{id}` | rename, pause, change `events`; remove |
+| POST | `/api/notifications/channels/{id}/verify` | `{code}` for email addresses |
+| POST | `/api/notifications/channels/{id}/resend` · `/test` · `/rotate-secret` | resend code, send a test, new webhook secret |
+| GET / POST | `/api/notifications/rules` | `{event, channel_ids, filters}`; filters: `min_priority`, `min_impact`, `project_id`, `watch_id` |
+| PATCH / DELETE | `/api/notifications/rules/{id}` | |
+| GET | `/api/notifications/deliveries` | delivery log |
+| GET / POST | `/api/projects` | `{name, notes, source: upload\|github, repository_url?, branch?, files: [{path, content}]}` |
+| GET / PATCH / DELETE | `/api/projects/{id}` | |
+| GET / PUT / DELETE | `/api/projects/{id}/files` | list; add or replace `{files, replace}`; remove `?path=` |
+| POST | `/api/projects/{id}/watches` | `{upstream_url, branch?, package_name?, import_names?, ecosystem?, frequency, check_now}` |
+| GET | `/api/watches` | all watches with their latest report summary |
+| GET / PATCH / DELETE | `/api/watches/{id}` | |
+| POST | `/api/watches/{id}/check?from_pinned=` | queue a check (202); `from_pinned=true` compares the pinned release with the latest |
+| GET | `/api/watches/{id}/reports` | report history |
+| GET | `/api/watch-reports/{id}` | full report: `summary`, `narrative.actions`, `impacts[]`, `upstream_changes[]`, `commits[]`, `usages[]`, `stats` |
+
+An impact:
+
+```json
+{
+  "level": "breaking", "certainty": "likely",
+  "title": "Your call to `jwt.decode` will fail",
+  "file": "app/auth.py", "line": 9, "snippet": "return jwt.decode(token, SECRET, verify=False)",
+  "explanation": "This call does not pass `algorithms`; upstream now raises when it is missing: …",
+  "suggestion": "Before upgrading, pass `algorithms=` explicitly.",
+  "symbol": "jwt.decode",
+  "change": {"kind": "contract", "severity": "breaking", "symbol": "jwt.decode", "detail": "now raises when `algorithms` is not passed."}
+}
+```
+
+`GET /api/investigations?mine=true` lists the investigations the caller started.
