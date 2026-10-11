@@ -48,7 +48,7 @@ let session: Promise<FirebaseSession> | null = null;
 
 export function loadFirebase(config: FirebaseWebConfig): Promise<FirebaseSession> {
   if (session) return session;
-  const version = /^\d+\.\d+\.\d+$/.test(config.sdkVersion) ? config.sdkVersion : "12.19.0";
+  const version = /^\d+\.\d+\.\d+$/.test(config.sdkVersion) ? config.sdkVersion : "13.0.0";
   const base = `https://www.gstatic.com/firebasejs/${version}`;
   session = (async () => {
     const appMod = (await import(/* @vite-ignore */ `${base}/firebase-app.js`)) as AppModule;

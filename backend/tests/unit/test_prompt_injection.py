@@ -140,3 +140,18 @@ def test_invalid_json_from_llm_falls_back_to_policy():
     )
     assert decision.decided_by == "policy-fallback"
     assert decision.value.repository_assessment == "policy"
+
+
+def test_request_body_matches_the_model_family():
+    from app.llm import is_reasoning_model
+
+    provider = OpenAICompatibleProvider(
+        base_url="https://llm.example/v1", api_key=None, model_fast="gpt-6-luna", model_reasoning="gpt-6.1-sol"
+    )
+    reasoning = provider.build_body("gpt-6.1-sol", [], "reasoning", 4096)
+    assert reasoning["max_completion_tokens"] == 4096 and reasoning["reasoning_effort"] == "medium"
+    assert "temperature" not in reasoning and "max_tokens" not in reasoning
+    assert provider.build_body("gpt-6-luna", [], "fast", 900)["reasoning_effort"] == "low"
+    legacy = provider.build_body("llama3.1:8b", [], "fast", 900)
+    assert legacy["temperature"] == 0 and legacy["max_tokens"] == 900 and "reasoning_effort" not in legacy
+    assert is_reasoning_model("openai/gpt-5.4-mini") and is_reasoning_model("o3") and not is_reasoning_model("gpt-4o-mini")

@@ -23,17 +23,21 @@ export function ProjectPage() {
   const selectedWatch = params.get("watch");
   const selectedReport = params.get("report");
 
-  const load = useCallback(async () => {
-    try {
-      setProject(await projectsApi.get(id));
-    } catch (err) {
-      setError(errText(err));
-    }
-  }, [id]);
+  const load = useCallback(
+    () =>
+      projectsApi
+        .get(id)
+        .then(setProject)
+        .catch((err) => setError(errText(err))),
+    [id],
+  );
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    projectsApi
+      .get(id)
+      .then(setProject)
+      .catch((err) => setError(errText(err)));
+  }, [id]);
 
   // poll while a check is running
   const busy = project?.watches.some((w) => w.status === "checking") ?? false;

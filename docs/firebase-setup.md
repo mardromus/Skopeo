@@ -71,7 +71,7 @@ Restart the API. `GET /api/auth/config` should now report `"mode": "firebase"`, 
 shows **Sign in**.
 
 No frontend rebuild is needed: the UI reads this configuration from the API at runtime and loads
-the Firebase JS SDK (pinned by `FIREBASE_SDK_VERSION`, default `12.19.0`) from `www.gstatic.com`.
+the Firebase JS SDK (pinned by `FIREBASE_SDK_VERSION`, default `13.0.0`) from `www.gstatic.com`.
 When Firebase is configured, the API's Content-Security-Policy automatically allows exactly
 the origins sign-in needs (`www.gstatic.com`, `apis.google.com`, the Identity Toolkit and Secure
 Token endpoints, your `authDomain` frame, and Google profile photos).

@@ -5,7 +5,7 @@
 #   docker run -p 8000:8000 -v skopeo-data:/data skopeo
 
 # ---- 1. build the frontend ----------------------------------------------------------
-FROM node:22-alpine AS web
+FROM node:24-alpine AS web
 WORKDIR /web
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --no-audit --no-fund
@@ -13,7 +13,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # ---- 2. runtime ------------------------------------------------------------------------
-FROM python:3.12-slim
+FROM python:3.14-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \

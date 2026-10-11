@@ -1,4 +1,10 @@
-"""OpenAI and OpenAI-compatible chat-completions providers (plain httpx, JSON mode)."""
+"""OpenAI and OpenAI-compatible chat-completions providers (plain httpx, JSON mode).
+
+Reasoning models (``o1``/``o3``/``o4``, ``gpt-5*``, ``gpt-6*``) take ``max_completion_tokens``
+(which also covers their hidden reasoning tokens) and ``reasoning_effort`` and reject a custom
+``temperature``; older chat models and most OpenAI-compatible servers (Ollama, vLLM, LM Studio)
+take ``temperature`` and ``max_tokens``. The body is built for whichever kind the model is.
+"""
 
 from __future__ import annotations
 
@@ -9,6 +15,12 @@ import httpx
 
 from app.llm.base import LLMProvider, LLMRequest, T
 from app.security.prompt_guard import build_messages
+
+REASONING_MODEL_PREFIXES = ("o1", "o3", "o4", "gpt-5", "gpt-6")
+
+
+def is_reasoning_model(model: str) -> bool:
+    return model.rsplit("/", 1)[-1].lower().startswith(REASONING_MODEL_PREFIXES)
 
 
 class OpenAICompatibleProvider(LLMProvider):
@@ -21,12 +33,14 @@ class OpenAICompatibleProvider(LLMProvider):
         api_key: str | None,
         model_fast: str,
         model_reasoning: str,
-        max_output_tokens: int = 1200,
+        max_output_tokens: int = 4096,
         max_input_chars: int = 24_000,
         max_retries: int = 2,
         timeout: float = 60.0,
         max_calls: int = 120,
         transport: httpx.BaseTransport | None = None,
+        reasoning_effort: str | None = "medium",
+        reasoning_effort_fast: str | None = "low",
     ) -> None:
         super().__init__(max_calls=max_calls)
         self.base_url = base_url.rstrip("/")
@@ -38,6 +52,20 @@ class OpenAICompatibleProvider(LLMProvider):
         self.max_retries = max_retries
         self.timeout = timeout
         self._transport = transport
+        self.reasoning_effort = reasoning_effort or None
+        self.reasoning_effort_fast = reasoning_effort_fast or None
+
+    def build_body(self, model: str, messages: list[dict[str, str]], tier: str, max_output_tokens: int) -> dict:
+        body: dict = {"model": model, "messages": messages, "response_format": {"type": "json_object"}}
+        if is_reasoning_model(model):
+            body["max_completion_tokens"] = max_output_tokens
+            effort = self.reasoning_effort if tier == "reasoning" else self.reasoning_effort_fast
+            if effort:
+                body["reasoning_effort"] = effort
+        else:
+            body["temperature"] = 0
+            body["max_tokens"] = max_output_tokens
+        return body
 
     def _complete(self, request: LLMRequest, schema: type[T]) -> tuple[T, int, int, str]:
         model = self.model_reasoning if request.tier == "reasoning" else self.model_fast
@@ -49,13 +77,7 @@ class OpenAICompatibleProvider(LLMProvider):
             output_schema=schema.model_json_schema(),
             max_chars=self.max_input_chars,
         )
-        body = {
-            "model": model,
-            "messages": messages,
-            "temperature": 0,
-            "max_tokens": request.max_output_tokens or self.max_output_tokens,
-            "response_format": {"type": "json_object"},
-        }
+        body = self.build_body(model, messages, request.tier, request.max_output_tokens or self.max_output_tokens)
         headers = {"Content-Type": "application/json"}
         if self._api_key:
             headers["Authorization"] = f"Bearer {self._api_key}"
@@ -70,6 +92,8 @@ class OpenAICompatibleProvider(LLMProvider):
                 resp.raise_for_status()
                 data = resp.json()
                 content = data["choices"][0]["message"]["content"]
+                if not content:  # a reasoning model can spend the whole budget thinking (finish_reason "length")
+                    raise ValueError(f"empty completion (finish_reason={data['choices'][0].get('finish_reason')})")
                 parsed = schema.model_validate(json.loads(content))
                 usage = data.get("usage") or {}
                 return parsed, int(usage.get("prompt_tokens", 0)), int(usage.get("completion_tokens", 0)), model

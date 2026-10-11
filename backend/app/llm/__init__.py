@@ -1,7 +1,7 @@
 from app.config import Settings
 from app.llm.base import LLMBudgetExceeded, LLMDecision, LLMProvider, LLMRequest
 from app.llm.mock_provider import MockLLMProvider
-from app.llm.openai_provider import OpenAICompatibleProvider, OpenAIProvider
+from app.llm.openai_provider import OpenAICompatibleProvider, OpenAIProvider, is_reasoning_model
 
 
 def create_provider(settings: Settings) -> LLMProvider:
@@ -17,6 +17,8 @@ def create_provider(settings: Settings) -> LLMProvider:
         "max_retries": settings.llm_max_retries,
         "timeout": settings.llm_timeout_seconds,
         "max_calls": settings.llm_max_calls_per_investigation,
+        "reasoning_effort": settings.llm_reasoning_effort,
+        "reasoning_effort_fast": settings.llm_reasoning_effort_fast,
     }
     if settings.llm_provider == "openai":
         return OpenAIProvider(**common)
@@ -31,5 +33,6 @@ __all__ = [
     "MockLLMProvider",
     "OpenAICompatibleProvider",
     "OpenAIProvider",
+    "is_reasoning_model",
     "create_provider",
 ]

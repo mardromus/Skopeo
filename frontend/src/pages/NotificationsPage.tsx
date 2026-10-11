@@ -23,6 +23,25 @@ function errText(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
 
+interface Loaded {
+  catalog: NotificationCatalog;
+  channels: Channel[];
+  rules: Rule[];
+  deliveries: Delivery[];
+  projects: Project[];
+}
+
+async function fetchAll(): Promise<Loaded> {
+  const [catalog, channels, rules, deliveries, projects] = await Promise.all([
+    notificationsApi.catalog(),
+    notificationsApi.channels(),
+    notificationsApi.rules(),
+    notificationsApi.deliveries(),
+    projectsApi.list(),
+  ]);
+  return { catalog, channels, rules, deliveries, projects };
+}
+
 export function NotificationsPage() {
   const { user } = useAuth();
   const [catalog, setCatalog] = useState<NotificationCatalog | null>(null);
@@ -32,28 +51,27 @@ export function NotificationsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const reload = useCallback(async () => {
-    try {
-      const [c, ch, r, d, p] = await Promise.all([
-        notificationsApi.catalog(),
-        notificationsApi.channels(),
-        notificationsApi.rules(),
-        notificationsApi.deliveries(),
-        projectsApi.list(),
-      ]);
-      setCatalog(c);
-      setChannels(ch);
-      setRules(r);
-      setDeliveries(d);
-      setProjects(p);
-    } catch (err) {
-      setError(errText(err));
-    }
+  const apply = useCallback((d: Loaded) => {
+    setCatalog(d.catalog);
+    setChannels(d.channels);
+    setRules(d.rules);
+    setDeliveries(d.deliveries);
+    setProjects(d.projects);
   }, []);
 
+  const reload = useCallback(
+    () =>
+      fetchAll()
+        .then(apply)
+        .catch((err) => setError(errText(err))),
+    [apply],
+  );
+
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    fetchAll()
+      .then(apply)
+      .catch((err) => setError(errText(err)));
+  }, [apply]);
 
   if (!catalog) return <main className="page">{error ? <div className="callout bad">{error}</div> : <p className="muted">Loading…</p>}</main>;
 

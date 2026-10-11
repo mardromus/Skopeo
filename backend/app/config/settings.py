@@ -48,9 +48,14 @@ class Settings(BaseSettings):
     llm_provider: Literal["mock", "openai", "openai_compatible"] = "mock"
     openai_api_key: SecretStr | None = None
     llm_base_url: str = "https://api.openai.com/v1"
-    llm_model_reasoning: str = "gpt-4o"
-    llm_model_fast: str = "gpt-4o-mini"
-    llm_max_output_tokens: int = 1200
+    llm_model_reasoning: str = "gpt-6.1-sol"
+    llm_model_fast: str = "gpt-6-luna"
+    llm_max_output_tokens: int = 4096
+    """For reasoning models this budget also covers their hidden reasoning tokens."""
+    llm_reasoning_effort: str = "medium"
+    """reasoning_effort for the reasoning tier (planning, correlation, red team); reasoning models only."""
+    llm_reasoning_effort_fast: str = "low"
+    """reasoning_effort for the fast tier (summaries, reviews, recommendation text); reasoning models only."""
     llm_max_input_chars: int = 24_000
     llm_max_retries: int = 2
     llm_timeout_seconds: float = 60.0
@@ -120,7 +125,7 @@ class Settings(BaseSettings):
     firebase_auth_domain: str = ""
     """Usually <project-id>.firebaseapp.com."""
     firebase_app_id: str = ""
-    firebase_sdk_version: str = "12.19.0"
+    firebase_sdk_version: str = "13.0.0"
     """Firebase JS SDK loaded by the browser from www.gstatic.com."""
     auth_require_login: bool = False
     """With Firebase configured: starting investigations requires signing in (the reference case stays public)."""

@@ -174,12 +174,12 @@ Beyond one-off investigations, Skopeo keeps watch over **your own software**:
 
 ## 12. Tech stack
 
-Python 3.12 · FastAPI · LangGraph · Pydantic 2 · SQLAlchemy 2 + Alembic (SQLite) · httpx · PyJWT ·
+Python 3.14 · FastAPI · LangGraph · Pydantic 2 · SQLAlchemy 2 + Alembic (SQLite) · httpx · PyJWT ·
 coverage.py / pytest · React 19 + TypeScript + Vite · Recharts · Firebase Authentication · Docker Compose.
 
 ## 13. Setup
 
-Requirements: Python 3.12+, Node 20+, git. Docker is optional.
+Requirements: Python 3.12+ (3.14 recommended; the Docker image and CI use 3.14), Node 24 LTS (20.19+ works), git. Docker is optional.
 
 ```bash
 cd backend
@@ -197,7 +197,7 @@ Copy `.env.example` to `.env`. The defaults run everything offline-capable in mo
 | --- | --- | --- |
 | `SKOPEO_MODE` | `mock` | `mock` (deterministic policies) or `live` (LLM decisions) |
 | `LLM_PROVIDER` / `OPENAI_API_KEY` / `LLM_BASE_URL` | `openai` / — / OpenAI | provider for live mode; any OpenAI-compatible server works |
-| `LLM_MODEL_REASONING` / `LLM_MODEL_FAST` | `gpt-4o` / `gpt-4o-mini` | model by task type |
+| `LLM_MODEL_REASONING` / `LLM_MODEL_FAST` | `gpt-6.1-sol` / `gpt-6-luna` | model by task type; reasoning models get `max_completion_tokens` + `LLM_REASONING_EFFORT(_FAST)` (`medium` / `low`), older or self-hosted models `temperature` + `max_tokens` |
 | `SKOPEO_DEMO_MODE` | `true` | enables the reference case |
 | `SKOPEO_OFFLINE` | `false` | no network; bundled advisory snapshot only |
 | `DRY_RUN` | `true` | approvals are recorded, never sent |
