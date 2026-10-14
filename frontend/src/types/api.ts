@@ -261,6 +261,7 @@ export interface Health {
   dry_run: boolean;
   offline: boolean;
   sandbox_execution: boolean;
+  allow_case_execution?: boolean;
   github_token_configured: boolean;
   auth_required?: boolean;
   demo_public?: boolean;

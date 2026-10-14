@@ -76,6 +76,9 @@ class Settings(BaseSettings):
 
     # --- Execution policy ---------------------------------------------------------
     skopeo_sandbox_execution: bool = False
+    # Whether people may switch sandbox execution ON for a single case from the UI. Off by default:
+    # running a repository's own tests executes its code on this server.
+    skopeo_allow_case_execution: bool = False
     """Allow running tests/benchmarks of *untrusted* cloned repositories.
     Only enable inside an isolated container. The bundled demo fixture is always trusted."""
 
@@ -265,6 +268,17 @@ class Settings(BaseSettings):
         """Directory with the built frontend, if one should be served."""
         candidate = self.skopeo_static_dir or (_PROJECT_ROOT / "frontend" / "dist")
         return candidate if (candidate / "index.html").is_file() else None
+
+
+def effective_settings(settings: "Settings", options: dict | None) -> "Settings":
+    """Server settings with one case's own choices applied (dry run, sandbox execution)."""
+    options = options or {}
+    update: dict = {}
+    if isinstance(options.get("dry_run"), bool):
+        update["dry_run"] = options["dry_run"]
+    if isinstance(options.get("sandbox_execution"), bool):
+        update["skopeo_sandbox_execution"] = options["sandbox_execution"]
+    return settings.model_copy(update=update) if update else settings
 
 
 @lru_cache(maxsize=1)

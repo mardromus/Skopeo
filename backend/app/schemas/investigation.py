@@ -20,6 +20,9 @@ class InvestigationCreate(BaseModel):
     branch: str = Field(default="main", examples=["main"])
     analysis_depth: Literal["quick", "standard", "deep"] = "standard"
     enable_github_actions: bool = False
+    # Per-case overrides of the server defaults; None keeps the server setting.
+    dry_run: bool | None = None
+    sandbox_execution: bool | None = None
 
     @field_validator("repository_url")
     @classmethod

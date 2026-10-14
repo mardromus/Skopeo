@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 
-from app.config import Settings
+from app.config import Settings, effective_settings
 from app.models import utcnow
 from app.schemas import EventType
 from app.schemas.investigation import ActionProposalOut, ApproveActionRequest
@@ -42,6 +42,8 @@ def decide_action(
             payload={"action_id": action.action_id, "decision": "reject"},
         )
         return updated
+    inv = store.get_investigation(investigation_id)
+    settings = effective_settings(settings, ((inv.execution_summary or {}).get("options") if inv else None) or {})
     executable = bool((action.result or {}).get("executable"))
     if settings.dry_run or not executable:
         reason = "DRY_RUN=true" if settings.dry_run else "GitHub actions not enabled for this investigation / not a GitHub repository"

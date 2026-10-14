@@ -214,6 +214,7 @@ Copy `.env.example` to `.env`. The defaults run everything offline-capable in mo
 | `DRY_RUN` | `true` | approvals are recorded, never sent |
 | `GITHUB_TOKEN` | — | optional; Dependabot, higher rate limits, approved actions |
 | `SKOPEO_SANDBOX_EXECUTION` | `false` | allow running tests/benchmarks of cloned repositories |
+| `SKOPEO_ALLOW_CASE_EXECUTION` | `false` | let people switch code execution on for a single case in the UI (asks to confirm twice) |
 | `SKOPEO_FAULT_INJECTION` | — | controlled failures, e.g. `license_agent@*` |
 | `SKOPEO_API_KEY` / `SKOPEO_DEMO_PUBLIC` / `RATE_LIMIT_PER_MINUTE` | — / `true` / 6 | protect a public instance; see [deployment](docs/deployment.md) |
 | `FIREBASE_PROJECT_ID` / `FIREBASE_WEB_API_KEY` / `FIREBASE_AUTH_DOMAIN` / `FIREBASE_APP_ID` | — | Google sign-in; empty = single local workspace ([setup](docs/firebase-setup.md)) |

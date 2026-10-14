@@ -101,7 +101,14 @@ const json = (method: string, body?: unknown): RequestInit => ({ method, ...(bod
 export const api = {
   health: () => request<Health>("/health"),
   list: (mine = false) => request<InvestigationSummary[]>(`/investigations?limit=30${mine ? "&mine=true" : ""}`),
-  create: (body: { repository_url: string; branch: string; analysis_depth: string; enable_github_actions: boolean }) =>
+  create: (body: {
+    repository_url: string;
+    branch: string;
+    analysis_depth: string;
+    enable_github_actions: boolean;
+    dry_run?: boolean;
+    sandbox_execution?: boolean;
+  }) =>
     request<InvestigationSummary>("/investigations", { method: "POST", body: JSON.stringify(body) }),
   createDemo: (body: { fault_injection: boolean; analysis_depth?: string }) =>
     request<InvestigationSummary>("/demo/investigations", { method: "POST", body: JSON.stringify(body) }),

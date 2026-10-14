@@ -37,6 +37,8 @@ export function HomePage({ health }: { health: Health | null }) {
   const [branch, setBranch] = useState("main");
   const [depth, setDepth] = useState("standard");
   const [actions, setActions] = useState(false);
+  const [dryRun, setDryRun] = useState<boolean | null>(null); // null = the server default
+  const [execOn, setExecOn] = useState<boolean | null>(null);
   const [fault, setFault] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,12 +86,32 @@ export function HomePage({ health }: { health: Health | null }) {
     setError(null);
     try {
       setAccessKey(accessKey.trim());
-      const inv = await api.create({ repository_url: url.trim(), branch: branch.trim(), analysis_depth: depth, enable_github_actions: actions });
+      const inv = await api.create({ repository_url: url.trim(), branch: branch.trim(), analysis_depth: depth,
+        enable_github_actions: actions,
+        ...(dryRun === null ? {} : { dry_run: dryRun }),
+        ...(execOn === null ? {} : { sandbox_execution: execOn }),
+      });
       nav(`/investigations/${inv.investigation_id}`);
     } catch (err) {
       setError(explain(err));
       setBusy(false);
     }
+  }
+
+  const serverExec = Boolean(health?.sandbox_execution);
+  const effectiveExec = execOn ?? serverExec;
+  const effectiveDry = dryRun ?? (health?.dry_run ?? true);
+  const canExec = serverExec || Boolean(health?.allow_case_execution);
+
+  /** Changing sandbox execution is deliberate: it is asked twice before it takes effect. */
+  function changeExec(on: boolean) {
+    if (on === effectiveExec) return;
+    const what = on
+      ? "Turn sandbox execution ON? Skopeo will RUN this repository's own tests and scripts on the server."
+      : "Turn sandbox execution OFF? Skopeo will only read the code and will not run tests or benchmarks.";
+    if (!window.confirm(`${what}\n\nConfirmation 1 of 2`)) return;
+    if (!window.confirm(`Are you sure? ${on ? "Untrusted code will execute." : "Findings will not be confirmed by running tests."}\n\nConfirmation 2 of 2`)) return;
+    setExecOn(on);
   }
 
   async function demo() {
@@ -140,6 +162,25 @@ export function HomePage({ health }: { health: Health | null }) {
               <input id="repo-actions" type="checkbox" checked={actions} onChange={(e) => setActions(e.target.checked)} />
               Let approved issues and draft PRs be sent to GitHub
             </label>
+            <div className="form-row">
+              <label className="field" htmlFor="repo-dry">
+                Dry run
+                <select id="repo-dry" className="input" value={effectiveDry ? "on" : "off"} onChange={(e) => setDryRun(e.target.value === "on")}>
+                  <option value="on">On: approvals are recorded, nothing is sent to GitHub</option>
+                  <option value="off">Off: approved actions are sent to GitHub</option>
+                </select>
+              </label>
+              <label className="field" htmlFor="repo-exec">
+                Code execution
+                <select id="repo-exec" className="input" value={effectiveExec ? "on" : "off"} onChange={(e) => changeExec(e.target.value === "on")} disabled={!canExec && !effectiveExec}>
+                  <option value="off">Off: read the code only, never run it</option>
+                  <option value="on" disabled={!canExec}>
+                    On: run the repository's tests in the sandbox{canExec ? "" : " (not allowed on this server)"}
+                  </option>
+                </select>
+                <span className="small muted">Changing this asks for confirmation twice.</span>
+              </label>
+            </div>
             {askKey && (
               <label className="field" htmlFor="access-key">
                 Access key

@@ -12,7 +12,7 @@ import time
 from concurrent.futures import Future, ThreadPoolExecutor
 
 from app.agents.base import AgentServices
-from app.config import Settings, get_settings
+from app.config import Settings, effective_settings, get_settings
 from app.graph.builder import InvestigationGraph
 from app.llm import create_provider
 from app.models import utcnow
@@ -44,6 +44,13 @@ class InvestigationService:
     # ------------------------------------------------------------------ create
     def create(self, req: InvestigationCreate, owner_id: str | None = None) -> str:
         ref = validate_repository_url(req.repository_url)
+        if req.sandbox_execution and not self.settings.skopeo_sandbox_execution and not self.settings.skopeo_allow_case_execution:
+            raise ValueError("this server does not allow running repository code; set SKOPEO_ALLOW_CASE_EXECUTION=true to permit it per case")
+        options: dict = {"fault_injection": self.settings.skopeo_fault_injection or None}
+        if req.dry_run is not None:
+            options["dry_run"] = req.dry_run
+        if req.sandbox_execution is not None:
+            options["sandbox_execution"] = req.sandbox_execution
         return self.store.create_investigation(
             repository_url=ref.canonical_url,
             repository_name=ref.full_name,
@@ -53,7 +60,7 @@ class InvestigationService:
             enable_github_actions=req.enable_github_actions,
             status="queued",
             owner_id=owner_id,
-            execution_summary={"options": {"fault_injection": self.settings.skopeo_fault_injection or None}},
+            execution_summary={"options": options},
         )
 
     def create_demo(self, req: DemoInvestigationCreate, owner_id: str | None = None) -> str:
@@ -93,7 +100,7 @@ class InvestigationService:
         offline = self.settings.skopeo_offline or inv.source == "demo_fixture"
         return AgentServices(
             investigation_id=investigation_id,
-            settings=self.settings,
+            settings=effective_settings(self.settings, options),
             store=self.store,
             events=self.events,
             llm=create_provider(self.settings),
@@ -119,7 +126,7 @@ class InvestigationService:
             investigation_id,
             "orchestrator",
             EventType.INVESTIGATION_STARTED,
-            f"Orchestrator created investigation of {inv.repository_name} ({inv.branch}, depth={inv.analysis_depth}, mode={'mock' if services.llm.is_mock else services.llm.name}, DRY_RUN={self.settings.dry_run})",
+            f"Orchestrator created investigation of {inv.repository_name} ({inv.branch}, depth={inv.analysis_depth}, mode={'mock' if services.llm.is_mock else services.llm.name}, DRY_RUN={services.settings.dry_run}, EXEC={services.settings.skopeo_sandbox_execution})",
             receiver="all_agents",
             payload={
                 "repository": inv.repository_name,

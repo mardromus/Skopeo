@@ -92,6 +92,7 @@ def health(request: Request) -> dict[str, Any]:
         "dry_run": s.dry_run,
         "offline": s.skopeo_offline,
         "sandbox_execution": s.skopeo_sandbox_execution,
+        "allow_case_execution": s.skopeo_allow_case_execution,
         "github_token_configured": s.github_token is not None,
         "auth_required": s.skopeo_api_key is not None and bool(s.skopeo_api_key.get_secret_value()),
         "demo_public": s.skopeo_demo_public,
@@ -114,7 +115,10 @@ def agents() -> list[dict[str, str]]:
 )
 def create_investigation(body: InvestigationCreate, request: Request, user: User | None = Depends(optional_user)) -> dict[str, Any]:
     svc = _svc(request)
-    iid = svc.create(body, owner_id=user.id if user else None)
+    try:
+        iid = svc.create(body, owner_id=user.id if user else None)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     svc.start(iid)
     return _summary(svc.store.get_investigation(iid))
 
