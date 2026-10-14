@@ -600,7 +600,7 @@ class ChatService:
                         "decision": v.decision,
                         "confidence": round(v.confidence, 2),
                         "adjusted_severity": v.adjusted_severity,
-                        "reasoning": v.reasoning_summary[:400],
+                        "reasoning": _clip(v.reasoning_summary, 400),
                         "decided_by": v.decided_by,
                     }
                 )
@@ -740,7 +740,9 @@ class ChatService:
                 lines.append("No findings have been through verification yet.")
             else:
                 dec = ", ".join(f"{n} {d.replace('_', ' ')}" for d, n in rec["decisions"].items())
-                lines.append(f"I challenged the findings adversarially: {dec}.\n")
+                lines.append(
+                    f"I made {sum(rec['decisions'].values())} rulings on findings and correlations, across all verification rounds: {dec}.\n"
+                )
                 for v in items[:5]:
                     title = v["finding_title"] or "a correlation"
                     lines.append(f"- **{title}** — {v['decision'].replace('_', ' ')} ({v['confidence']:.0%}). {v['reasoning']}".rstrip())

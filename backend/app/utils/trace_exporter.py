@@ -50,17 +50,22 @@ class TraceExporter:
             receiver = ev.receiver or "orchestrator"
             event_type = ev.event_type
             summary = ev.message
-            lines.append(f"- **[{ev.seq:03d}] `{sender}` $\\rightarrow$ `{receiver}`** (`{event_type}`): {summary}")
+            lines.append(f"- **[{ev.seq:03d}] `{sender}` → `{receiver}`** (`{event_type}`): {summary}")
 
         lines.append("")
         lines.append("## 3. Red Team Verification Rulings")
+        titles = {f.finding_id: f.title for f in findings}
         for v in verifications:
-            lines.append(f"- **Finding `{v.finding_id[:8]}`**: Ruling = `{v.ruling}`, Verdict = {v.reasoning}")
+            subject = titles.get(v.finding_id or "", "") or f"correlation {(v.correlation_id or '')[:8]}"
+            lines.append(
+                f"- **{subject}** (round {v.round}, decided by `{v.decided_by}`): ruling = `{v.decision}`, "
+                f"confidence {v.confidence:.2f}. {v.reasoning_summary}"
+            )
 
         lines.append("")
-        lines.append("## 4. Calculated Compound Risks")
-        for r in risks:
-            lines.append(f"- **{r.title}** (Score: `{r.risk_score}`): {r.summary}")
+        lines.append("## 4. Risk Assessment (verified findings and compound risks only)")
+        for r in sorted(risks, key=lambda r: -r.score):
+            lines.append(f"- **{r.priority}** · score `{r.score}` · {r.title}: {r.rationale}")
 
         return "\n".join(lines)
 

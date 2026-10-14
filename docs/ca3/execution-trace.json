@@ -1,0 +1,5149 @@
+{
+ "trace": {
+  "investigation_id": "a2d2d2d9-32ba-420e-af12-d187dee772af",
+  "repository_url": "bundled://examples/vulnerable-demo-repo",
+  "status": "completed_with_limitations",
+  "risk_score": 97.8,
+  "agent_runs": [
+   {
+    "agent": "orchestrator",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 4117
+   },
+   {
+    "agent": "security_agent",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 272
+   },
+   {
+    "agent": "dependency_agent",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 259
+   },
+   {
+    "agent": "test_reliability_agent",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 1601
+   },
+   {
+    "agent": "api_compatibility_agent",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 205
+   },
+   {
+    "agent": "performance_agent",
+    "mode": "full",
+    "status": "failed",
+    "duration_ms": 121
+   },
+   {
+    "agent": "code_quality_agent",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 160
+   },
+   {
+    "agent": "license_agent",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 119
+   },
+   {
+    "agent": "maintenance_agent",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 85
+   },
+   {
+    "agent": "performance_agent",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 108
+   },
+   {
+    "agent": "security_agent",
+    "mode": "dependency_usage",
+    "status": "completed",
+    "duration_ms": 83
+   },
+   {
+    "agent": "api_compatibility_agent",
+    "mode": "upgrade_compatibility",
+    "status": "completed",
+    "duration_ms": 74
+   },
+   {
+    "agent": "test_reliability_agent",
+    "mode": "dependency_coverage",
+    "status": "completed",
+    "duration_ms": 59
+   },
+   {
+    "agent": "correlation_agent",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 92
+   },
+   {
+    "agent": "verification_agent",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 1175
+   },
+   {
+    "agent": "performance_agent",
+    "mode": "benchmark",
+    "status": "completed",
+    "duration_ms": 14
+   },
+   {
+    "agent": "performance_agent",
+    "mode": "benchmark",
+    "status": "completed",
+    "duration_ms": 505
+   },
+   {
+    "agent": "correlation_agent",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 41
+   },
+   {
+    "agent": "verification_agent",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 45
+   },
+   {
+    "agent": "risk_agent",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 83
+   },
+   {
+    "agent": "recommendation_agent",
+    "mode": "full",
+    "status": "completed",
+    "duration_ms": 54
+   }
+  ],
+  "events": [
+   {
+    "seq": 1,
+    "sender": "orchestrator",
+    "receiver": "all_agents",
+    "event_type": "investigation_started",
+    "summary": "Orchestrator created investigation of examples/vulnerable-demo-repo (main, depth=standard, mode=mock, DRY_RUN=True)",
+    "payload": {
+     "repository": "examples/vulnerable-demo-repo",
+     "source": "demo_fixture",
+     "llm_provider": "mock",
+     "fault_injection": "performance_agent@1"
+    }
+   },
+   {
+    "seq": 2,
+    "sender": "orchestrator",
+    "receiver": "blackboard",
+    "event_type": "repository_prepared",
+    "summary": "Repository prepared (demo_fixture) at 5eda3b9ec3: 28 files, primary language Python",
+    "payload": {
+     "languages": {
+      "Python": 21,
+      "SQL": 1
+     },
+     "ecosystems": [
+      "PyPI"
+     ],
+     "manifests": [
+      "pyproject.toml",
+      "requirements.txt"
+     ],
+     "test_file_count": 3,
+     "git_commits_available": 1,
+     "trusted_execution": true
+    }
+   },
+   {
+    "seq": 3,
+    "sender": "orchestrator",
+    "receiver": "blackboard",
+    "event_type": "agent_message",
+    "summary": "Repository detected as Python project (19 source files, 3 test files, ecosystems: PyPI, 1 commit(s) of history).",
+    "payload": {
+     "profile_summary": {
+      "primary_language": "Python",
+      "ecosystems": [
+       "PyPI"
+      ],
+      "file_count": 28,
+      "test_file_count": 3
+     },
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 4,
+    "sender": "orchestrator",
+    "receiver": "all_agents",
+    "event_type": "plan_created",
+    "summary": "Plan created: 8 specialist(s) in parallel \u2014 security_agent, dependency_agent, test_reliability_agent, api_compatibility_agent, performance_agent, code_quality_agent, license_agent, maintenance_agent",
+    "payload": {
+     "tasks": [
+      {
+       "agent": "security_agent",
+       "objective": "Find secrets, insecure patterns and prompt-injection content",
+       "priority": 1,
+       "rationale": "19 source files must be checked for secrets and insecure patterns"
+      },
+      {
+       "agent": "dependency_agent",
+       "objective": "Assess dependency health for PyPI",
+       "priority": 1,
+       "rationale": "Manifests found (pyproject.toml, requirements.txt)"
+      },
+      {
+       "agent": "test_reliability_agent",
+       "objective": "Assess test coverage and reliability (execute suite)",
+       "priority": 2,
+       "rationale": "3 test files; execution permitted"
+      },
+      {
+       "agent": "api_compatibility_agent",
+       "objective": "Review public API surface, deprecations and breaking changes",
+       "priority": 2,
+       "rationale": "importable package(s): shopfront"
+      },
+      {
+       "agent": "performance_agent",
+       "objective": "Find performance bottlenecks (static + benchmarks)",
+       "priority": 2,
+       "rationale": "database access and/or network calls detected"
+      },
+      {
+       "agent": "code_quality_agent",
+       "objective": "Measure maintainability and code smells",
+       "priority": 3,
+       "rationale": "Deterministic AST metrics are cheap and broadly useful"
+      },
+      {
+       "agent": "license_agent",
+       "objective": "Check license and dependency license compliance",
+       "priority": 3,
+       "rationale": "license file present"
+      },
+      {
+       "agent": "maintenance_agent",
+       "objective": "Assess maintenance activity",
+       "priority": 3,
+       "rationale": "git history / GitHub metadata available"
+      }
+     ],
+     "skipped": [],
+     "decided_by": "policy",
+     "rationale": "All selected specialists are independent and run in parallel; follow-ups are decided after reviewing their evidence.",
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 5,
+    "sender": "security_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Security Agent started: Find secrets, insecure patterns and prompt-injection content",
+    "payload": {
+     "run_id": "12800cca-4efe-4c7d-a9d1-9a8e118fd04b",
+     "task_id": "cd0c21d6-5231-4b04-8f22-3230b0e2029e",
+     "mode": "full",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "initial_plan",
+     "round": 1,
+     "rationale": "19 source files must be checked for secrets and insecure patterns"
+    }
+   },
+   {
+    "seq": 6,
+    "sender": "security_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Security Agent plan (full/default): scan for committed secrets, analyse insecure code patterns (AST), scan for prompt-injection content, run Semgrep ruleset if available",
+    "payload": {
+     "steps": [
+      "scan for committed secrets",
+      "analyse insecure code patterns (AST)",
+      "scan for prompt-injection content",
+      "run Semgrep ruleset if available"
+     ],
+     "mode": "full",
+     "strategy": "default",
+     "run_id": "12800cca-4efe-4c7d-a9d1-9a8e118fd04b"
+    }
+   },
+   {
+    "seq": 7,
+    "sender": "dependency_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Dependency Health Agent started: Assess dependency health for PyPI",
+    "payload": {
+     "run_id": "f16f6b60-4dba-4339-9578-a6a874514fca",
+     "task_id": "05ebd0ca-3fd1-46de-bb94-2ce7d6243704",
+     "mode": "full",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "initial_plan",
+     "round": 1,
+     "rationale": "Manifests found (pyproject.toml, requirements.txt)"
+    }
+   },
+   {
+    "seq": 8,
+    "sender": "dependency_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Dependency Health Agent plan (full/default): detect ecosystems & parse manifests, query vulnerability database, check freshness & maintenance via registry, check version pinning & conflicts",
+    "payload": {
+     "steps": [
+      "detect ecosystems & parse manifests",
+      "query vulnerability database",
+      "check freshness & maintenance via registry",
+      "check version pinning & conflicts"
+     ],
+     "mode": "full",
+     "strategy": "default",
+     "run_id": "f16f6b60-4dba-4339-9578-a6a874514fca"
+    }
+   },
+   {
+    "seq": 9,
+    "sender": "dependency_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Detected ecosystem(s) PyPI; 3 dependencies in requirements.txt",
+    "payload": {
+     "ecosystems": [
+      "PyPI"
+     ],
+     "manifests": [
+      "requirements.txt"
+     ],
+     "dependencies": [
+      {
+       "name": "pyjwt",
+       "display_name": "PyJWT",
+       "ecosystem": "PyPI",
+       "spec": "==1.7.1",
+       "version": "1.7.1",
+       "pinned": true,
+       "manifest": "requirements.txt",
+       "line": 2,
+       "dev": false,
+       "resolved_from": null
+      },
+      {
+       "name": "requests",
+       "display_name": "requests",
+       "ecosystem": "PyPI",
+       "spec": ">=2.20",
+       "version": null,
+       "pinned": false,
+       "manifest": "requirements.txt",
+       "line": 3,
+       "dev": false,
+       "resolved_from": null
+      },
+      {
+       "name": "python-dateutil",
+       "display_name": "python-dateutil",
+       "ecosystem": "PyPI",
+       "spec": "==2.9.0.post0",
+       "version": "2.9.0.post0",
+       "pinned": true,
+       "manifest": "requirements.txt",
+       "line": 4,
+       "dev": false,
+       "resolved_from": null
+      }
+     ],
+     "run_id": "f16f6b60-4dba-4339-9578-a6a874514fca"
+    }
+   },
+   {
+    "seq": 10,
+    "sender": "test_reliability_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Test Reliability Agent started: Assess test coverage and reliability (execute suite)",
+    "payload": {
+     "run_id": "118fdf3e-caab-45f1-816a-62ddd85a43e1",
+     "task_id": "4a1635e8-cd93-490c-90ca-4a3bfdc67065",
+     "mode": "full",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "initial_plan",
+     "round": 1,
+     "rationale": "3 test files; execution permitted"
+    }
+   },
+   {
+    "seq": 11,
+    "sender": "test_reliability_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Test Reliability Agent plan (full/default): discover test framework & suites, analyse assertion quality & flakiness indicators, map tests to production modules, execute test suite with coverage",
+    "payload": {
+     "steps": [
+      "discover test framework & suites",
+      "analyse assertion quality & flakiness indicators",
+      "map tests to production modules",
+      "execute test suite with coverage"
+     ],
+     "mode": "full",
+     "strategy": "default",
+     "run_id": "118fdf3e-caab-45f1-816a-62ddd85a43e1"
+    }
+   },
+   {
+    "seq": 12,
+    "sender": "security_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "HIGH security: Possible credential exposure: AWS access key ID in tests/fixtures/README.md",
+    "payload": {
+     "finding_id": "b0604fe7-fe3a-44d4-9755-cd437f206cc1",
+     "title": "Possible credential exposure: AWS access key ID in tests/fixtures/README.md",
+     "severity": "high",
+     "category": "security",
+     "confidence": 0.52,
+     "evidence_count": 1,
+     "rule_id": "security.hardcoded_secret",
+     "files": [
+      "tests/fixtures/README.md"
+     ],
+     "run_id": "12800cca-4efe-4c7d-a9d1-9a8e118fd04b"
+    }
+   },
+   {
+    "seq": 13,
+    "sender": "dependency_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "CRITICAL dependency: PyJWT 1.7.1 is affected by 11 known vulnerabilities",
+    "payload": {
+     "finding_id": "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+     "title": "PyJWT 1.7.1 is affected by 11 known vulnerabilities",
+     "severity": "critical",
+     "category": "dependency",
+     "confidence": 0.95,
+     "evidence_count": 12,
+     "rule_id": "dependency.vulnerable",
+     "files": [
+      "requirements.txt"
+     ],
+     "run_id": "f16f6b60-4dba-4339-9578-a6a874514fca"
+    }
+   },
+   {
+    "seq": 14,
+    "sender": "test_reliability_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Discovered 3 Python test module(s); frameworks: pytest",
+    "payload": {
+     "test_files": [
+      "tests/test_config.py",
+      "tests/test_orders.py",
+      "tests/test_pricing.py"
+     ],
+     "run_id": "118fdf3e-caab-45f1-816a-62ddd85a43e1"
+    }
+   },
+   {
+    "seq": 15,
+    "sender": "api_compatibility_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "API Compatibility Agent started: Review public API surface, deprecations and breaking changes",
+    "payload": {
+     "run_id": "9497cf93-01fd-4bbb-81fc-46cff11df564",
+     "task_id": "f47d5ff9-4d48-4a2b-9a5b-31aaf0bcf3c6",
+     "mode": "full",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "initial_plan",
+     "round": 1,
+     "rationale": "importable package(s): shopfront"
+    }
+   },
+   {
+    "seq": 16,
+    "sender": "dependency_agent",
+    "receiver": "orchestrator",
+    "event_type": "investigation_requested",
+    "summary": "Requests impact analysis: Assess real-world impact of vulnerable PyJWT 1.7.1 (usage, upgrade compatibility, test coverage)",
+    "payload": {
+     "request_id": "05745ca8-d62b-4dc7-9975-ba75af173101",
+     "target_agent": null,
+     "required_evidence": "impact_analysis",
+     "reason": "11 advisories, highest critical; impact depends on how the package is used",
+     "related_finding_ids": [
+      "88cd8dcb-830f-408a-9c9b-ebf5fb89e608"
+     ],
+     "focus": {
+      "package": "pyjwt",
+      "import_name": "jwt",
+      "current_version": "1.7.1",
+      "target_version": "2.14.0",
+      "finding_id": "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+      "security_sensitive": true
+     },
+     "run_id": "f16f6b60-4dba-4339-9578-a6a874514fca"
+    }
+   },
+   {
+    "seq": 17,
+    "sender": "api_compatibility_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "API Compatibility Agent plan (full/default): extract public API surface, find deprecated APIs still in use, compare public API across git history",
+    "payload": {
+     "steps": [
+      "extract public API surface",
+      "find deprecated APIs still in use",
+      "compare public API across git history"
+     ],
+     "mode": "full",
+     "strategy": "default",
+     "run_id": "9497cf93-01fd-4bbb-81fc-46cff11df564"
+    }
+   },
+   {
+    "seq": 18,
+    "sender": "security_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "HIGH security: Possible credential exposure: AWS access key ID and AWS secret access key in tests/fixtures/example_credentials.txt",
+    "payload": {
+     "finding_id": "823e77b8-cb6c-44f4-913b-373ecafb1dda",
+     "title": "Possible credential exposure: AWS access key ID and AWS secret access key in tests/fixtures/example_credentials.txt",
+     "severity": "high",
+     "category": "security",
+     "confidence": 0.77,
+     "evidence_count": 2,
+     "rule_id": "security.hardcoded_secret",
+     "files": [
+      "tests/fixtures/example_credentials.txt"
+     ],
+     "run_id": "12800cca-4efe-4c7d-a9d1-9a8e118fd04b"
+    }
+   },
+   {
+    "seq": 19,
+    "sender": "test_reliability_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "LOW testing: 1 test(s) in tests/test_orders.py only make weak assertions",
+    "payload": {
+     "finding_id": "045d8a43-ce3b-4902-9895-a86cf1ed3d22",
+     "title": "1 test(s) in tests/test_orders.py only make weak assertions",
+     "severity": "low",
+     "category": "testing",
+     "confidence": 0.585,
+     "evidence_count": 1,
+     "rule_id": "testing.weak_assertion",
+     "files": [
+      "tests/test_orders.py"
+     ],
+     "run_id": "118fdf3e-caab-45f1-816a-62ddd85a43e1"
+    }
+   },
+   {
+    "seq": 20,
+    "sender": "performance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Performance Agent started: Find performance bottlenecks (static + benchmarks)",
+    "payload": {
+     "run_id": "a1e9bc82-b4ba-49f8-a229-1b1668a7e884",
+     "task_id": "7db33f5c-659d-499e-9a7b-d86c9bb3a79c",
+     "mode": "full",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "initial_plan",
+     "round": 1,
+     "rationale": "database access and/or network calls detected"
+    }
+   },
+   {
+    "seq": 21,
+    "sender": "dependency_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "MEDIUM dependency: PyJWT 1.7.1 is a major version behind latest 2.15.1, released 7 year(s) ago",
+    "payload": {
+     "finding_id": "d89d3712-c9de-49d1-8e49-d809de4585d2",
+     "title": "PyJWT 1.7.1 is a major version behind latest 2.15.1, released 7 year(s) ago",
+     "severity": "medium",
+     "category": "dependency",
+     "confidence": 0.933,
+     "evidence_count": 2,
+     "rule_id": "dependency.outdated",
+     "files": [
+      "requirements.txt"
+     ],
+     "run_id": "f16f6b60-4dba-4339-9578-a6a874514fca"
+    }
+   },
+   {
+    "seq": 22,
+    "sender": "api_compatibility_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "LOW api_compatibility: Deprecated legacy_price_lookup() is still called from 1 production site(s)",
+    "payload": {
+     "finding_id": "10e9555e-45d0-404a-bcfe-352c23d19041",
+     "title": "Deprecated legacy_price_lookup() is still called from 1 production site(s)",
+     "severity": "low",
+     "category": "api_compatibility",
+     "confidence": 0.828,
+     "evidence_count": 2,
+     "rule_id": "api.deprecated_api_in_use",
+     "files": [
+      "shopfront/api/routes.py",
+      "shopfront/legacy.py"
+     ],
+     "run_id": "9497cf93-01fd-4bbb-81fc-46cff11df564"
+    }
+   },
+   {
+    "seq": 23,
+    "sender": "performance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Performance Agent plan (full/default): initialise benchmark/profiling harness, detect static performance suspects (AST)",
+    "payload": {
+     "steps": [
+      "initialise benchmark/profiling harness",
+      "detect static performance suspects (AST)"
+     ],
+     "mode": "full",
+     "strategy": "default",
+     "run_id": "a1e9bc82-b4ba-49f8-a229-1b1668a7e884"
+    }
+   },
+   {
+    "seq": 24,
+    "sender": "security_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "MEDIUM security: Hardcoded fallback value for secret SHOPFRONT_SECRET in shopfront/auth/middleware.py",
+    "payload": {
+     "finding_id": "554afa99-804c-4a70-a6e9-608e2e27d1da",
+     "title": "Hardcoded fallback value for secret SHOPFRONT_SECRET in shopfront/auth/middleware.py",
+     "severity": "medium",
+     "category": "security",
+     "confidence": 0.552,
+     "evidence_count": 1,
+     "rule_id": "security.hardcoded_default_secret",
+     "files": [
+      "shopfront/auth/middleware.py"
+     ],
+     "run_id": "12800cca-4efe-4c7d-a9d1-9a8e118fd04b"
+    }
+   },
+   {
+    "seq": 25,
+    "sender": "test_reliability_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "HIGH testing: Security-critical authentication code has no tests (shopfront/auth/middleware.py, shopfront/auth/passwords.py)",
+    "payload": {
+     "finding_id": "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d",
+     "title": "Security-critical authentication code has no tests (shopfront/auth/middleware.py, shopfront/auth/passwords.py)",
+     "severity": "high",
+     "category": "testing",
+     "confidence": 0.77,
+     "evidence_count": 2,
+     "rule_id": "testing.untested_critical_path",
+     "files": [
+      "shopfront/auth/middleware.py",
+      "shopfront/auth/passwords.py"
+     ],
+     "run_id": "118fdf3e-caab-45f1-816a-62ddd85a43e1"
+    }
+   },
+   {
+    "seq": 26,
+    "sender": "code_quality_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Code Quality Agent started: Measure maintainability and code smells",
+    "payload": {
+     "run_id": "9e96643c-a761-4da8-b97b-65dcf73e9fc2",
+     "task_id": "c919d7d8-f0dd-4086-bc1b-cd5a084a5473",
+     "mode": "full",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "initial_plan",
+     "round": 1,
+     "rationale": "Deterministic AST metrics are cheap and broadly useful"
+    }
+   },
+   {
+    "seq": 27,
+    "sender": "dependency_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "MEDIUM dependency: python-dateutil appears unmaintained (latest release 2+ years ago)",
+    "payload": {
+     "finding_id": "9a575639-9a68-432d-bfa9-fe6b52eb77ca",
+     "title": "python-dateutil appears unmaintained (latest release 2+ years ago)",
+     "severity": "medium",
+     "category": "dependency",
+     "confidence": 0.933,
+     "evidence_count": 2,
+     "rule_id": "dependency.abandoned",
+     "files": [
+      "requirements.txt"
+     ],
+     "run_id": "f16f6b60-4dba-4339-9578-a6a874514fca"
+    }
+   },
+   {
+    "seq": 28,
+    "sender": "code_quality_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Code Quality Agent plan (full/default): compute function metrics (AST), detect silent exception handling, detect duplicated code blocks, review data-access functions",
+    "payload": {
+     "steps": [
+      "compute function metrics (AST)",
+      "detect silent exception handling",
+      "detect duplicated code blocks",
+      "review data-access functions"
+     ],
+     "mode": "full",
+     "strategy": "default",
+     "run_id": "9e96643c-a761-4da8-b97b-65dcf73e9fc2"
+    }
+   },
+   {
+    "seq": 29,
+    "sender": "security_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "HIGH security: JWT decoded without an explicit algorithms allow-list in shopfront/auth/middleware.py",
+    "payload": {
+     "finding_id": "59fd753e-cc91-4ef3-aa71-e7ba7ea2375d",
+     "title": "JWT decoded without an explicit algorithms allow-list in shopfront/auth/middleware.py",
+     "severity": "high",
+     "category": "security",
+     "confidence": 0.552,
+     "evidence_count": 1,
+     "rule_id": "security.jwt_no_algorithms",
+     "files": [
+      "shopfront/auth/middleware.py"
+     ],
+     "run_id": "12800cca-4efe-4c7d-a9d1-9a8e118fd04b"
+    }
+   },
+   {
+    "seq": 30,
+    "sender": "license_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "License Compliance Agent started: Check license and dependency license compliance",
+    "payload": {
+     "run_id": "e29e8f85-1bb1-4618-b1bf-7c05d64cc00c",
+     "task_id": "207b3e77-30ef-4658-af29-97524a2f6240",
+     "mode": "full",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "initial_plan",
+     "round": 1,
+     "rationale": "license file present"
+    }
+   },
+   {
+    "seq": 31,
+    "sender": "dependency_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "LOW dependency: 1 runtime dependency is not pinned to exact versions (requests>=2.20)",
+    "payload": {
+     "finding_id": "add5defb-e907-454f-96cb-3bb51e3efe0d",
+     "title": "1 runtime dependency is not pinned to exact versions (requests>=2.20)",
+     "severity": "low",
+     "category": "dependency",
+     "confidence": 0.76,
+     "evidence_count": 1,
+     "rule_id": "dependency.unpinned",
+     "files": [
+      "requirements.txt"
+     ],
+     "run_id": "f16f6b60-4dba-4339-9578-a6a874514fca"
+    }
+   },
+   {
+    "seq": 32,
+    "sender": "code_quality_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "MEDIUM code_quality: build_sales_report() has cyclomatic complexity 17 (shopfront/services/reports.py)",
+    "payload": {
+     "finding_id": "d67902e7-6b68-430d-ae01-d345c0c4edbd",
+     "title": "build_sales_report() has cyclomatic complexity 17 (shopfront/services/reports.py)",
+     "severity": "medium",
+     "category": "code_quality",
+     "confidence": 0.617,
+     "evidence_count": 1,
+     "rule_id": "code_quality.high_complexity",
+     "files": [
+      "shopfront/services/reports.py"
+     ],
+     "run_id": "9e96643c-a761-4da8-b97b-65dcf73e9fc2"
+    }
+   },
+   {
+    "seq": 33,
+    "sender": "security_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "HIGH security: Passwords hashed with MD5 (fast, unsalted) in shopfront/auth/passwords.py",
+    "payload": {
+     "finding_id": "c622ce77-d991-4e01-91d1-3319c58c47eb",
+     "title": "Passwords hashed with MD5 (fast, unsalted) in shopfront/auth/passwords.py",
+     "severity": "high",
+     "category": "security",
+     "confidence": 0.552,
+     "evidence_count": 1,
+     "rule_id": "security.weak_password_hash",
+     "files": [
+      "shopfront/auth/passwords.py"
+     ],
+     "run_id": "12800cca-4efe-4c7d-a9d1-9a8e118fd04b"
+    }
+   },
+   {
+    "seq": 34,
+    "sender": "license_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "License Compliance Agent plan (full/default): identify repository license, check package metadata consistency, scan SPDX headers in source files, check dependency licenses",
+    "payload": {
+     "steps": [
+      "identify repository license",
+      "check package metadata consistency",
+      "scan SPDX headers in source files",
+      "check dependency licenses"
+     ],
+     "mode": "full",
+     "strategy": "default",
+     "run_id": "e29e8f85-1bb1-4618-b1bf-7c05d64cc00c"
+    }
+   },
+   {
+    "seq": 35,
+    "sender": "code_quality_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Code Quality Agent extended its plan after 'compute function metrics (AST)': LLM maintainability review of most complex functions",
+    "payload": {
+     "added_steps": [
+      "LLM maintainability review of most complex functions"
+     ],
+     "run_id": "9e96643c-a761-4da8-b97b-65dcf73e9fc2"
+    }
+   },
+   {
+    "seq": 36,
+    "sender": "maintenance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Maintenance Activity Agent started: Assess maintenance activity",
+    "payload": {
+     "run_id": "2af0ad18-7820-440e-aa2d-ade350d6b567",
+     "task_id": "46d7d5af-1aef-4bd2-b967-d11fb2b4e93b",
+     "mode": "full",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "initial_plan",
+     "round": 1,
+     "rationale": "git history / GitHub metadata available"
+    }
+   },
+   {
+    "seq": 37,
+    "sender": "maintenance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Maintenance Activity Agent plan (full/default): analyse git history",
+    "payload": {
+     "steps": [
+      "analyse git history"
+     ],
+     "mode": "full",
+     "strategy": "default",
+     "run_id": "2af0ad18-7820-440e-aa2d-ade350d6b567"
+    }
+   },
+   {
+    "seq": 38,
+    "sender": "security_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "LOW security: AI-directed instructions (possible prompt injection) in README.md",
+    "payload": {
+     "finding_id": "3fd00276-3cc6-423d-8c76-77eb172495a2",
+     "title": "AI-directed instructions (possible prompt injection) in README.md",
+     "severity": "low",
+     "category": "security",
+     "confidence": 0.737,
+     "evidence_count": 2,
+     "rule_id": "security.prompt_injection_content",
+     "files": [
+      "README.md"
+     ],
+     "run_id": "12800cca-4efe-4c7d-a9d1-9a8e118fd04b"
+    }
+   },
+   {
+    "seq": 39,
+    "sender": "license_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "MEDIUM license: License metadata mismatch: pyproject.toml declares Apache-2.0 but LICENSE is MIT",
+    "payload": {
+     "finding_id": "c0845c1d-2421-456b-a1bb-553676b98388",
+     "title": "License metadata mismatch: pyproject.toml declares Apache-2.0 but LICENSE is MIT",
+     "severity": "medium",
+     "category": "license",
+     "confidence": 0.854,
+     "evidence_count": 2,
+     "rule_id": "license.metadata_mismatch",
+     "files": [
+      "pyproject.toml",
+      "LICENSE"
+     ],
+     "run_id": "e29e8f85-1bb1-4618-b1bf-7c05d64cc00c"
+    }
+   },
+   {
+    "seq": 40,
+    "sender": "performance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_failed",
+    "summary": "Performance Agent FAILED: ToolUnavailableError: benchmark harness unavailable [controlled fault injection: SKOPEO_FAULT_INJECTION=performance_agent@1]",
+    "payload": {
+     "run_id": "a1e9bc82-b4ba-49f8-a229-1b1668a7e884",
+     "task_id": "7db33f5c-659d-499e-9a7b-d86c9bb3a79c",
+     "error_type": "ToolUnavailableError",
+     "error": "benchmark harness unavailable [controlled fault injection: SKOPEO_FAULT_INJECTION=performance_agent@1]",
+     "findings_preserved": 0,
+     "attempt": 1
+    }
+   },
+   {
+    "seq": 41,
+    "sender": "code_quality_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "LOW code_quality: Broad exception silently swallowed in shopfront/services/reports.py (1x)",
+    "payload": {
+     "finding_id": "02dca29d-efa2-4ce5-a75f-f9855ab14f83",
+     "title": "Broad exception silently swallowed in shopfront/services/reports.py (1x)",
+     "severity": "low",
+     "category": "code_quality",
+     "confidence": 0.617,
+     "evidence_count": 1,
+     "rule_id": "code_quality.silent_exception",
+     "files": [
+      "shopfront/services/reports.py"
+     ],
+     "run_id": "9e96643c-a761-4da8-b97b-65dcf73e9fc2"
+    }
+   },
+   {
+    "seq": 42,
+    "sender": "security_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Prompt-injection content detected in README.md; handled as untrusted data (no instructions followed)",
+    "payload": {
+     "file": "README.md",
+     "patterns": [
+      "exfiltration",
+      "override_instructions"
+     ],
+     "run_id": "12800cca-4efe-4c7d-a9d1-9a8e118fd04b"
+    }
+   },
+   {
+    "seq": 43,
+    "sender": "maintenance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Maintenance analysis limited: 1 commit(s) of history available",
+    "payload": {
+     "commits": 1,
+     "run_id": "2af0ad18-7820-440e-aa2d-ade350d6b567"
+    }
+   },
+   {
+    "seq": 44,
+    "sender": "api_compatibility_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "API Compatibility Agent completed in 205 ms: 1 finding(s) published, 0 enriched",
+    "payload": {
+     "run_id": "9497cf93-01fd-4bbb-81fc-46cff11df564",
+     "task_id": "f47d5ff9-4d48-4a2b-9a5b-31aaf0bcf3c6",
+     "duration_ms": 205,
+     "findings": 1,
+     "limitations": [
+      "INSUFFICIENT EVIDENCE for breaking-change detection: git history has 1 commit(s)"
+     ]
+    }
+   },
+   {
+    "seq": 45,
+    "sender": "license_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "HIGH license: GPL-3.0 licensed source in a MIT project (shopfront/vendor/fastcsv.py)",
+    "payload": {
+     "finding_id": "80980334-cdc7-466e-8eb7-58ab1fd4fb31",
+     "title": "GPL-3.0 licensed source in a MIT project (shopfront/vendor/fastcsv.py)",
+     "severity": "high",
+     "category": "license",
+     "confidence": 0.617,
+     "evidence_count": 1,
+     "rule_id": "license.copyleft_file",
+     "files": [
+      "shopfront/vendor/fastcsv.py"
+     ],
+     "run_id": "e29e8f85-1bb1-4618-b1bf-7c05d64cc00c"
+    }
+   },
+   {
+    "seq": 46,
+    "sender": "code_quality_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "INFO code_quality: Data-access function list_orders_with_items() assessed acceptable for maintainability (shopfront/services/orders.py)",
+    "payload": {
+     "finding_id": "5bc382cb-3139-4530-a1d9-112e8f551558",
+     "title": "Data-access function list_orders_with_items() assessed acceptable for maintainability (shopfront/services/orders.py)",
+     "severity": "info",
+     "category": "code_quality",
+     "confidence": 0.455,
+     "evidence_count": 1,
+     "rule_id": "code_quality.data_access_assessment",
+     "files": [
+      "shopfront/services/orders.py"
+     ],
+     "run_id": "9e96643c-a761-4da8-b97b-65dcf73e9fc2"
+    }
+   },
+   {
+    "seq": 47,
+    "sender": "dependency_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Dependency Health Agent completed in 259 ms: 4 finding(s) published, 0 enriched",
+    "payload": {
+     "run_id": "f16f6b60-4dba-4339-9578-a6a874514fca",
+     "task_id": "05ebd0ca-3fd1-46de-bb94-2ce7d6243704",
+     "duration_ms": 259,
+     "findings": 4,
+     "limitations": [
+      "No Python lockfile: transitive dependencies were not resolved"
+     ]
+    }
+   },
+   {
+    "seq": 48,
+    "sender": "security_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Security Agent completed in 272 ms: 6 finding(s) published, 0 enriched",
+    "payload": {
+     "run_id": "12800cca-4efe-4c7d-a9d1-9a8e118fd04b",
+     "task_id": "cd0c21d6-5231-4b04-8f22-3230b0e2029e",
+     "duration_ms": 272,
+     "findings": 6,
+     "limitations": [
+      "Dependabot alerts not queried (no GITHUB_TOKEN or not a GitHub source)",
+      "Semgrep not installed \u2014 built-in AST/regex rules used instead"
+     ]
+    }
+   },
+   {
+    "seq": 49,
+    "sender": "maintenance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Maintenance Activity Agent completed in 85 ms: 0 finding(s) published, 0 enriched",
+    "payload": {
+     "run_id": "2af0ad18-7820-440e-aa2d-ade350d6b567",
+     "task_id": "46d7d5af-1aef-4bd2-b967-d11fb2b4e93b",
+     "duration_ms": 85,
+     "findings": 0,
+     "limitations": [
+      "GitHub metadata unavailable (offline or bundled fixture) \u2014 issues/PRs/releases not assessed",
+      "INSUFFICIENT EVIDENCE: only 1 commit(s) available \u2014 activity metrics would be meaningless"
+     ]
+    }
+   },
+   {
+    "seq": 50,
+    "sender": "license_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "License Compliance Agent completed in 119 ms: 2 finding(s) published, 0 enriched",
+    "payload": {
+     "run_id": "e29e8f85-1bb1-4618-b1bf-7c05d64cc00c",
+     "task_id": "207b3e77-30ef-4658-af29-97524a2f6240",
+     "duration_ms": 119,
+     "findings": 2,
+     "limitations": []
+    }
+   },
+   {
+    "seq": 51,
+    "sender": "code_quality_agent",
+    "receiver": "blackboard",
+    "event_type": "evidence_added",
+    "summary": "Maintainability review attached to build_sales_report (policy)",
+    "payload": {
+     "finding_id": "d67902e7-6b68-430d-ae01-d345c0c4edbd",
+     "evidence_id": "dac34d8c-2d40-4fb2-b601-d045c1d8fc8b",
+     "source_type": "llm_analysis",
+     "tool": "code_quality.review",
+     "new_confidence": 0.671,
+     "run_id": "9e96643c-a761-4da8-b97b-65dcf73e9fc2"
+    }
+   },
+   {
+    "seq": 52,
+    "sender": "code_quality_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Code Quality Agent completed in 160 ms: 3 finding(s) published, 1 enriched",
+    "payload": {
+     "run_id": "9e96643c-a761-4da8-b97b-65dcf73e9fc2",
+     "task_id": "c919d7d8-f0dd-4086-bc1b-cd5a084a5473",
+     "duration_ms": 160,
+     "findings": 3,
+     "limitations": []
+    }
+   },
+   {
+    "seq": 53,
+    "sender": "test_reliability_agent",
+    "receiver": "blackboard",
+    "event_type": "tool_executed",
+    "summary": "test_reliability_agent executed python -B -m coverage run --data-file=/tmp/claude-0/-home-claude-skopeo/ae5ac9f1-2a34-589b-a566-78c054655430/scratchpad/cap/ws/a2d2d2d9-32ba-420e-af12-d187dee772af/artifacts/.coverage --source=shopfront -m pytest -q -rfE -p no:cacheprovider --no-header --color=no tests",
+    "payload": {
+     "command": "python -B -m coverage run --data-file=/tmp/claude-0/-home-claude-skopeo/ae5ac9f1-2a34-589b-a566-78c054655430/scratchpad/cap/ws/a2d2d2d9-32ba-420e-af12-d187dee772af/artifacts/.coverage --source=shopfront -m pytest -q -rfE -p no:cacheprovider --no-header --color=no tests",
+     "exit_code": 1,
+     "duration_ms": 1152,
+     "timed_out": false,
+     "stdout_tail": "...F...                                                                  [100%]\n=================================== FAILURES ===================================\n__________________ test_format_price_pads_single_digit_cents ___________________\n\n    def test_format_price_pads_single_digit_cents():\n>       assert format_price(1905) == \"$19.05\"\nE       AssertionError: assert '$19.5' == '$19.05'\nE         \nE         - $19.05\nE         ?     -\nE         + $19.5\n\ntests/test_pricing.py:11: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_pricing.py::test_format_price_pads_single_digit_cents - Ass...\n1 failed, 6 passed in 0.04s\n",
+     "stderr_tail": "",
+     "truncated": false,
+     "parsed": {
+      "failed": 1,
+      "passed": 6
+     },
+     "failures": [
+      {
+       "kind": "failed",
+       "node_id": "tests/test_pricing.py::test_format_price_pads_single_digit_cents",
+       "message": "Ass..."
+      }
+     ],
+     "run_id": "118fdf3e-caab-45f1-816a-62ddd85a43e1"
+    }
+   },
+   {
+    "seq": 54,
+    "sender": "test_reliability_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Executed test suite: 1 failed, 6 passed in 0.04s (exit code 1, 1152 ms)",
+    "payload": {
+     "command": "python -B -m coverage run --data-file=/tmp/claude-0/-home-claude-skopeo/ae5ac9f1-2a34-589b-a566-78c054655430/scratchpad/cap/ws/a2d2d2d9-32ba-420e-af12-d187dee772af/artifacts/.coverage --source=shopfront -m pytest -q -rfE -p no:cacheprovider --no-header --color=no tests",
+     "exit_code": 1,
+     "duration_ms": 1152,
+     "counts": {
+      "failed": 1,
+      "passed": 6
+     },
+     "summary": "1 failed, 6 passed in 0.04s",
+     "run_id": "118fdf3e-caab-45f1-816a-62ddd85a43e1"
+    }
+   },
+   {
+    "seq": 55,
+    "sender": "test_reliability_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "MEDIUM testing: Failing test: tests/test_pricing.py::test_format_price_pads_single_digit_cents",
+    "payload": {
+     "finding_id": "1f9321f1-c826-40ad-9e7d-a6acef3e93f3",
+     "title": "Failing test: tests/test_pricing.py::test_format_price_pads_single_digit_cents",
+     "severity": "medium",
+     "category": "testing",
+     "confidence": 0.836,
+     "evidence_count": 1,
+     "rule_id": "testing.test_failure",
+     "files": [
+      "tests/test_pricing.py"
+     ],
+     "run_id": "118fdf3e-caab-45f1-816a-62ddd85a43e1"
+    }
+   },
+   {
+    "seq": 56,
+    "sender": "test_reliability_agent",
+    "receiver": "blackboard",
+    "event_type": "evidence_added",
+    "summary": "Coverage run confirms shopfront/auth/middleware.py at 0% coverage",
+    "payload": {
+     "finding_id": "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d",
+     "evidence_id": "b1c921df-1035-4af4-a691-85d0b202b3cf",
+     "source_type": "test",
+     "tool": "coverage",
+     "new_confidence": 0.99,
+     "run_id": "118fdf3e-caab-45f1-816a-62ddd85a43e1"
+    }
+   },
+   {
+    "seq": 57,
+    "sender": "test_reliability_agent",
+    "receiver": "blackboard",
+    "event_type": "evidence_added",
+    "summary": "Coverage run confirms shopfront/auth/passwords.py at 0% coverage",
+    "payload": {
+     "finding_id": "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d",
+     "evidence_id": "96281c96-d3c9-43ac-b833-681a4b9d3d9d",
+     "source_type": "test",
+     "tool": "coverage",
+     "new_confidence": 0.99,
+     "run_id": "118fdf3e-caab-45f1-816a-62ddd85a43e1"
+    }
+   },
+   {
+    "seq": 58,
+    "sender": "test_reliability_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "MEDIUM testing: Overall line coverage is 20%",
+    "payload": {
+     "finding_id": "51eb4587-5e83-4596-9658-b08c3d81fa44",
+     "title": "Overall line coverage is 20%",
+     "severity": "medium",
+     "category": "testing",
+     "confidence": 0.836,
+     "evidence_count": 1,
+     "rule_id": "testing.low_coverage",
+     "files": [],
+     "run_id": "118fdf3e-caab-45f1-816a-62ddd85a43e1"
+    }
+   },
+   {
+    "seq": 59,
+    "sender": "test_reliability_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Test Reliability Agent completed in 1601 ms: 4 finding(s) published, 2 enriched",
+    "payload": {
+     "run_id": "118fdf3e-caab-45f1-816a-62ddd85a43e1",
+     "task_id": "4a1635e8-cd93-490c-90ca-4a3bfdc67065",
+     "duration_ms": 1601,
+     "findings": 4,
+     "limitations": []
+    }
+   },
+   {
+    "seq": 60,
+    "sender": "orchestrator",
+    "receiver": "performance_agent",
+    "event_type": "agent_retry_scheduled",
+    "summary": "performance_agent FAILED -> RETRYING (attempt 2, strategy 'static_only'): ToolUnavailableError: benchmark harness unavailable [controlled fault injection: SKOPEO_FAULT_INJECTION=performance_agent@1]; retry 2 with strategy 'static_only'",
+    "payload": {
+     "task_id": "476d725c-519d-4d7f-97ea-0089ba8697d4",
+     "previous_task_id": "7db33f5c-659d-499e-9a7b-d86c9bb3a79c",
+     "strategy": "static_only",
+     "attempt": 2,
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 61,
+    "sender": "orchestrator",
+    "receiver": "dependency_agent",
+    "event_type": "request_decided",
+    "summary": "Accepted request from dependency_agent: assigning security_agent:dependency_usage, api_compatibility_agent:upgrade_compatibility, test_reliability_agent:dependency_coverage",
+    "payload": {
+     "request_id": "05745ca8-d62b-4dc7-9975-ba75af173101",
+     "accepted": true,
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 62,
+    "sender": "orchestrator",
+    "receiver": "all_agents",
+    "event_type": "replan",
+    "summary": "Replanned: +security_agent (dependency_usage), +api_compatibility_agent (upgrade_compatibility), +test_reliability_agent (dependency_coverage); performance follow-up not required (pyjwt is not on a performance-sensitive path)",
+    "payload": {
+     "round": 2,
+     "added_tasks": [
+      {
+       "task_id": "7d6e3cc4-92b7-474b-984a-7171d3fbe010",
+       "agent": "security_agent",
+       "objective": "Inspect how pyjwt is used and whether it reaches security-critical code",
+       "mode": "dependency_usage",
+       "strategy": "default",
+       "focus": {
+        "package": "pyjwt",
+        "import_name": "jwt",
+        "current_version": "1.7.1",
+        "target_version": "2.14.0",
+        "finding_id": "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+        "security_sensitive": true
+       },
+       "priority": 2,
+       "trigger": "follow_up",
+       "attempt": 1,
+       "round": 2,
+       "parent_request_id": "05745ca8-d62b-4dc7-9975-ba75af173101",
+       "rationale": "vulnerable pyjwt: is it actually used, and where?"
+      },
+      {
+       "task_id": "1eaad6c2-09ec-4257-8767-b4557a24e274",
+       "agent": "api_compatibility_agent",
+       "objective": "Check whether upgrading pyjwt 1.7.1 -> 2.14.0 breaks APIs",
+       "mode": "upgrade_compatibility",
+       "strategy": "default",
+       "focus": {
+        "package": "pyjwt",
+        "import_name": "jwt",
+        "current_version": "1.7.1",
+        "target_version": "2.14.0",
+        "finding_id": "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+        "security_sensitive": true
+       },
+       "priority": 2,
+       "trigger": "follow_up",
+       "attempt": 1,
+       "round": 2,
+       "parent_request_id": "05745ca8-d62b-4dc7-9975-ba75af173101",
+       "rationale": "the fix is an upgrade; is it drop-in?"
+      },
+      {
+       "task_id": "f4e0a351-b8c3-43ed-90f1-9762fa92e50a",
+       "agent": "test_reliability_agent",
+       "objective": "Identify tests covering code that uses pyjwt",
+       "mode": "dependency_coverage",
+       "strategy": "default",
+       "focus": {
+        "package": "pyjwt",
+        "import_name": "jwt",
+        "current_version": "1.7.1",
+        "target_version": "2.14.0",
+        "finding_id": "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+        "security_sensitive": true
+       },
+       "priority": 2,
+       "trigger": "follow_up",
+       "attempt": 1,
+       "round": 2,
+       "parent_request_id": "05745ca8-d62b-4dc7-9975-ba75af173101",
+       "rationale": "an upgrade is only safe if the affected code is tested"
+      }
+     ],
+     "reasons": [
+      "an upgrade is only safe if the affected code is tested",
+      "the fix is an upgrade; is it drop-in?",
+      "vulnerable pyjwt: is it actually used, and where?"
+     ],
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 63,
+    "sender": "orchestrator",
+    "receiver": "all_agents",
+    "event_type": "orchestrator_decision",
+    "summary": "Review round 1: performance_agent failed (ToolUnavailableError); retrying with 'static_only'; 3 follow-up(s) scheduled Next: dispatch.",
+    "payload": {
+     "next_step": "dispatch",
+     "rationale": "new evidence or failures require further specialist work before cross-agent reasoning",
+     "decided_by": "policy",
+     "new_tasks": [
+      "performance_agent:full",
+      "security_agent:dependency_usage",
+      "api_compatibility_agent:upgrade_compatibility",
+      "test_reliability_agent:dependency_coverage"
+     ],
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 64,
+    "sender": "performance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Performance Agent started: Retry: performance_agent (static_only) (attempt 2, strategy static_only)",
+    "payload": {
+     "run_id": "975f5073-7413-4e43-adbf-31a52e77eac0",
+     "task_id": "476d725c-519d-4d7f-97ea-0089ba8697d4",
+     "mode": "full",
+     "strategy": "static_only",
+     "attempt": 2,
+     "trigger": "retry",
+     "round": 2,
+     "rationale": "ToolUnavailableError: benchmark harness unavailable [controlled fault injection: SKOPEO_FAULT_INJECTION=performance_agent@1]; retry 2 with strategy 'static_only'"
+    }
+   },
+   {
+    "seq": 65,
+    "sender": "performance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Performance Agent plan (full/static_only): detect static performance suspects (AST)",
+    "payload": {
+     "steps": [
+      "detect static performance suspects (AST)"
+     ],
+     "mode": "full",
+     "strategy": "static_only",
+     "run_id": "975f5073-7413-4e43-adbf-31a52e77eac0"
+    }
+   },
+   {
+    "seq": 66,
+    "sender": "security_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Security Agent started: Inspect how pyjwt is used and whether it reaches security-critical code [dependency_usage]",
+    "payload": {
+     "run_id": "515db45a-eae8-4086-9220-0567dcf0343e",
+     "task_id": "7d6e3cc4-92b7-474b-984a-7171d3fbe010",
+     "mode": "dependency_usage",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "follow_up",
+     "round": 2,
+     "rationale": "vulnerable pyjwt: is it actually used, and where?"
+    }
+   },
+   {
+    "seq": 67,
+    "sender": "security_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Security Agent plan (dependency_usage/default): trace dependency usage & reachability",
+    "payload": {
+     "steps": [
+      "trace dependency usage & reachability"
+     ],
+     "mode": "dependency_usage",
+     "strategy": "default",
+     "run_id": "515db45a-eae8-4086-9220-0567dcf0343e"
+    }
+   },
+   {
+    "seq": 68,
+    "sender": "api_compatibility_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "API Compatibility Agent started: Check whether upgrading pyjwt 1.7.1 -> 2.14.0 breaks APIs [upgrade_compatibility]",
+    "payload": {
+     "run_id": "406c4c53-4c5f-414d-bbd3-88f50a8e7f04",
+     "task_id": "1eaad6c2-09ec-4257-8767-b4557a24e274",
+     "mode": "upgrade_compatibility",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "follow_up",
+     "round": 2,
+     "rationale": "the fix is an upgrade; is it drop-in?"
+    }
+   },
+   {
+    "seq": 69,
+    "sender": "performance_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "MEDIUM performance: Blocking network call inside a loop in notify_customers() (shopfront/services/notifications.py) \u2014 STATIC SUSPECT",
+    "payload": {
+     "finding_id": "8650f15b-ec36-4f5d-84df-622cea4d427d",
+     "title": "Blocking network call inside a loop in notify_customers() (shopfront/services/notifications.py) \u2014 STATIC SUSPECT",
+     "severity": "medium",
+     "category": "performance",
+     "confidence": 0.388,
+     "evidence_count": 1,
+     "rule_id": "performance.network_in_loop",
+     "files": [
+      "shopfront/services/notifications.py"
+     ],
+     "run_id": "975f5073-7413-4e43-adbf-31a52e77eac0"
+    }
+   },
+   {
+    "seq": 70,
+    "sender": "api_compatibility_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "API Compatibility Agent plan (upgrade_compatibility/default): check upgrade compatibility against migration knowledge base",
+    "payload": {
+     "steps": [
+      "check upgrade compatibility against migration knowledge base"
+     ],
+     "mode": "upgrade_compatibility",
+     "strategy": "default",
+     "run_id": "406c4c53-4c5f-414d-bbd3-88f50a8e7f04"
+    }
+   },
+   {
+    "seq": 71,
+    "sender": "security_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "HIGH security: Vulnerable pyjwt is used by the authentication component (shopfront/auth/middleware.py)",
+    "payload": {
+     "finding_id": "139d3a2a-042f-4737-a2ad-6ce9ba52fc94",
+     "title": "Vulnerable pyjwt is used by the authentication component (shopfront/auth/middleware.py)",
+     "severity": "high",
+     "category": "security",
+     "confidence": 0.934,
+     "evidence_count": 3,
+     "rule_id": "security.vulnerable_dependency_usage",
+     "files": [
+      "shopfront/auth/middleware.py"
+     ],
+     "run_id": "515db45a-eae8-4086-9220-0567dcf0343e"
+    }
+   },
+   {
+    "seq": 72,
+    "sender": "security_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Confirmed pyjwt is used by authentication code (shopfront/auth/middleware.py); reachable from entrypoints: yes",
+    "payload": {
+     "package": "pyjwt",
+     "usage_files": [
+      "shopfront/auth/middleware.py"
+     ],
+     "call_sites": 2,
+     "run_id": "515db45a-eae8-4086-9220-0567dcf0343e"
+    }
+   },
+   {
+    "seq": 73,
+    "sender": "test_reliability_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Test Reliability Agent started: Identify tests covering code that uses pyjwt [dependency_coverage]",
+    "payload": {
+     "run_id": "533ae161-648c-4182-bba2-9c622b7465d6",
+     "task_id": "f4e0a351-b8c3-43ed-90f1-9762fa92e50a",
+     "mode": "dependency_coverage",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "follow_up",
+     "round": 2,
+     "rationale": "an upgrade is only safe if the affected code is tested"
+    }
+   },
+   {
+    "seq": 74,
+    "sender": "performance_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "MEDIUM performance: Database query executed inside a loop (N+1 pattern) in list_orders_with_items() (shopfront/services/orders.py) \u2014 STATIC SUSPECT",
+    "payload": {
+     "finding_id": "73660cc0-cfa8-4314-8ea3-5ed92fd1effe",
+     "title": "Database query executed inside a loop (N+1 pattern) in list_orders_with_items() (shopfront/services/orders.py) \u2014 STATIC SUSPECT",
+     "severity": "medium",
+     "category": "performance",
+     "confidence": 0.388,
+     "evidence_count": 1,
+     "rule_id": "performance.n_plus_one",
+     "files": [
+      "shopfront/services/orders.py"
+     ],
+     "run_id": "975f5073-7413-4e43-adbf-31a52e77eac0"
+    }
+   },
+   {
+    "seq": 75,
+    "sender": "test_reliability_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Test Reliability Agent plan (dependency_coverage/default): map tests to code using the dependency",
+    "payload": {
+     "steps": [
+      "map tests to code using the dependency"
+     ],
+     "mode": "dependency_coverage",
+     "strategy": "default",
+     "run_id": "533ae161-648c-4182-bba2-9c622b7465d6"
+    }
+   },
+   {
+    "seq": 76,
+    "sender": "api_compatibility_agent",
+    "receiver": "blackboard",
+    "event_type": "finding_created",
+    "summary": "MEDIUM api_compatibility: Upgrading pyjwt 1.7.1 -> 2.14.0 breaks 2 call site(s) in shopfront/auth/middleware.py",
+    "payload": {
+     "finding_id": "6ae50d21-e98c-49f2-9694-bfa2d7a1feb1",
+     "title": "Upgrading pyjwt 1.7.1 -> 2.14.0 breaks 2 call site(s) in shopfront/auth/middleware.py",
+     "severity": "medium",
+     "category": "api_compatibility",
+     "confidence": 0.828,
+     "evidence_count": 2,
+     "rule_id": "api.upgrade_breaking_changes",
+     "files": [
+      "shopfront/auth/middleware.py"
+     ],
+     "run_id": "406c4c53-4c5f-414d-bbd3-88f50a8e7f04"
+    }
+   },
+   {
+    "seq": 77,
+    "sender": "security_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Security Agent completed in 83 ms: 1 finding(s) published, 0 enriched",
+    "payload": {
+     "run_id": "515db45a-eae8-4086-9220-0567dcf0343e",
+     "task_id": "7d6e3cc4-92b7-474b-984a-7171d3fbe010",
+     "duration_ms": 83,
+     "findings": 1,
+     "limitations": []
+    }
+   },
+   {
+    "seq": 78,
+    "sender": "api_compatibility_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Upgrade of pyjwt is not drop-in: 2 call site(s) need changes",
+    "payload": {
+     "package": "pyjwt",
+     "call_sites": [
+      "shopfront/auth/middleware.py:17",
+      "shopfront/auth/middleware.py:26"
+     ],
+     "run_id": "406c4c53-4c5f-414d-bbd3-88f50a8e7f04"
+    }
+   },
+   {
+    "seq": 79,
+    "sender": "performance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Performance Agent completed in 108 ms: 2 finding(s) published, 0 enriched",
+    "payload": {
+     "run_id": "975f5073-7413-4e43-adbf-31a52e77eac0",
+     "task_id": "476d725c-519d-4d7f-97ea-0089ba8697d4",
+     "duration_ms": 108,
+     "findings": 2,
+     "limitations": [
+      "Degraded strategy 'static_only': no benchmarks or profiling in this run"
+     ]
+    }
+   },
+   {
+    "seq": 80,
+    "sender": "test_reliability_agent",
+    "receiver": "blackboard",
+    "event_type": "evidence_added",
+    "summary": "Linked untested authentication code to dependency pyjwt",
+    "payload": {
+     "finding_id": "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d",
+     "evidence_id": "ce502e05-4c2e-4ab4-8a89-d81eac3a1caf",
+     "source_type": "static_analysis",
+     "tool": "skopeo-import-graph",
+     "new_confidence": 0.99,
+     "run_id": "533ae161-648c-4182-bba2-9c622b7465d6"
+    }
+   },
+   {
+    "seq": 81,
+    "sender": "api_compatibility_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "API Compatibility Agent completed in 74 ms: 1 finding(s) published, 0 enriched",
+    "payload": {
+     "run_id": "406c4c53-4c5f-414d-bbd3-88f50a8e7f04",
+     "task_id": "1eaad6c2-09ec-4257-8767-b4557a24e274",
+     "duration_ms": 74,
+     "findings": 1,
+     "limitations": []
+    }
+   },
+   {
+    "seq": 82,
+    "sender": "test_reliability_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Code using pyjwt (shopfront/auth/middleware.py) is not exercised by any test \u2014 an upgrade of pyjwt would ship without regression tests (evidence added to existing finding)",
+    "payload": {
+     "finding_id": "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d",
+     "package": "pyjwt",
+     "run_id": "533ae161-648c-4182-bba2-9c622b7465d6"
+    }
+   },
+   {
+    "seq": 83,
+    "sender": "test_reliability_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Test Reliability Agent completed in 59 ms: 0 finding(s) published, 1 enriched",
+    "payload": {
+     "run_id": "533ae161-648c-4182-bba2-9c622b7465d6",
+     "task_id": "f4e0a351-b8c3-43ed-90f1-9762fa92e50a",
+     "duration_ms": 59,
+     "findings": 0,
+     "limitations": []
+    }
+   },
+   {
+    "seq": 84,
+    "sender": "orchestrator",
+    "receiver": "all_agents",
+    "event_type": "orchestrator_decision",
+    "summary": "Review round 2: 4 task(s) completed, 4 new finding(s) Next: correlate.",
+    "payload": {
+     "next_step": "correlate",
+     "rationale": "blackboard changed (version 0 -> 73); relationships must be re-evaluated",
+     "decided_by": "policy",
+     "new_tasks": [],
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 85,
+    "sender": "correlation_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Correlation Agent started: Correlate findings across agents",
+    "payload": {
+     "run_id": "8e762167-4068-49ba-885b-9150df216826",
+     "task_id": "cb22c3ff-fc5a-4513-a790-8b879d000d45",
+     "mode": "full",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "initial_plan",
+     "round": 1,
+     "rationale": ""
+    }
+   },
+   {
+    "seq": 86,
+    "sender": "correlation_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Correlation pass over 24 findings from 7 agents: 5 candidate relationship(s)",
+    "payload": {
+     "candidates": [
+      "contradiction:py:shopfront/services/orders.py::list_orders_with_items",
+      "root:pyjwt",
+      "compound:dep:pyjwt",
+      "cluster:authentication",
+      "deplink:requests"
+     ],
+     "run_id": "8e762167-4068-49ba-885b-9150df216826"
+    }
+   },
+   {
+    "seq": 87,
+    "sender": "correlation_agent",
+    "receiver": "blackboard",
+    "event_type": "correlation_created",
+    "summary": "Contradiction: Agents disagree about list_orders_with_items()",
+    "payload": {
+     "correlation_id": "293b1f40-718f-4e3b-928a-44b65a985389",
+     "relationship_type": "contradiction",
+     "finding_ids": [
+      "73660cc0-cfa8-4314-8ea3-5ed92fd1effe",
+      "5bc382cb-3139-4530-a1d9-112e8f551558"
+     ],
+     "member_titles": [
+      "Database query executed inside a loop (N+1 pattern) in list_orders_with_items() (shopfront/services/orders.py) \u2014 STATIC SUSPECT",
+      "Data-access function list_orders_with_items() assessed acceptable for maintainability (shopfront/services/orders.py)"
+     ],
+     "member_agents": [
+      "code_quality_agent",
+      "performance_agent"
+     ],
+     "risk_multiplier": 1.0,
+     "confidence": 0.378,
+     "decided_by": "policy",
+     "run_id": "8e762167-4068-49ba-885b-9150df216826"
+    }
+   },
+   {
+    "seq": 88,
+    "sender": "correlation_agent",
+    "receiver": "verification_agent",
+    "event_type": "agent_message",
+    "summary": "Contradiction requires adjudication: Agents disagree about list_orders_with_items(). Disagreement on py:shopfront/services/orders.py::list_orders_with_items: performance_agent flags a potential issue ('Database query executed inside a loop (N+1 pattern) in list_orders_with_items() (shopfront/services/orders.py) \u2014 STATIC SUSPECT'), code_quality_agent considers it acceptable (Short, low-complexity function using parameterised queries; scale judged from repository seed data contains 25 orders.). Potential issue but insufficient evidence \u2014 needs measurement to adjudicate.",
+    "payload": {
+     "correlation_id": "293b1f40-718f-4e3b-928a-44b65a985389",
+     "finding_ids": [
+      "73660cc0-cfa8-4314-8ea3-5ed92fd1effe",
+      "5bc382cb-3139-4530-a1d9-112e8f551558"
+     ],
+     "run_id": "8e762167-4068-49ba-885b-9150df216826"
+    }
+   },
+   {
+    "seq": 89,
+    "sender": "correlation_agent",
+    "receiver": "blackboard",
+    "event_type": "correlation_created",
+    "summary": "Shared Root Cause: Shared root cause: stale pin of pyjwt 1.7.1",
+    "payload": {
+     "correlation_id": "cf46f22c-0713-467e-a5d1-d9d2a0e452c0",
+     "relationship_type": "shared_root_cause",
+     "finding_ids": [
+      "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+      "d89d3712-c9de-49d1-8e49-d809de4585d2"
+     ],
+     "member_titles": [
+      "PyJWT 1.7.1 is affected by 11 known vulnerabilities",
+      "PyJWT 1.7.1 is a major version behind latest 2.15.1, released 7 year(s) ago"
+     ],
+     "member_agents": [
+      "dependency_agent"
+     ],
+     "risk_multiplier": 1.0,
+     "confidence": 0.894,
+     "decided_by": "policy",
+     "run_id": "8e762167-4068-49ba-885b-9150df216826"
+    }
+   },
+   {
+    "seq": 90,
+    "sender": "correlation_agent",
+    "receiver": "blackboard",
+    "event_type": "correlation_created",
+    "summary": "Compound Risk: Compound authentication upgrade risk: vulnerable PyJWT 1.7.1 in authentication code with insufficient tests",
+    "payload": {
+     "correlation_id": "078d4455-2f90-477a-9d2f-a16990a9a51d",
+     "relationship_type": "compound_risk",
+     "finding_ids": [
+      "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+      "139d3a2a-042f-4737-a2ad-6ce9ba52fc94",
+      "6ae50d21-e98c-49f2-9694-bfa2d7a1feb1",
+      "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d"
+     ],
+     "member_titles": [
+      "PyJWT 1.7.1 is affected by 11 known vulnerabilities",
+      "Vulnerable pyjwt is used by the authentication component (shopfront/auth/middleware.py)",
+      "Upgrading pyjwt 1.7.1 -> 2.14.0 breaks 2 call site(s) in shopfront/auth/middleware.py",
+      "Security-critical authentication code has no tests (shopfront/auth/middleware.py, shopfront/auth/passwords.py)"
+     ],
+     "member_agents": [
+      "api_compatibility_agent",
+      "dependency_agent",
+      "security_agent",
+      "test_reliability_agent"
+     ],
+     "risk_multiplier": 1.75,
+     "confidence": 0.877,
+     "decided_by": "policy",
+     "run_id": "8e762167-4068-49ba-885b-9150df216826"
+    }
+   },
+   {
+    "seq": 91,
+    "sender": "correlation_agent",
+    "receiver": "blackboard",
+    "event_type": "correlation_created",
+    "summary": "Compound Risk: Concentrated weaknesses in the authentication component (3 security findings, untested)",
+    "payload": {
+     "correlation_id": "24d03ce4-6885-4893-a8dd-27f7fcb2ef11",
+     "relationship_type": "compound_risk",
+     "finding_ids": [
+      "554afa99-804c-4a70-a6e9-608e2e27d1da",
+      "59fd753e-cc91-4ef3-aa71-e7ba7ea2375d",
+      "c622ce77-d991-4e01-91d1-3319c58c47eb",
+      "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d"
+     ],
+     "member_titles": [
+      "Hardcoded fallback value for secret SHOPFRONT_SECRET in shopfront/auth/middleware.py",
+      "JWT decoded without an explicit algorithms allow-list in shopfront/auth/middleware.py",
+      "Passwords hashed with MD5 (fast, unsalted) in shopfront/auth/passwords.py",
+      "Security-critical authentication code has no tests (shopfront/auth/middleware.py, shopfront/auth/passwords.py)"
+     ],
+     "member_agents": [
+      "security_agent",
+      "test_reliability_agent"
+     ],
+     "risk_multiplier": 1.3,
+     "confidence": 0.511,
+     "decided_by": "policy",
+     "run_id": "8e762167-4068-49ba-885b-9150df216826"
+    }
+   },
+   {
+    "seq": 92,
+    "sender": "correlation_agent",
+    "receiver": "blackboard",
+    "event_type": "correlation_created",
+    "summary": "Dependency: Unpinned requests is used on a hot path",
+    "payload": {
+     "correlation_id": "82aca656-9da3-44db-bf5f-fc2c4590bbf0",
+     "relationship_type": "dependency",
+     "finding_ids": [
+      "add5defb-e907-454f-96cb-3bb51e3efe0d",
+      "8650f15b-ec36-4f5d-84df-622cea4d427d"
+     ],
+     "member_titles": [
+      "1 runtime dependency is not pinned to exact versions (requests>=2.20)",
+      "Blocking network call inside a loop in notify_customers() (shopfront/services/notifications.py) \u2014 STATIC SUSPECT"
+     ],
+     "member_agents": [
+      "dependency_agent",
+      "performance_agent"
+     ],
+     "risk_multiplier": 1.05,
+     "confidence": 0.462,
+     "decided_by": "policy",
+     "run_id": "8e762167-4068-49ba-885b-9150df216826"
+    }
+   },
+   {
+    "seq": 93,
+    "sender": "correlation_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Correlation Agent completed in 92 ms: 5 new and 0 updated correlation(s) from 5 candidates",
+    "payload": {
+     "run_id": "8e762167-4068-49ba-885b-9150df216826",
+     "task_id": "cb22c3ff-fc5a-4513-a790-8b879d000d45",
+     "duration_ms": 92,
+     "findings": 0,
+     "limitations": []
+    }
+   },
+   {
+    "seq": 94,
+    "sender": "orchestrator",
+    "receiver": "all_agents",
+    "event_type": "orchestrator_decision",
+    "summary": "Review round 2: phase complete Next: verify.",
+    "payload": {
+     "next_step": "verify",
+     "rationale": "24 finding(s) not yet challenged by the red-team",
+     "decided_by": "policy",
+     "new_tasks": [],
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 95,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Verification / Red-Team Agent started: Red-team verification round 1",
+    "payload": {
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28",
+     "task_id": "b6ccc86b-9942-45f8-9cd5-11ff14deb175",
+     "mode": "full",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "initial_plan",
+     "round": 1,
+     "rationale": ""
+    }
+   },
+   {
+    "seq": 96,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "verification_started",
+    "summary": "Red-team round 1: challenging 24 finding(s) and pending correlations",
+    "payload": {
+     "round": 1,
+     "finding_ids": [
+      "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+      "b0604fe7-fe3a-44d4-9755-cd437f206cc1",
+      "823e77b8-cb6c-44f4-913b-373ecafb1dda",
+      "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d",
+      "59fd753e-cc91-4ef3-aa71-e7ba7ea2375d",
+      "c622ce77-d991-4e01-91d1-3319c58c47eb",
+      "80980334-cdc7-466e-8eb7-58ab1fd4fb31",
+      "139d3a2a-042f-4737-a2ad-6ce9ba52fc94",
+      "d89d3712-c9de-49d1-8e49-d809de4585d2",
+      "554afa99-804c-4a70-a6e9-608e2e27d1da",
+      "9a575639-9a68-432d-bfa9-fe6b52eb77ca",
+      "d67902e7-6b68-430d-ae01-d345c0c4edbd",
+      "c0845c1d-2421-456b-a1bb-553676b98388",
+      "1f9321f1-c826-40ad-9e7d-a6acef3e93f3",
+      "51eb4587-5e83-4596-9658-b08c3d81fa44",
+      "8650f15b-ec36-4f5d-84df-622cea4d427d",
+      "73660cc0-cfa8-4314-8ea3-5ed92fd1effe",
+      "6ae50d21-e98c-49f2-9694-bfa2d7a1feb1",
+      "045d8a43-ce3b-4902-9895-a86cf1ed3d22",
+      "10e9555e-45d0-404a-bcfe-352c23d19041",
+      "add5defb-e907-454f-96cb-3bb51e3efe0d",
+      "3fd00276-3cc6-423d-8c76-77eb172495a2",
+      "02dca29d-efa2-4ce5-a75f-f9855ab14f83",
+      "5bc382cb-3139-4530-a1d9-112e8f551558"
+     ],
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 97,
+    "sender": "verification_agent",
+    "receiver": "dependency_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to dependency_agent: Is pyjwt actually imported and reachable, and is the critical severity backed by the advisory data?",
+    "payload": {
+     "finding_id": "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+     "title": "PyJWT 1.7.1 is affected by 11 known vulnerabilities",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 98,
+    "sender": "verification_agent",
+    "receiver": "dependency_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: PyJWT 1.7.1 is affected by 11 known vulnerabilities \u2014 Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. `jwt` imported by shopfront/auth/middleware.py; imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py. claimed critical matches the highest advi",
+    "payload": {
+     "finding_id": "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "dependency_used",
+       "question": "Is the vulnerable dependency actually used?",
+       "outcome": "pass",
+       "detail": "`jwt` imported by shopfront/auth/middleware.py; imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py",
+       "supports": null
+      },
+      {
+       "check": "severity_justified",
+       "question": "Is the claimed severity justified?",
+       "outcome": "pass",
+       "detail": "claimed critical matches the highest advisory severity in the evidence (critical) for the exact pinned version",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 99,
+    "sender": "verification_agent",
+    "receiver": "security_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to security_agent: Is this a live credential, or a documented dummy value in a fixture? Is it used by production code?",
+    "payload": {
+     "finding_id": "b0604fe7-fe3a-44d4-9755-cd437f206cc1",
+     "title": "Possible credential exposure: AWS access key ID in tests/fixtures/README.md",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 100,
+    "sender": "verification_agent",
+    "receiver": "security_agent",
+    "event_type": "finding_rejected",
+    "summary": "REJECTED: Possible credential exposure: AWS access key ID in tests/fixtures/README.md \u2014 The detected string occurs in tests/fixtures/README.md and matches a documented placeholder pattern. AKIA************MPLE: value matches a documented placeholder (AWS documentation example access key ID). all affected files are tests/fixtures/docs: tests/fixtures/README.md. No production credential ",
+    "payload": {
+     "finding_id": "b0604fe7-fe3a-44d4-9755-cd437f206cc1",
+     "decision": "rejected",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "location_context",
+       "question": "Could this be a false positive?",
+       "outcome": "fail",
+       "detail": "all affected files are tests/fixtures/docs: tests/fixtures/README.md",
+       "supports": "downgrade"
+      },
+      {
+       "check": "placeholder",
+       "question": "Is this a documented dummy credential?",
+       "outcome": "fail",
+       "detail": "AKIA************MPLE: value matches a documented placeholder (AWS documentation example access key ID)",
+       "supports": "rejection"
+      },
+      {
+       "check": "production_reference",
+       "question": "Is the value used by production code?",
+       "outcome": "pass",
+       "detail": "README.md referenced by production files pyproject.toml",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 101,
+    "sender": "verification_agent",
+    "receiver": "security_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to security_agent: Is this a live credential, or a documented dummy value in a fixture? Is it used by production code?",
+    "payload": {
+     "finding_id": "823e77b8-cb6c-44f4-913b-373ecafb1dda",
+     "title": "Possible credential exposure: AWS access key ID and AWS secret access key in tests/fixtures/example_credentials.txt",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 102,
+    "sender": "verification_agent",
+    "receiver": "security_agent",
+    "event_type": "finding_rejected",
+    "summary": "REJECTED: Possible credential exposure: AWS access key ID and AWS secret access key in tests/fixtures/example_credentials.txt \u2014 The detected string occurs in tests/fixtures/example_credentials.txt and matches a documented placeholder pattern. AKIA************MPLE: value matches a documented placeholder (AWS documentation example access key ID); wJal********************************EKEY: value matches a documented placeholder ",
+    "payload": {
+     "finding_id": "823e77b8-cb6c-44f4-913b-373ecafb1dda",
+     "decision": "rejected",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 2 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "location_context",
+       "question": "Could this be a false positive?",
+       "outcome": "fail",
+       "detail": "all affected files are tests/fixtures/docs: tests/fixtures/example_credentials.txt",
+       "supports": "downgrade"
+      },
+      {
+       "check": "placeholder",
+       "question": "Is this a documented dummy credential?",
+       "outcome": "fail",
+       "detail": "AKIA************MPLE: value matches a documented placeholder (AWS documentation example access key ID); wJal********************************EKEY: value matches a documented placeholder (AWS documentation example secret access key)",
+       "supports": "rejection"
+      },
+      {
+       "check": "production_reference",
+       "question": "Is the value used by production code?",
+       "outcome": "fail",
+       "detail": "example_credentials.txt is only referenced by tests (tests/test_config.py); no production code loads it",
+       "supports": "rejection"
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 103,
+    "sender": "verification_agent",
+    "receiver": "test_reliability_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to test_reliability_agent: Do tests really not exercise this code? Re-derive the mapping independently.",
+    "payload": {
+     "finding_id": "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d",
+     "title": "Security-critical authentication code has no tests (shopfront/auth/middleware.py, shopfront/auth/passwords.py)",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 104,
+    "sender": "verification_agent",
+    "receiver": "test_reliability_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: Security-critical authentication code has no tests (shopfront/auth/middleware.py, shopfront/auth/passwords.py) \u2014 Verified: re-hashed 5 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. independently rebuilt import graph: no test imports shopfront/auth/middleware.py, shopfront/auth/passwords.py. shopfront/auth/middleware.py: 0% line coverage (0/23 statement",
+    "payload": {
+     "finding_id": "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 5 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "independent_mapping",
+       "question": "Can the claim be reproduced?",
+       "outcome": "pass",
+       "detail": "independently rebuilt import graph: no test imports shopfront/auth/middleware.py, shopfront/auth/passwords.py",
+       "supports": null
+      },
+      {
+       "check": "coverage_measurement",
+       "question": "Is there measured evidence?",
+       "outcome": "pass",
+       "detail": "shopfront/auth/middleware.py: 0% line coverage (0/23 statements) during the executed test run",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 105,
+    "sender": "verification_agent",
+    "receiver": "security_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to security_agent: Is the evidence real, current and reachable, and is the severity justified?",
+    "payload": {
+     "finding_id": "59fd753e-cc91-4ef3-aa71-e7ba7ea2375d",
+     "title": "JWT decoded without an explicit algorithms allow-list in shopfront/auth/middleware.py",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 106,
+    "sender": "verification_agent",
+    "receiver": "security_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: JWT decoded without an explicit algorithms allow-list in shopfront/auth/middleware.py \u2014 Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py. affected files are production code.",
+    "payload": {
+     "finding_id": "59fd753e-cc91-4ef3-aa71-e7ba7ea2375d",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "reachability",
+       "question": "Is the affected code actually reachable?",
+       "outcome": "pass",
+       "detail": "imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py",
+       "supports": null
+      },
+      {
+       "check": "location_context",
+       "question": "Could this be a false positive?",
+       "outcome": "pass",
+       "detail": "affected files are production code",
+       "supports": null
+      },
+      {
+       "check": "mitigation",
+       "question": "Does the configuration mitigate the issue?",
+       "outcome": "pass",
+       "detail": "no mitigation: PyJWT 1.7.1 (<2.0) accepts the algorithm named in the token header when algorithms is omitted",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 107,
+    "sender": "verification_agent",
+    "receiver": "security_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to security_agent: Is the evidence real, current and reachable, and is the severity justified?",
+    "payload": {
+     "finding_id": "c622ce77-d991-4e01-91d1-3319c58c47eb",
+     "title": "Passwords hashed with MD5 (fast, unsalted) in shopfront/auth/passwords.py",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 108,
+    "sender": "verification_agent",
+    "receiver": "security_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: Passwords hashed with MD5 (fast, unsalted) in shopfront/auth/passwords.py \u2014 Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py. affected files are production code.",
+    "payload": {
+     "finding_id": "c622ce77-d991-4e01-91d1-3319c58c47eb",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "reachability",
+       "question": "Is the affected code actually reachable?",
+       "outcome": "pass",
+       "detail": "imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py",
+       "supports": null
+      },
+      {
+       "check": "location_context",
+       "question": "Could this be a false positive?",
+       "outcome": "pass",
+       "detail": "affected files are production code",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 109,
+    "sender": "verification_agent",
+    "receiver": "license_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to license_agent: Is the evidence real, current and reachable, and is the severity justified?",
+    "payload": {
+     "finding_id": "80980334-cdc7-466e-8eb7-58ab1fd4fb31",
+     "title": "GPL-3.0 licensed source in a MIT project (shopfront/vendor/fastcsv.py)",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 110,
+    "sender": "verification_agent",
+    "receiver": "license_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: GPL-3.0 licensed source in a MIT project (shopfront/vendor/fastcsv.py) \u2014 Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. copyleft-licensed file is part of shipped code: imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py. affected files are production code.",
+    "payload": {
+     "finding_id": "80980334-cdc7-466e-8eb7-58ab1fd4fb31",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "reachability",
+       "question": "Is the affected code actually reachable?",
+       "outcome": "pass",
+       "detail": "copyleft-licensed file is part of shipped code: imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py",
+       "supports": null
+      },
+      {
+       "check": "location_context",
+       "question": "Could this be a false positive?",
+       "outcome": "pass",
+       "detail": "affected files are production code",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 111,
+    "sender": "verification_agent",
+    "receiver": "security_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to security_agent: Is the evidence real, current and reachable, and is the severity justified?",
+    "payload": {
+     "finding_id": "139d3a2a-042f-4737-a2ad-6ce9ba52fc94",
+     "title": "Vulnerable pyjwt is used by the authentication component (shopfront/auth/middleware.py)",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 112,
+    "sender": "verification_agent",
+    "receiver": "security_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: Vulnerable pyjwt is used by the authentication component (shopfront/auth/middleware.py) \u2014 Verified: re-hashed 3 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py. affected files are production code.",
+    "payload": {
+     "finding_id": "139d3a2a-042f-4737-a2ad-6ce9ba52fc94",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 3 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "reachability",
+       "question": "Is the affected code actually reachable?",
+       "outcome": "pass",
+       "detail": "imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py",
+       "supports": null
+      },
+      {
+       "check": "location_context",
+       "question": "Could this be a false positive?",
+       "outcome": "pass",
+       "detail": "affected files are production code",
+       "supports": null
+      },
+      {
+       "check": "usage_claim",
+       "question": "Is the vulnerable dependency actually used?",
+       "outcome": "pass",
+       "detail": "call sites: shopfront/auth/middleware.py:16, shopfront/auth/middleware.py:26",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 113,
+    "sender": "verification_agent",
+    "receiver": "dependency_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to dependency_agent: Is the evidence real, current and reachable, and is the severity justified?",
+    "payload": {
+     "finding_id": "d89d3712-c9de-49d1-8e49-d809de4585d2",
+     "title": "PyJWT 1.7.1 is a major version behind latest 2.15.1, released 7 year(s) ago",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 114,
+    "sender": "verification_agent",
+    "receiver": "dependency_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: PyJWT 1.7.1 is a major version behind latest 2.15.1, released 7 year(s) ago \u2014 Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. `jwt` imported by shopfront/auth/middleware.py; imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py.",
+    "payload": {
+     "finding_id": "d89d3712-c9de-49d1-8e49-d809de4585d2",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "dependency_used",
+       "question": "Is the vulnerable dependency actually used?",
+       "outcome": "pass",
+       "detail": "`jwt` imported by shopfront/auth/middleware.py; imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 115,
+    "sender": "verification_agent",
+    "receiver": "security_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to security_agent: Is the evidence real, current and reachable, and is the severity justified?",
+    "payload": {
+     "finding_id": "554afa99-804c-4a70-a6e9-608e2e27d1da",
+     "title": "Hardcoded fallback value for secret SHOPFRONT_SECRET in shopfront/auth/middleware.py",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 116,
+    "sender": "verification_agent",
+    "receiver": "security_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: Hardcoded fallback value for secret SHOPFRONT_SECRET in shopfront/auth/middleware.py \u2014 Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py. affected files are production code.",
+    "payload": {
+     "finding_id": "554afa99-804c-4a70-a6e9-608e2e27d1da",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "reachability",
+       "question": "Is the affected code actually reachable?",
+       "outcome": "pass",
+       "detail": "imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py",
+       "supports": null
+      },
+      {
+       "check": "location_context",
+       "question": "Could this be a false positive?",
+       "outcome": "pass",
+       "detail": "affected files are production code",
+       "supports": null
+      },
+      {
+       "check": "mitigation",
+       "question": "Does the configuration mitigate the issue?",
+       "outcome": "pass",
+       "detail": "no deployment configuration sets the variable; the literal fallback is used whenever it is absent (os.environ.get)",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 117,
+    "sender": "verification_agent",
+    "receiver": "dependency_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to dependency_agent: Is the evidence real, current and reachable, and is the severity justified?",
+    "payload": {
+     "finding_id": "9a575639-9a68-432d-bfa9-fe6b52eb77ca",
+     "title": "python-dateutil appears unmaintained (latest release 2+ years ago)",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 118,
+    "sender": "verification_agent",
+    "receiver": "dependency_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: python-dateutil appears unmaintained (latest release 2+ years ago) \u2014 Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. Severity downgraded medium -> low: no production module imports `dateutil` \u2014 theoretical risk only",
+    "payload": {
+     "finding_id": "9a575639-9a68-432d-bfa9-fe6b52eb77ca",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "dependency_used",
+       "question": "Is the vulnerable dependency actually used?",
+       "outcome": "fail",
+       "detail": "no production module imports `dateutil` \u2014 theoretical risk only",
+       "supports": "downgrade"
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": "low",
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 119,
+    "sender": "verification_agent",
+    "receiver": "code_quality_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to code_quality_agent: Is the evidence real, current and reachable, and is the severity justified?",
+    "payload": {
+     "finding_id": "d67902e7-6b68-430d-ae01-d345c0c4edbd",
+     "title": "build_sales_report() has cyclomatic complexity 17 (shopfront/services/reports.py)",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 120,
+    "sender": "verification_agent",
+    "receiver": "code_quality_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: build_sales_report() has cyclomatic complexity 17 (shopfront/services/reports.py) \u2014 Verified: re-hashed 2 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. recomputed independently: complexity 17, 43 lines, nesting 5.",
+    "payload": {
+     "finding_id": "d67902e7-6b68-430d-ae01-d345c0c4edbd",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 2 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "recompute",
+       "question": "Can the claim be reproduced?",
+       "outcome": "pass",
+       "detail": "recomputed independently: complexity 17, 43 lines, nesting 5",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 121,
+    "sender": "verification_agent",
+    "receiver": "license_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to license_agent: Is the evidence real, current and reachable, and is the severity justified?",
+    "payload": {
+     "finding_id": "c0845c1d-2421-456b-a1bb-553676b98388",
+     "title": "License metadata mismatch: pyproject.toml declares Apache-2.0 but LICENSE is MIT",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 122,
+    "sender": "verification_agent",
+    "receiver": "license_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: License metadata mismatch: pyproject.toml declares Apache-2.0 but LICENSE is MIT \u2014 Verified: re-hashed 2 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. 'Apache-2.0' and 'MIT' are distinct licenses with different obligations.",
+    "payload": {
+     "finding_id": "c0845c1d-2421-456b-a1bb-553676b98388",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 2 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "false_positive",
+       "question": "Could this be a false positive?",
+       "outcome": "pass",
+       "detail": "'Apache-2.0' and 'MIT' are distinct licenses with different obligations",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 123,
+    "sender": "verification_agent",
+    "receiver": "test_reliability_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to test_reliability_agent: Does the failure reproduce on an independent re-run?",
+    "payload": {
+     "finding_id": "1f9321f1-c826-40ad-9e7d-a6acef3e93f3",
+     "title": "Failing test: tests/test_pricing.py::test_format_price_pads_single_digit_cents",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 124,
+    "sender": "verification_agent",
+    "receiver": "test_reliability_agent",
+    "event_type": "challenge",
+    "summary": "Requested reproduction: re-running tests/test_pricing.py::test_format_price_pads_single_digit_cents",
+    "payload": {
+     "finding_id": "1f9321f1-c826-40ad-9e7d-a6acef3e93f3",
+     "node_id": "tests/test_pricing.py::test_format_price_pads_single_digit_cents",
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 125,
+    "sender": "verification_agent",
+    "receiver": "blackboard",
+    "event_type": "tool_executed",
+    "summary": "verification_agent executed python -B -m pytest -q -p no:cacheprovider --no-header --color=no tests/test_pricing.py::test_format_price_pads_single_digit_cents",
+    "payload": {
+     "command": "python -B -m pytest -q -p no:cacheprovider --no-header --color=no tests/test_pricing.py::test_format_price_pads_single_digit_cents",
+     "exit_code": 1,
+     "duration_ms": 799,
+     "timed_out": false,
+     "stdout_tail": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________ test_format_price_pads_single_digit_cents ___________________\n\n    def test_format_price_pads_single_digit_cents():\n>       assert format_price(1905) == \"$19.05\"\nE       AssertionError: assert '$19.5' == '$19.05'\nE         \nE         - $19.05\nE         ?     -\nE         + $19.5\n\ntests/test_pricing.py:11: AssertionError\n=========================== short test summary info ============================\nFAILED tests/test_pricing.py::test_format_price_pads_single_digit_cents - Ass...\n1 failed in 0.03s\n",
+     "stderr_tail": "",
+     "truncated": false,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 126,
+    "sender": "verification_agent",
+    "receiver": "test_reliability_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: Failing test: tests/test_pricing.py::test_format_price_pads_single_digit_cents \u2014 Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. reproduction confirmed: `python -B -m pytest -q -p no:cacheprovider --no-header --color=no tests/test_pricing.py::test_format_price_pads_single_digit_cents` failed again (ex",
+    "payload": {
+     "finding_id": "1f9321f1-c826-40ad-9e7d-a6acef3e93f3",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "reproduction",
+       "question": "Can the claim be reproduced?",
+       "outcome": "pass",
+       "detail": "reproduction confirmed: `python -B -m pytest -q -p no:cacheprovider --no-header --color=no tests/test_pricing.py::test_format_price_pads_single_digit_cents` failed again (exit 1, 799 ms)",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 127,
+    "sender": "verification_agent",
+    "receiver": "test_reliability_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to test_reliability_agent: Do tests really not exercise this code? Re-derive the mapping independently.",
+    "payload": {
+     "finding_id": "51eb4587-5e83-4596-9658-b08c3d81fa44",
+     "title": "Overall line coverage is 20%",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 128,
+    "sender": "verification_agent",
+    "receiver": "test_reliability_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: Overall line coverage is 20% \u2014 Verified: evidence captured at the analysed commit 5eda3b9ec3. test-quality claim re-derived from the test AST.",
+    "payload": {
+     "finding_id": "51eb4587-5e83-4596-9658-b08c3d81fa44",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "not_applicable",
+       "detail": "1 evidence item(s) reference external/tool data rather than file lines",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "recheck",
+       "question": "Can the claim be reproduced?",
+       "outcome": "pass",
+       "detail": "test-quality claim re-derived from the test AST",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 129,
+    "sender": "verification_agent",
+    "receiver": "performance_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to performance_agent: Has this been measured, or is it a theoretical static suspect? Is the code on a reachable path?",
+    "payload": {
+     "finding_id": "8650f15b-ec36-4f5d-84df-622cea4d427d",
+     "title": "Blocking network call inside a loop in notify_customers() (shopfront/services/notifications.py) \u2014 STATIC SUSPECT",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 130,
+    "sender": "verification_agent",
+    "receiver": "performance_agent",
+    "event_type": "verification_completed",
+    "summary": "NEEDS MORE EVIDENCE: Blocking network call inside a loop in notify_customers() (shopfront/services/notifications.py) \u2014 STATIC SUSPECT \u2014 Needs more evidence: STATIC SUSPECT only \u2014 no benchmark has measured the impact; a medium+ performance claim needs measurement.",
+    "payload": {
+     "finding_id": "8650f15b-ec36-4f5d-84df-622cea4d427d",
+     "decision": "needs_more_evidence",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "reachability",
+       "question": "Is the affected code actually reachable?",
+       "outcome": "pass",
+       "detail": "imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py",
+       "supports": null
+      },
+      {
+       "check": "theoretical_vs_actual",
+       "question": "Is the agent confusing theoretical risk with actual risk?",
+       "outcome": "inconclusive",
+       "detail": "STATIC SUSPECT only \u2014 no benchmark has measured the impact; a medium+ performance claim needs measurement",
+       "supports": "more_evidence"
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 131,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "investigation_requested",
+    "summary": "Requests benchmark: Run a benchmark for notify_customers() to measure the suspected network in loop",
+    "payload": {
+     "request_id": "45534ff2-1596-4b94-bd10-72db9c7a4a6b",
+     "target_agent": "performance_agent",
+     "required_evidence": "benchmark",
+     "reason": "static suspect / disputed claim cannot be verified without measurement",
+     "related_finding_ids": [
+      "8650f15b-ec36-4f5d-84df-622cea4d427d"
+     ],
+     "focus": {
+      "finding_ids": [
+       "8650f15b-ec36-4f5d-84df-622cea4d427d"
+      ],
+      "function": "notify_customers",
+      "file": "shopfront/services/notifications.py"
+     },
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 132,
+    "sender": "verification_agent",
+    "receiver": "performance_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to performance_agent: Has this been measured, or is it a theoretical static suspect? Is the code on a reachable path?",
+    "payload": {
+     "finding_id": "73660cc0-cfa8-4314-8ea3-5ed92fd1effe",
+     "title": "Database query executed inside a loop (N+1 pattern) in list_orders_with_items() (shopfront/services/orders.py) \u2014 STATIC SUSPECT",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 133,
+    "sender": "verification_agent",
+    "receiver": "performance_agent",
+    "event_type": "verification_completed",
+    "summary": "NEEDS MORE EVIDENCE: Database query executed inside a loop (N+1 pattern) in list_orders_with_items() (shopfront/services/orders.py) \u2014 STATIC SUSPECT \u2014 Needs more evidence: STATIC SUSPECT only \u2014 no benchmark has measured the impact; a medium+ performance claim needs measurement. code_quality_agent disagrees; requires measurement to adjudicate.",
+    "payload": {
+     "finding_id": "73660cc0-cfa8-4314-8ea3-5ed92fd1effe",
+     "decision": "needs_more_evidence",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "reachability",
+       "question": "Is the affected code actually reachable?",
+       "outcome": "pass",
+       "detail": "imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py",
+       "supports": null
+      },
+      {
+       "check": "theoretical_vs_actual",
+       "question": "Is the agent confusing theoretical risk with actual risk?",
+       "outcome": "inconclusive",
+       "detail": "STATIC SUSPECT only \u2014 no benchmark has measured the impact; a medium+ performance claim needs measurement",
+       "supports": "more_evidence"
+      },
+      {
+       "check": "contradiction",
+       "question": "Is there contradictory evidence?",
+       "outcome": "inconclusive",
+       "detail": "code_quality_agent disagrees; requires measurement to adjudicate",
+       "supports": "more_evidence"
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 134,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "investigation_requested",
+    "summary": "Requests benchmark: Run a benchmark for list_orders_with_items() to measure the suspected n plus one",
+    "payload": {
+     "request_id": "0fb8f6e9-b36e-4306-8cc4-b5689cedb237",
+     "target_agent": "performance_agent",
+     "required_evidence": "benchmark",
+     "reason": "static suspect / disputed claim cannot be verified without measurement",
+     "related_finding_ids": [
+      "73660cc0-cfa8-4314-8ea3-5ed92fd1effe"
+     ],
+     "focus": {
+      "finding_ids": [
+       "73660cc0-cfa8-4314-8ea3-5ed92fd1effe"
+      ],
+      "function": "list_orders_with_items",
+      "file": "shopfront/services/orders.py"
+     },
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 135,
+    "sender": "verification_agent",
+    "receiver": "api_compatibility_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to api_compatibility_agent: Is the evidence real, current and reachable, and is the severity justified?",
+    "payload": {
+     "finding_id": "6ae50d21-e98c-49f2-9694-bfa2d7a1feb1",
+     "title": "Upgrading pyjwt 1.7.1 -> 2.14.0 breaks 2 call site(s) in shopfront/auth/middleware.py",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 136,
+    "sender": "verification_agent",
+    "receiver": "api_compatibility_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: Upgrading pyjwt 1.7.1 -> 2.14.0 breaks 2 call site(s) in shopfront/auth/middleware.py \u2014 Verified: re-hashed 2 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py. affected files are production code.",
+    "payload": {
+     "finding_id": "6ae50d21-e98c-49f2-9694-bfa2d7a1feb1",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 2 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "reachability",
+       "question": "Is the affected code actually reachable?",
+       "outcome": "pass",
+       "detail": "imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py",
+       "supports": null
+      },
+      {
+       "check": "location_context",
+       "question": "Could this be a false positive?",
+       "outcome": "pass",
+       "detail": "affected files are production code",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 137,
+    "sender": "verification_agent",
+    "receiver": "test_reliability_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to test_reliability_agent: Do tests really not exercise this code? Re-derive the mapping independently.",
+    "payload": {
+     "finding_id": "045d8a43-ce3b-4902-9895-a86cf1ed3d22",
+     "title": "1 test(s) in tests/test_orders.py only make weak assertions",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 138,
+    "sender": "verification_agent",
+    "receiver": "test_reliability_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: 1 test(s) in tests/test_orders.py only make weak assertions \u2014 Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. test-quality claim re-derived from the test AST.",
+    "payload": {
+     "finding_id": "045d8a43-ce3b-4902-9895-a86cf1ed3d22",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "recheck",
+       "question": "Can the claim be reproduced?",
+       "outcome": "pass",
+       "detail": "test-quality claim re-derived from the test AST",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 139,
+    "sender": "verification_agent",
+    "receiver": "api_compatibility_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to api_compatibility_agent: Is the evidence real, current and reachable, and is the severity justified?",
+    "payload": {
+     "finding_id": "10e9555e-45d0-404a-bcfe-352c23d19041",
+     "title": "Deprecated legacy_price_lookup() is still called from 1 production site(s)",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 140,
+    "sender": "verification_agent",
+    "receiver": "api_compatibility_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: Deprecated legacy_price_lookup() is still called from 1 production site(s) \u2014 Verified: re-hashed 2 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. shopfront/api/routes.py is itself an entrypoint. affected files are production code.",
+    "payload": {
+     "finding_id": "10e9555e-45d0-404a-bcfe-352c23d19041",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 2 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "reachability",
+       "question": "Is the affected code actually reachable?",
+       "outcome": "pass",
+       "detail": "shopfront/api/routes.py is itself an entrypoint",
+       "supports": null
+      },
+      {
+       "check": "location_context",
+       "question": "Could this be a false positive?",
+       "outcome": "pass",
+       "detail": "affected files are production code",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 141,
+    "sender": "verification_agent",
+    "receiver": "dependency_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to dependency_agent: Is the evidence real, current and reachable, and is the severity justified?",
+    "payload": {
+     "finding_id": "add5defb-e907-454f-96cb-3bb51e3efe0d",
+     "title": "1 runtime dependency is not pinned to exact versions (requests>=2.20)",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 142,
+    "sender": "verification_agent",
+    "receiver": "dependency_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: 1 runtime dependency is not pinned to exact versions (requests>=2.20) \u2014 Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. derived from deterministic git / GitHub data.",
+    "payload": {
+     "finding_id": "add5defb-e907-454f-96cb-3bb51e3efe0d",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "source_quality",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "derived from deterministic git / GitHub data",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 143,
+    "sender": "verification_agent",
+    "receiver": "security_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to security_agent: Is the evidence real, current and reachable, and is the severity justified?",
+    "payload": {
+     "finding_id": "3fd00276-3cc6-423d-8c76-77eb172495a2",
+     "title": "AI-directed instructions (possible prompt injection) in README.md",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 144,
+    "sender": "verification_agent",
+    "receiver": "security_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: AI-directed instructions (possible prompt injection) in README.md \u2014 Verified: re-hashed 2 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. affected files are production code.",
+    "payload": {
+     "finding_id": "3fd00276-3cc6-423d-8c76-77eb172495a2",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 2 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "reachability",
+       "question": "Is the affected code actually reachable?",
+       "outcome": "not_applicable",
+       "detail": "no Python module to trace",
+       "supports": null
+      },
+      {
+       "check": "location_context",
+       "question": "Could this be a false positive?",
+       "outcome": "pass",
+       "detail": "affected files are production code",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 145,
+    "sender": "verification_agent",
+    "receiver": "code_quality_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to code_quality_agent: Is the evidence real, current and reachable, and is the severity justified?",
+    "payload": {
+     "finding_id": "02dca29d-efa2-4ce5-a75f-f9855ab14f83",
+     "title": "Broad exception silently swallowed in shopfront/services/reports.py (1x)",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 146,
+    "sender": "verification_agent",
+    "receiver": "code_quality_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: Broad exception silently swallowed in shopfront/services/reports.py (1x) \u2014 Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3.",
+    "payload": {
+     "finding_id": "02dca29d-efa2-4ce5-a75f-f9855ab14f83",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 147,
+    "sender": "verification_agent",
+    "receiver": "code_quality_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to code_quality_agent: Does measured evidence contradict this 'acceptable' assessment?",
+    "payload": {
+     "finding_id": "5bc382cb-3139-4530-a1d9-112e8f551558",
+     "title": "Data-access function list_orders_with_items() assessed acceptable for maintainability (shopfront/services/orders.py)",
+     "round": 1,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 148,
+    "sender": "verification_agent",
+    "receiver": "code_quality_agent",
+    "event_type": "verification_completed",
+    "summary": "NEEDS MORE EVIDENCE: Data-access function list_orders_with_items() assessed acceptable for maintainability (shopfront/services/orders.py) \u2014 Needs more evidence: contested by performance_agent; neither side measured.",
+    "payload": {
+     "finding_id": "5bc382cb-3139-4530-a1d9-112e8f551558",
+     "decision": "needs_more_evidence",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "contradiction",
+       "question": "Is there contradictory evidence?",
+       "outcome": "inconclusive",
+       "detail": "contested by performance_agent; neither side measured",
+       "supports": "more_evidence"
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 149,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "investigation_requested",
+    "summary": "Requests benchmark: Run a benchmark for list_orders_with_items() to measure the suspected n plus one",
+    "payload": {
+     "request_id": "8120fac3-5c32-4ff5-b957-b246b3cc6faa",
+     "target_agent": "performance_agent",
+     "required_evidence": "benchmark",
+     "reason": "static suspect / disputed claim cannot be verified without measurement",
+     "related_finding_ids": [
+      "5bc382cb-3139-4530-a1d9-112e8f551558",
+      "73660cc0-cfa8-4314-8ea3-5ed92fd1effe"
+     ],
+     "focus": {
+      "finding_ids": [
+       "73660cc0-cfa8-4314-8ea3-5ed92fd1effe"
+      ],
+      "function": "list_orders_with_items",
+      "file": "shopfront/services/orders.py"
+     },
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 150,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "correlation_updated",
+    "summary": "Correlation needs more evidence: Agents disagree about list_orders_with_items() \u2014 Contradiction unresolved: performance_agent=needs_more_evidence, code_quality_agent=needs_more_evidence",
+    "payload": {
+     "correlation_id": "293b1f40-718f-4e3b-928a-44b65a985389",
+     "decision": "needs_more_evidence",
+     "member_status": {
+      "73660cc0-cfa8-4314-8ea3-5ed92fd1effe": "needs_more_evidence",
+      "5bc382cb-3139-4530-a1d9-112e8f551558": "needs_more_evidence"
+     },
+     "risk_multiplier": 1.0,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 151,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "correlation_updated",
+    "summary": "Correlation verified: Shared root cause: stale pin of pyjwt 1.7.1 \u2014 2 of 2 member findings verified",
+    "payload": {
+     "correlation_id": "cf46f22c-0713-467e-a5d1-d9d2a0e452c0",
+     "decision": "verified",
+     "member_status": {
+      "88cd8dcb-830f-408a-9c9b-ebf5fb89e608": "verified",
+      "d89d3712-c9de-49d1-8e49-d809de4585d2": "verified"
+     },
+     "risk_multiplier": 1.0,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 152,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "correlation_updated",
+    "summary": "Correlation verified: Compound authentication upgrade risk: vulnerable PyJWT 1.7.1 in authentication code with insufficient tests \u2014 4 of 4 member findings verified",
+    "payload": {
+     "correlation_id": "078d4455-2f90-477a-9d2f-a16990a9a51d",
+     "decision": "verified",
+     "member_status": {
+      "88cd8dcb-830f-408a-9c9b-ebf5fb89e608": "verified",
+      "139d3a2a-042f-4737-a2ad-6ce9ba52fc94": "verified",
+      "6ae50d21-e98c-49f2-9694-bfa2d7a1feb1": "verified",
+      "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d": "verified"
+     },
+     "risk_multiplier": 1.75,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 153,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "correlation_updated",
+    "summary": "Correlation verified: Concentrated weaknesses in the authentication component (3 security findings, untested) \u2014 4 of 4 member findings verified",
+    "payload": {
+     "correlation_id": "24d03ce4-6885-4893-a8dd-27f7fcb2ef11",
+     "decision": "verified",
+     "member_status": {
+      "554afa99-804c-4a70-a6e9-608e2e27d1da": "verified",
+      "59fd753e-cc91-4ef3-aa71-e7ba7ea2375d": "verified",
+      "c622ce77-d991-4e01-91d1-3319c58c47eb": "verified",
+      "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d": "verified"
+     },
+     "risk_multiplier": 1.3,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 154,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "correlation_updated",
+    "summary": "Correlation needs more evidence: Unpinned requests is used on a hot path \u2014 awaiting verification of 1 member(s)",
+    "payload": {
+     "correlation_id": "82aca656-9da3-44db-bf5f-fc2c4590bbf0",
+     "decision": "needs_more_evidence",
+     "member_status": {
+      "add5defb-e907-454f-96cb-3bb51e3efe0d": "verified",
+      "8650f15b-ec36-4f5d-84df-622cea4d427d": "needs_more_evidence"
+     },
+     "risk_multiplier": 1.05,
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28"
+    }
+   },
+   {
+    "seq": 155,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Verification / Red-Team Agent completed in 1175 ms: Round 1: 3 needs_more_evidence, 2 rejected, 19 verified",
+    "payload": {
+     "run_id": "47c10932-b12c-4c39-852c-193878ceea28",
+     "task_id": "b6ccc86b-9942-45f8-9cd5-11ff14deb175",
+     "duration_ms": 1175,
+     "findings": 0,
+     "limitations": []
+    }
+   },
+   {
+    "seq": 156,
+    "sender": "orchestrator",
+    "receiver": "verification_agent",
+    "event_type": "request_decided",
+    "summary": "Accepted request from verification_agent: assigning performance_agent:benchmark",
+    "payload": {
+     "request_id": "45534ff2-1596-4b94-bd10-72db9c7a4a6b",
+     "accepted": true,
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 157,
+    "sender": "orchestrator",
+    "receiver": "verification_agent",
+    "event_type": "request_decided",
+    "summary": "Accepted request from verification_agent: assigning performance_agent:benchmark",
+    "payload": {
+     "request_id": "0fb8f6e9-b36e-4306-8cc4-b5689cedb237",
+     "accepted": true,
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 158,
+    "sender": "orchestrator",
+    "receiver": "verification_agent",
+    "event_type": "request_decided",
+    "summary": "Accepted request from verification_agent: assigning performance_agent:benchmark",
+    "payload": {
+     "request_id": "8120fac3-5c32-4ff5-b957-b246b3cc6faa",
+     "accepted": true,
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 159,
+    "sender": "orchestrator",
+    "receiver": "all_agents",
+    "event_type": "replan",
+    "summary": "Replanned: +performance_agent (benchmark), +performance_agent (benchmark)",
+    "payload": {
+     "round": 3,
+     "added_tasks": [
+      {
+       "task_id": "0e0a1709-f815-44a3-a1e5-e61f40cfeaee",
+       "agent": "performance_agent",
+       "objective": "Run a benchmark for notify_customers() to measure the suspected network in loop",
+       "mode": "benchmark",
+       "strategy": "default",
+       "focus": {
+        "finding_ids": [
+         "8650f15b-ec36-4f5d-84df-622cea4d427d"
+        ],
+        "function": "notify_customers",
+        "file": "shopfront/services/notifications.py"
+       },
+       "priority": 2,
+       "trigger": "verification_request",
+       "attempt": 1,
+       "round": 3,
+       "parent_request_id": "45534ff2-1596-4b94-bd10-72db9c7a4a6b",
+       "rationale": "red-team requires measurement to verify the claim"
+      },
+      {
+       "task_id": "df6a34d9-f338-4819-9819-fb82b67825f1",
+       "agent": "performance_agent",
+       "objective": "Run a benchmark for list_orders_with_items() to measure the suspected n plus one",
+       "mode": "benchmark",
+       "strategy": "default",
+       "focus": {
+        "finding_ids": [
+         "73660cc0-cfa8-4314-8ea3-5ed92fd1effe"
+        ],
+        "function": "list_orders_with_items",
+        "file": "shopfront/services/orders.py"
+       },
+       "priority": 2,
+       "trigger": "verification_request",
+       "attempt": 1,
+       "round": 3,
+       "parent_request_id": "0fb8f6e9-b36e-4306-8cc4-b5689cedb237",
+       "rationale": "red-team requires measurement to verify the claim"
+      }
+     ],
+     "reasons": [
+      "red-team requires measurement to verify the claim"
+     ],
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 160,
+    "sender": "orchestrator",
+    "receiver": "all_agents",
+    "event_type": "orchestrator_decision",
+    "summary": "Review round 2: phase complete; 3 follow-up(s) scheduled Next: dispatch.",
+    "payload": {
+     "next_step": "dispatch",
+     "rationale": "new evidence or failures require further specialist work before cross-agent reasoning",
+     "decided_by": "policy",
+     "new_tasks": [
+      "performance_agent:benchmark",
+      "performance_agent:benchmark"
+     ],
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 161,
+    "sender": "performance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Performance Agent started: Run a benchmark for notify_customers() to measure the suspected network in loop [benchmark]",
+    "payload": {
+     "run_id": "db498ac2-57b2-48c0-80e6-8411258a8b07",
+     "task_id": "0e0a1709-f815-44a3-a1e5-e61f40cfeaee",
+     "mode": "benchmark",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "verification_request",
+     "round": 3,
+     "rationale": "red-team requires measurement to verify the claim"
+    }
+   },
+   {
+    "seq": 162,
+    "sender": "performance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Performance Agent plan (benchmark/default): run benchmarks for requested suspects",
+    "payload": {
+     "steps": [
+      "run benchmarks for requested suspects"
+     ],
+     "mode": "benchmark",
+     "strategy": "default",
+     "run_id": "db498ac2-57b2-48c0-80e6-8411258a8b07"
+    }
+   },
+   {
+    "seq": 163,
+    "sender": "performance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Performance Agent started: Run a benchmark for list_orders_with_items() to measure the suspected n plus one [benchmark]",
+    "payload": {
+     "run_id": "8cb1a504-7f54-468d-83aa-6c945de01300",
+     "task_id": "df6a34d9-f338-4819-9819-fb82b67825f1",
+     "mode": "benchmark",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "verification_request",
+     "round": 3,
+     "rationale": "red-team requires measurement to verify the claim"
+    }
+   },
+   {
+    "seq": 164,
+    "sender": "performance_agent",
+    "receiver": "verification_agent",
+    "event_type": "agent_message",
+    "summary": "INSUFFICIENT EVIDENCE: no benchmark harness exercises notify_customers() in shopfront/services/notifications.py; finding stays a static suspect",
+    "payload": {
+     "finding_id": "8650f15b-ec36-4f5d-84df-622cea4d427d",
+     "run_id": "db498ac2-57b2-48c0-80e6-8411258a8b07"
+    }
+   },
+   {
+    "seq": 165,
+    "sender": "performance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Performance Agent plan (benchmark/default): run benchmarks for requested suspects",
+    "payload": {
+     "steps": [
+      "run benchmarks for requested suspects"
+     ],
+     "mode": "benchmark",
+     "strategy": "default",
+     "run_id": "8cb1a504-7f54-468d-83aa-6c945de01300"
+    }
+   },
+   {
+    "seq": 166,
+    "sender": "performance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Performance Agent completed in 14 ms: 0 finding(s) published, 0 enriched",
+    "payload": {
+     "run_id": "db498ac2-57b2-48c0-80e6-8411258a8b07",
+     "task_id": "0e0a1709-f815-44a3-a1e5-e61f40cfeaee",
+     "duration_ms": 14,
+     "findings": 0,
+     "limitations": [
+      "No benchmark harness for notify_customers() (shopfront/services/notifications.py)"
+     ]
+    }
+   },
+   {
+    "seq": 167,
+    "sender": "performance_agent",
+    "receiver": "blackboard",
+    "event_type": "tool_executed",
+    "summary": "performance_agent executed python -B benchmarks/bench_orders.py --json",
+    "payload": {
+     "command": "python -B benchmarks/bench_orders.py --json",
+     "exit_code": 0,
+     "duration_ms": 476,
+     "timed_out": false,
+     "stdout_tail": "{\"benchmark\": \"bench_orders\", \"target\": \"shopfront/services/orders.py::list_orders_with_items\", \"results\": [{\"n\": 50, \"rows\": 50, \"queries\": 51, \"seconds\": 0.000484}, {\"n\": 500, \"rows\": 500, \"queries\": 501, \"seconds\": 0.022101}, {\"n\": 2000, \"rows\": 2000, \"queries\": 2001, \"seconds\": 0.401481}]}\n",
+     "stderr_tail": "",
+     "truncated": false,
+     "run_id": "8cb1a504-7f54-468d-83aa-6c945de01300"
+    }
+   },
+   {
+    "seq": 168,
+    "sender": "performance_agent",
+    "receiver": "blackboard",
+    "event_type": "evidence_added",
+    "summary": "Benchmark benchmarks/bench_orders.py: query count grows linearly with rows (51 queries at n=50 -> 2001 at n=2000); N+1 confirmed",
+    "payload": {
+     "finding_id": "73660cc0-cfa8-4314-8ea3-5ed92fd1effe",
+     "evidence_id": "31d769a6-375b-4eeb-888c-fe306fc7cf71",
+     "source_type": "benchmark",
+     "tool": "skopeo-benchmark-runner",
+     "new_confidence": 0.835,
+     "run_id": "8cb1a504-7f54-468d-83aa-6c945de01300"
+    }
+   },
+   {
+    "seq": 169,
+    "sender": "performance_agent",
+    "receiver": "verification_agent",
+    "event_type": "agent_message",
+    "summary": "Benchmark for list_orders_with_items(): query count grows linearly with rows (51 queries at n=50 -> 2001 at n=2000); N+1 confirmed",
+    "payload": {
+     "finding_id": "73660cc0-cfa8-4314-8ea3-5ed92fd1effe",
+     "measurement": "measured",
+     "results": [
+      {
+       "n": 50,
+       "rows": 50,
+       "queries": 51,
+       "seconds": 0.000484
+      },
+      {
+       "n": 500,
+       "rows": 500,
+       "queries": 501,
+       "seconds": 0.022101
+      },
+      {
+       "n": 2000,
+       "rows": 2000,
+       "queries": 2001,
+       "seconds": 0.401481
+      }
+     ],
+     "run_id": "8cb1a504-7f54-468d-83aa-6c945de01300"
+    }
+   },
+   {
+    "seq": 170,
+    "sender": "performance_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Performance Agent completed in 505 ms: 0 finding(s) published, 1 enriched",
+    "payload": {
+     "run_id": "8cb1a504-7f54-468d-83aa-6c945de01300",
+     "task_id": "df6a34d9-f338-4819-9819-fb82b67825f1",
+     "duration_ms": 505,
+     "findings": 0,
+     "limitations": []
+    }
+   },
+   {
+    "seq": 171,
+    "sender": "orchestrator",
+    "receiver": "all_agents",
+    "event_type": "orchestrator_decision",
+    "summary": "Review round 3: 2 task(s) completed, 0 new finding(s) Next: correlate.",
+    "payload": {
+     "next_step": "correlate",
+     "rationale": "blackboard changed (version 73 -> 75); relationships must be re-evaluated",
+     "decided_by": "policy",
+     "new_tasks": [],
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 172,
+    "sender": "correlation_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Correlation Agent started: Correlate findings across agents",
+    "payload": {
+     "run_id": "9e971b0f-63d0-4567-a09d-151cec2e1d68",
+     "task_id": "87c5dc3d-6120-4d42-937a-96ef5a3405d2",
+     "mode": "full",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "initial_plan",
+     "round": 1,
+     "rationale": ""
+    }
+   },
+   {
+    "seq": 173,
+    "sender": "correlation_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Correlation pass over 22 findings from 7 agents: 5 candidate relationship(s)",
+    "payload": {
+     "candidates": [
+      "contradiction:py:shopfront/services/orders.py::list_orders_with_items",
+      "root:pyjwt",
+      "compound:dep:pyjwt",
+      "cluster:authentication",
+      "deplink:requests"
+     ],
+     "run_id": "9e971b0f-63d0-4567-a09d-151cec2e1d68"
+    }
+   },
+   {
+    "seq": 174,
+    "sender": "correlation_agent",
+    "receiver": "blackboard",
+    "event_type": "correlation_updated",
+    "summary": "Re-assessed contradiction: Agents disagree about list_orders_with_items()",
+    "payload": {
+     "correlation_id": "293b1f40-718f-4e3b-928a-44b65a985389",
+     "description": "performance_agent reports 'Database query executed inside a loop (N+1 pattern) in list_orders_with_items() (shopfront/services/orders.py) \u2014 MEASURED' while code_quality_agent assessed the same function as acceptable. Benchmark evidence now supports performance_agent; the 'acceptable' assessment relied on the small seed dataset.",
+     "run_id": "9e971b0f-63d0-4567-a09d-151cec2e1d68"
+    }
+   },
+   {
+    "seq": 175,
+    "sender": "correlation_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Correlation Agent completed in 41 ms: 0 new and 1 updated correlation(s) from 5 candidates",
+    "payload": {
+     "run_id": "9e971b0f-63d0-4567-a09d-151cec2e1d68",
+     "task_id": "87c5dc3d-6120-4d42-937a-96ef5a3405d2",
+     "duration_ms": 41,
+     "findings": 0,
+     "limitations": []
+    }
+   },
+   {
+    "seq": 176,
+    "sender": "orchestrator",
+    "receiver": "all_agents",
+    "event_type": "orchestrator_decision",
+    "summary": "Review round 3: phase complete Next: verify.",
+    "payload": {
+     "next_step": "verify",
+     "rationale": "2 finding(s) not yet challenged by the red-team",
+     "decided_by": "policy",
+     "new_tasks": [],
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 177,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Verification / Red-Team Agent started: Red-team verification round 2",
+    "payload": {
+     "run_id": "d1fcb9c4-2c7a-476b-a7cf-06935f10f658",
+     "task_id": "88247eca-3bef-4855-ba18-3d4291b9fd4d",
+     "mode": "full",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "initial_plan",
+     "round": 1,
+     "rationale": ""
+    }
+   },
+   {
+    "seq": 178,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "verification_started",
+    "summary": "Red-team round 2: challenging 2 finding(s) and pending correlations",
+    "payload": {
+     "round": 2,
+     "finding_ids": [
+      "73660cc0-cfa8-4314-8ea3-5ed92fd1effe",
+      "5bc382cb-3139-4530-a1d9-112e8f551558"
+     ],
+     "run_id": "d1fcb9c4-2c7a-476b-a7cf-06935f10f658"
+    }
+   },
+   {
+    "seq": 179,
+    "sender": "verification_agent",
+    "receiver": "performance_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to performance_agent: Has this been measured, or is it a theoretical static suspect? Is the code on a reachable path?",
+    "payload": {
+     "finding_id": "73660cc0-cfa8-4314-8ea3-5ed92fd1effe",
+     "title": "Database query executed inside a loop (N+1 pattern) in list_orders_with_items() (shopfront/services/orders.py) \u2014 MEASURED",
+     "round": 2,
+     "run_id": "d1fcb9c4-2c7a-476b-a7cf-06935f10f658"
+    }
+   },
+   {
+    "seq": 180,
+    "sender": "verification_agent",
+    "receiver": "performance_agent",
+    "event_type": "finding_verified",
+    "summary": "VERIFIED: Database query executed inside a loop (N+1 pattern) in list_orders_with_items() (shopfront/services/orders.py) \u2014 MEASURED \u2014 Verified: re-hashed 2 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py. benchmark executed: query count grows linearly with rows (51 queries at n=50 -> 2001 at n",
+    "payload": {
+     "finding_id": "73660cc0-cfa8-4314-8ea3-5ed92fd1effe",
+     "decision": "verified",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 2 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "reachability",
+       "question": "Is the affected code actually reachable?",
+       "outcome": "pass",
+       "detail": "imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py",
+       "supports": null
+      },
+      {
+       "check": "reproduction",
+       "question": "Can the claim be reproduced?",
+       "outcome": "pass",
+       "detail": "benchmark executed: query count grows linearly with rows (51 queries at n=50 -> 2001 at n=2000); N+1 confirmed",
+       "supports": null
+      },
+      {
+       "check": "contradiction",
+       "question": "Is there contradictory evidence?",
+       "outcome": "pass",
+       "detail": "contradicting assessment by code_quality_agent is not backed by measurement; this finding is",
+       "supports": null
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "d1fcb9c4-2c7a-476b-a7cf-06935f10f658"
+    }
+   },
+   {
+    "seq": 181,
+    "sender": "verification_agent",
+    "receiver": "code_quality_agent",
+    "event_type": "challenge",
+    "summary": "Challenge to code_quality_agent: Does measured evidence contradict this 'acceptable' assessment?",
+    "payload": {
+     "finding_id": "5bc382cb-3139-4530-a1d9-112e8f551558",
+     "title": "Data-access function list_orders_with_items() assessed acceptable for maintainability (shopfront/services/orders.py)",
+     "round": 2,
+     "run_id": "d1fcb9c4-2c7a-476b-a7cf-06935f10f658"
+    }
+   },
+   {
+    "seq": 182,
+    "sender": "verification_agent",
+    "receiver": "code_quality_agent",
+    "event_type": "finding_rejected",
+    "summary": "REJECTED: Data-access function list_orders_with_items() assessed acceptable for maintainability (shopfront/services/orders.py) \u2014 Rejected: measured evidence from performance_agent contradicts this assessment (query count grows linearly with rows (51 queries at n=50 -> 2001 at n=2000); N+1 confirmed).",
+    "payload": {
+     "finding_id": "5bc382cb-3139-4530-a1d9-112e8f551558",
+     "decision": "rejected",
+     "checks": [
+      {
+       "check": "evidence_integrity",
+       "question": "Is the evidence real?",
+       "outcome": "pass",
+       "detail": "re-hashed 1 referenced line range(s); all match the repository",
+       "supports": null
+      },
+      {
+       "check": "staleness",
+       "question": "Is the evidence stale?",
+       "outcome": "pass",
+       "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+       "supports": null
+      },
+      {
+       "check": "contradiction",
+       "question": "Is there contradictory evidence?",
+       "outcome": "fail",
+       "detail": "measured evidence from performance_agent contradicts this assessment (query count grows linearly with rows (51 queries at n=50 -> 2001 at n=2000); N+1 confirmed)",
+       "supports": "rejection"
+      }
+     ],
+     "decided_by": "policy",
+     "adjusted_severity": null,
+     "run_id": "d1fcb9c4-2c7a-476b-a7cf-06935f10f658"
+    }
+   },
+   {
+    "seq": 183,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "correlation_updated",
+    "summary": "Correlation verified: Agents disagree about list_orders_with_items() \u2014 Resolved in favour of performance_agent: Database query executed inside a loop (N+1 pattern) in list_orders_with_items() (shopfront/services/orders.py) \u2014 MEASURED. code_quality_agent's position was rejected by evidence.",
+    "payload": {
+     "correlation_id": "293b1f40-718f-4e3b-928a-44b65a985389",
+     "decision": "verified",
+     "member_status": {
+      "73660cc0-cfa8-4314-8ea3-5ed92fd1effe": "verified",
+      "5bc382cb-3139-4530-a1d9-112e8f551558": "rejected"
+     },
+     "risk_multiplier": 1.0,
+     "run_id": "d1fcb9c4-2c7a-476b-a7cf-06935f10f658"
+    }
+   },
+   {
+    "seq": 184,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "correlation_updated",
+    "summary": "Correlation needs more evidence: Unpinned requests is used on a hot path \u2014 awaiting verification of 1 member(s)",
+    "payload": {
+     "correlation_id": "82aca656-9da3-44db-bf5f-fc2c4590bbf0",
+     "decision": "needs_more_evidence",
+     "member_status": {
+      "add5defb-e907-454f-96cb-3bb51e3efe0d": "verified",
+      "8650f15b-ec36-4f5d-84df-622cea4d427d": "needs_more_evidence"
+     },
+     "risk_multiplier": 1.05,
+     "run_id": "d1fcb9c4-2c7a-476b-a7cf-06935f10f658"
+    }
+   },
+   {
+    "seq": 185,
+    "sender": "verification_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Verification / Red-Team Agent completed in 45 ms: Round 2: 1 rejected, 1 verified",
+    "payload": {
+     "run_id": "d1fcb9c4-2c7a-476b-a7cf-06935f10f658",
+     "task_id": "88247eca-3bef-4855-ba18-3d4291b9fd4d",
+     "duration_ms": 45,
+     "findings": 0,
+     "limitations": []
+    }
+   },
+   {
+    "seq": 186,
+    "sender": "orchestrator",
+    "receiver": "all_agents",
+    "event_type": "orchestrator_decision",
+    "summary": "Review round 3: phase complete Next: assess.",
+    "payload": {
+     "next_step": "assess",
+     "rationale": "all findings have been challenged (or budgets exhausted); only verified evidence enters risk assessment",
+     "decided_by": "policy",
+     "new_tasks": [],
+     "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+    }
+   },
+   {
+    "seq": 187,
+    "sender": "risk_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Risk Assessment Agent started: Assess and prioritise verified risks",
+    "payload": {
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66",
+     "task_id": "0d3f83c7-58ae-4c80-9ed2-80aa459f2359",
+     "mode": "full",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "initial_plan",
+     "round": 1,
+     "rationale": ""
+    }
+   },
+   {
+    "seq": 188,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P0 (score 82.5): PyJWT 1.7.1 is affected by 11 known vulnerabilities",
+    "payload": {
+     "risk_id": "b23627c3-150d-4986-8cc1-3f9de9bfe54a",
+     "finding_id": "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+     "priority": "P0",
+     "score": 82.5,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 189,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P4 (score 5.5): 1 test(s) in tests/test_orders.py only make weak assertions",
+    "payload": {
+     "risk_id": "f62d4ba7-ee0e-434c-879d-cb093fdfbe3e",
+     "finding_id": "045d8a43-ce3b-4902-9895-a86cf1ed3d22",
+     "priority": "P4",
+     "score": 5.5,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 190,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P2 (score 50.2): PyJWT 1.7.1 is a major version behind latest 2.15.1, released 7 year(s) ago",
+    "payload": {
+     "risk_id": "8eef7777-695b-477b-960c-968929fbbd0d",
+     "finding_id": "d89d3712-c9de-49d1-8e49-d809de4585d2",
+     "priority": "P2",
+     "score": 50.2,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 191,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P3 (score 17.2): Deprecated legacy_price_lookup() is still called from 1 production site(s)",
+    "payload": {
+     "risk_id": "6a8e4924-f48c-40d4-a384-ae689da21059",
+     "finding_id": "10e9555e-45d0-404a-bcfe-352c23d19041",
+     "priority": "P3",
+     "score": 17.2,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 192,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P2 (score 48.5): Hardcoded fallback value for secret SHOPFRONT_SECRET in shopfront/auth/middleware.py",
+    "payload": {
+     "risk_id": "371abd12-8700-490f-a830-cccda9669cca",
+     "finding_id": "554afa99-804c-4a70-a6e9-608e2e27d1da",
+     "priority": "P2",
+     "score": 48.5,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 193,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P2 (score 55.8): Security-critical authentication code has no tests (shopfront/auth/middleware.py, shopfront/auth/passwords.py)",
+    "payload": {
+     "risk_id": "8236cc8f-0b6a-48af-85d9-f25910efcbdf",
+     "finding_id": "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d",
+     "priority": "P2",
+     "score": 55.8,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 194,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P4 (score 8.3): python-dateutil appears unmaintained (latest release 2+ years ago)",
+    "payload": {
+     "risk_id": "af92ff1a-0204-47b2-a5bd-49af5c04207a",
+     "finding_id": "9a575639-9a68-432d-bfa9-fe6b52eb77ca",
+     "priority": "P4",
+     "score": 8.3,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 195,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P1 (score 63.0): JWT decoded without an explicit algorithms allow-list in shopfront/auth/middleware.py",
+    "payload": {
+     "risk_id": "06b2e238-18a9-4e1b-ac0e-fb34c994fc52",
+     "finding_id": "59fd753e-cc91-4ef3-aa71-e7ba7ea2375d",
+     "priority": "P1",
+     "score": 63.0,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 196,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P3 (score 17.2): 1 runtime dependency is not pinned to exact versions (requests>=2.20)",
+    "payload": {
+     "risk_id": "f8e3f415-901e-455d-875a-d76fc782e648",
+     "finding_id": "add5defb-e907-454f-96cb-3bb51e3efe0d",
+     "priority": "P3",
+     "score": 17.2,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 197,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P3 (score 25.7): build_sales_report() has cyclomatic complexity 17 (shopfront/services/reports.py)",
+    "payload": {
+     "risk_id": "ab1e9118-9d2a-4fcd-b397-c44fcfd474db",
+     "finding_id": "d67902e7-6b68-430d-ae01-d345c0c4edbd",
+     "priority": "P3",
+     "score": 25.7,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 198,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P1 (score 63.0): Passwords hashed with MD5 (fast, unsalted) in shopfront/auth/passwords.py",
+    "payload": {
+     "risk_id": "4f4189bf-a168-4a41-9531-d646e3fb1412",
+     "finding_id": "c622ce77-d991-4e01-91d1-3319c58c47eb",
+     "priority": "P1",
+     "score": 63.0,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 199,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P3 (score 16.8): AI-directed instructions (possible prompt injection) in README.md",
+    "payload": {
+     "risk_id": "c1826b30-0753-47c9-a1df-729aa5b4e73c",
+     "finding_id": "3fd00276-3cc6-423d-8c76-77eb172495a2",
+     "priority": "P3",
+     "score": 16.8,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 200,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P3 (score 31.5): License metadata mismatch: pyproject.toml declares Apache-2.0 but LICENSE is MIT",
+    "payload": {
+     "risk_id": "12d3b088-bf6d-4e35-9b88-a6a74104d2ed",
+     "finding_id": "c0845c1d-2421-456b-a1bb-553676b98388",
+     "priority": "P3",
+     "score": 31.5,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 201,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P3 (score 12.9): Broad exception silently swallowed in shopfront/services/reports.py (1x)",
+    "payload": {
+     "risk_id": "4053e403-7ce4-41e4-b009-73f9eca01139",
+     "finding_id": "02dca29d-efa2-4ce5-a75f-f9855ab14f83",
+     "priority": "P3",
+     "score": 12.9,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 202,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P3 (score 34.7): GPL-3.0 licensed source in a MIT project (shopfront/vendor/fastcsv.py)",
+    "payload": {
+     "risk_id": "f329236a-8e05-468e-b35f-2b4e3569c144",
+     "finding_id": "80980334-cdc7-466e-8eb7-58ab1fd4fb31",
+     "priority": "P3",
+     "score": 34.7,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 203,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P3 (score 15.1): Failing test: tests/test_pricing.py::test_format_price_pads_single_digit_cents",
+    "payload": {
+     "risk_id": "747db91e-a6e0-4d20-b26b-42d1016a31cb",
+     "finding_id": "1f9321f1-c826-40ad-9e7d-a6acef3e93f3",
+     "priority": "P3",
+     "score": 15.1,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 204,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P3 (score 30.3): Overall line coverage is 20%",
+    "payload": {
+     "risk_id": "3d8c785c-d305-439d-8e19-385e60b154d5",
+     "finding_id": "51eb4587-5e83-4596-9658-b08c3d81fa44",
+     "priority": "P3",
+     "score": 30.3,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 205,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P1 (score 72.9): Vulnerable pyjwt is used by the authentication component (shopfront/auth/middleware.py)",
+    "payload": {
+     "risk_id": "e6edc76c-22e5-4ab6-bfdf-f8788887ce8c",
+     "finding_id": "139d3a2a-042f-4737-a2ad-6ce9ba52fc94",
+     "priority": "P1",
+     "score": 72.9,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 206,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P2 (score 36.7): Database query executed inside a loop (N+1 pattern) in list_orders_with_items() (shopfront/services/orders.py) \u2014 MEASURED",
+    "payload": {
+     "risk_id": "64f465ba-8284-48fe-a7a8-7e6700b4a103",
+     "finding_id": "73660cc0-cfa8-4314-8ea3-5ed92fd1effe",
+     "priority": "P2",
+     "score": 36.7,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 207,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P2 (score 42.0): Upgrading pyjwt 1.7.1 -> 2.14.0 breaks 2 call site(s) in shopfront/auth/middleware.py",
+    "payload": {
+     "risk_id": "a1b38bdf-35ba-4875-b388-e46482f61a8f",
+     "finding_id": "6ae50d21-e98c-49f2-9694-bfa2d7a1feb1",
+     "priority": "P2",
+     "score": 42.0,
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 208,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P0 (score 94.5) compound: Compound authentication upgrade risk: vulnerable PyJWT 1.7.1 in authentication code with insufficient tests",
+    "payload": {
+     "risk_id": "78ed9262-0006-4177-825e-abee89eb78a3",
+     "priority": "P0",
+     "score": 94.5,
+     "correlation_id": "078d4455-2f90-477a-9d2f-a16990a9a51d",
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 209,
+    "sender": "risk_agent",
+    "receiver": "recommendation_agent",
+    "event_type": "risk_assessed",
+    "summary": "P1 (score 66.9) compound: Concentrated weaknesses in the authentication component (3 security findings, untested)",
+    "payload": {
+     "risk_id": "7b98b8d2-8d30-42f5-b445-d35039f2c5e7",
+     "priority": "P1",
+     "score": 66.9,
+     "correlation_id": "24d03ce4-6885-4893-a8dd-27f7fcb2ef11",
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 210,
+    "sender": "risk_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_message",
+    "summary": "Risk assessment: 22 verified risk(s); overall 97.8 (critical); 3 finding(s) excluded",
+    "payload": {
+     "overall": {
+      "score": 97.8,
+      "level": "critical"
+     },
+     "excluded": [
+      {
+       "finding_id": "b0604fe7-fe3a-44d4-9755-cd437f206cc1",
+       "title": "Possible credential exposure: AWS access key ID in tests/fixtures/README.md",
+       "status": "rejected",
+       "reason": "rejected by red-team"
+      },
+      {
+       "finding_id": "823e77b8-cb6c-44f4-913b-373ecafb1dda",
+       "title": "Possible credential exposure: AWS access key ID and AWS secret access key in tests/fixtures/example_credentials.txt",
+       "status": "rejected",
+       "reason": "rejected by red-team"
+      },
+      {
+       "finding_id": "8650f15b-ec36-4f5d-84df-622cea4d427d",
+       "title": "Blocking network call inside a loop in notify_customers() (shopfront/services/notifications.py) \u2014 STATIC SUSPECT",
+       "status": "needs_more_evidence",
+       "reason": "INSUFFICIENT EVIDENCE (not verified)"
+      }
+     ],
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66"
+    }
+   },
+   {
+    "seq": 211,
+    "sender": "risk_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Risk Assessment Agent completed in 83 ms: 22 risks scored; overall 97.8 (critical)",
+    "payload": {
+     "run_id": "0c955cd1-318d-48e3-9b0d-5d6be4181d66",
+     "task_id": "0d3f83c7-58ae-4c80-9ed2-80aa459f2359",
+     "duration_ms": 83,
+     "findings": 0,
+     "limitations": []
+    }
+   },
+   {
+    "seq": 212,
+    "sender": "recommendation_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_started",
+    "summary": "Recommendation Agent started: Generate remediation recommendations",
+    "payload": {
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2",
+     "task_id": "d7522ebc-09dc-4405-b894-84843b4127ed",
+     "mode": "full",
+     "strategy": "default",
+     "attempt": 1,
+     "trigger": "initial_plan",
+     "round": 1,
+     "rationale": ""
+    }
+   },
+   {
+    "seq": 213,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "recommendation_created",
+    "summary": "P0 recommendation: Fix compound risk: Compound authentication upgrade risk: vulnerable PyJWT 1.7.1 in authentication code with insufficient tests",
+    "payload": {
+     "recommendation_id": "f16334b5-e7aa-414b-9510-9c0b76a10329",
+     "risk_id": "78ed9262-0006-4177-825e-abee89eb78a3",
+     "decided_by": "policy",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 214,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "github_action_proposed",
+    "summary": "ACTION PROPOSED: GitHub issue '[Skopeo P0] Fix compound risk: Compound authentication upgrade risk: vulnerable PyJWT 1.7.1 in authentication code with insufficient tests'",
+    "payload": {
+     "action_id": "b5f4f3c4-f563-4386-97f2-3adbcf9e1096",
+     "type": "github_issue",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 215,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "github_action_proposed",
+    "summary": "ACTION PROPOSED: draft PR '[Skopeo] Upgrade PyJWT to 2.15.1 (draft)'",
+    "payload": {
+     "action_id": "50926364-262f-4c5e-be46-1b8ab9e69f0d",
+     "type": "pull_request",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 216,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "recommendation_created",
+    "summary": "P1 recommendation: Fix compound risk: Concentrated weaknesses in the authentication component (3 security findings, untested)",
+    "payload": {
+     "recommendation_id": "33d6e7d5-433f-44cc-ab00-7344313e5179",
+     "risk_id": "7b98b8d2-8d30-42f5-b445-d35039f2c5e7",
+     "decided_by": "policy",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 217,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "github_action_proposed",
+    "summary": "ACTION PROPOSED: GitHub issue '[Skopeo P1] Fix compound risk: Concentrated weaknesses in the authentication component (3 security findings, untested)'",
+    "payload": {
+     "action_id": "c30dd97c-b0cf-4e49-a694-98a1e6daeb04",
+     "type": "github_issue",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 218,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "recommendation_created",
+    "summary": "P2 recommendation: PyJWT 1.7.1 is a major version behind latest 2.15.1, released 7 year(s) ago",
+    "payload": {
+     "recommendation_id": "670ab6ee-d258-4394-8d01-3144dfab6d21",
+     "risk_id": "8eef7777-695b-477b-960c-968929fbbd0d",
+     "decided_by": "policy",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 219,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "recommendation_created",
+    "summary": "P2 recommendation: Database query executed inside a loop (N+1 pattern) in list_orders_with_items() (shopfront/services/orders.py) \u2014 MEASURED",
+    "payload": {
+     "recommendation_id": "64e40c69-8ce5-4e28-a6d9-54720ccc3013",
+     "risk_id": "64f465ba-8284-48fe-a7a8-7e6700b4a103",
+     "decided_by": "policy",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 220,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "recommendation_created",
+    "summary": "P3 recommendation: GPL-3.0 licensed source in a MIT project (shopfront/vendor/fastcsv.py)",
+    "payload": {
+     "recommendation_id": "3a3b271f-1ba2-4d05-ab84-93d392c8676a",
+     "risk_id": "f329236a-8e05-468e-b35f-2b4e3569c144",
+     "decided_by": "policy",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 221,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "recommendation_created",
+    "summary": "P3 recommendation: License metadata mismatch: pyproject.toml declares Apache-2.0 but LICENSE is MIT",
+    "payload": {
+     "recommendation_id": "4fa54e04-6a13-4c19-b226-a2e07ff53369",
+     "risk_id": "12d3b088-bf6d-4e35-9b88-a6a74104d2ed",
+     "decided_by": "policy",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 222,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "recommendation_created",
+    "summary": "P3 recommendation: Overall line coverage is 20%",
+    "payload": {
+     "recommendation_id": "981d07ab-6827-4e91-8da2-5f20399d2061",
+     "risk_id": "3d8c785c-d305-439d-8e19-385e60b154d5",
+     "decided_by": "policy",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 223,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "recommendation_created",
+    "summary": "P3 recommendation: build_sales_report() has cyclomatic complexity 17 (shopfront/services/reports.py)",
+    "payload": {
+     "recommendation_id": "de5ef6f0-ebc9-4541-b5b9-448a0d806fd8",
+     "risk_id": "ab1e9118-9d2a-4fcd-b397-c44fcfd474db",
+     "decided_by": "policy",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 224,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "recommendation_created",
+    "summary": "P3 recommendation: Deprecated legacy_price_lookup() is still called from 1 production site(s)",
+    "payload": {
+     "recommendation_id": "a22bc4d8-9ca2-43f3-a631-ff0baacf95be",
+     "risk_id": "6a8e4924-f48c-40d4-a384-ae689da21059",
+     "decided_by": "policy",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 225,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "recommendation_created",
+    "summary": "P3 recommendation: 1 runtime dependency is not pinned to exact versions (requests>=2.20)",
+    "payload": {
+     "recommendation_id": "5725e5ec-f6b3-4832-bccf-80db61201aaf",
+     "risk_id": "f8e3f415-901e-455d-875a-d76fc782e648",
+     "decided_by": "policy",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 226,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "recommendation_created",
+    "summary": "P3 recommendation: AI-directed instructions (possible prompt injection) in README.md",
+    "payload": {
+     "recommendation_id": "09c4a826-2d0f-4d2c-9e45-446b9900294e",
+     "risk_id": "c1826b30-0753-47c9-a1df-729aa5b4e73c",
+     "decided_by": "policy",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 227,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "recommendation_created",
+    "summary": "P3 recommendation: Failing test: tests/test_pricing.py::test_format_price_pads_single_digit_cents",
+    "payload": {
+     "recommendation_id": "e79c3a46-ac01-4f86-8147-105f6838ccf1",
+     "risk_id": "747db91e-a6e0-4d20-b26b-42d1016a31cb",
+     "decided_by": "policy",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 228,
+    "sender": "recommendation_agent",
+    "receiver": "human",
+    "event_type": "recommendation_created",
+    "summary": "P3 recommendation: Broad exception silently swallowed in shopfront/services/reports.py (1x)",
+    "payload": {
+     "recommendation_id": "e6b5f0cf-8d2f-4aa7-891f-1fffa236f567",
+     "risk_id": "4053e403-7ce4-41e4-b009-73f9eca01139",
+     "decided_by": "policy",
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2"
+    }
+   },
+   {
+    "seq": 229,
+    "sender": "recommendation_agent",
+    "receiver": "orchestrator",
+    "event_type": "agent_completed",
+    "summary": "Recommendation Agent completed in 54 ms: 13 recommendation(s) generated",
+    "payload": {
+     "run_id": "8a62461a-2d1d-4a9a-a35f-866987cc59b2",
+     "task_id": "d7522ebc-09dc-4405-b894-84843b4127ed",
+     "duration_ms": 54,
+     "findings": 0,
+     "limitations": []
+    }
+   },
+   {
+    "seq": 230,
+    "sender": "orchestrator",
+    "receiver": "human",
+    "event_type": "human_approval_required",
+    "summary": "Human approval required before '[Skopeo P0] Fix compound risk: Compound authentication upgrade risk: vulnerable PyJWT 1.7.1 in authentication code with insufficient tests' (github_issue). Status: ACTION PROPOSED (DRY_RUN).",
+    "payload": {
+     "action_id": "b5f4f3c4-f563-4386-97f2-3adbcf9e1096",
+     "action_type": "github_issue",
+     "dry_run": true
+    }
+   },
+   {
+    "seq": 231,
+    "sender": "orchestrator",
+    "receiver": "human",
+    "event_type": "human_approval_required",
+    "summary": "Human approval required before '[Skopeo] Upgrade PyJWT to 2.15.1 (draft)' (pull_request). Status: ACTION PROPOSED (DRY_RUN).",
+    "payload": {
+     "action_id": "50926364-262f-4c5e-be46-1b8ab9e69f0d",
+     "action_type": "pull_request",
+     "dry_run": true
+    }
+   },
+   {
+    "seq": 232,
+    "sender": "orchestrator",
+    "receiver": "human",
+    "event_type": "human_approval_required",
+    "summary": "Human approval required before '[Skopeo P1] Fix compound risk: Concentrated weaknesses in the authentication component (3 security findings, untested)' (github_issue). Status: ACTION PROPOSED (DRY_RUN).",
+    "payload": {
+     "action_id": "c30dd97c-b0cf-4e49-a694-98a1e6daeb04",
+     "action_type": "github_issue",
+     "dry_run": true
+    }
+   },
+   {
+    "seq": 233,
+    "sender": "orchestrator",
+    "receiver": "human",
+    "event_type": "investigation_completed",
+    "summary": "Investigation COMPLETED_WITH_LIMITATIONS: 20 verified, 3 rejected, 1 insufficient evidence; overall risk 97.8 (critical); partial coverage: security_agent, dependency_agent, api_compatibility_agent, maintenance_agent, performance_agent",
+    "payload": {
+     "status": "completed_with_limitations",
+     "summary": {
+      "options": {
+       "fault_injection": "performance_agent@1",
+       "step_delay_ms": 0,
+       "offline": true
+      },
+      "rounds": 3,
+      "replans": 2,
+      "agent_runs": 21,
+      "agent_failures": 1,
+      "retries": 1,
+      "follow_ups": 5,
+      "correlation_rounds": 2,
+      "verification_rounds": 2,
+      "findings": 24,
+      "verified": 20,
+      "rejected": 3,
+      "insufficient_evidence": 1,
+      "unchallenged": 0,
+      "correlations": {
+       "resolved": 1,
+       "verified": 3,
+       "proposed": 1
+      },
+      "risks_by_priority": {
+       "P0": 2,
+       "P1": 4,
+       "P2": 5,
+       "P3": 9,
+       "P4": 2
+      },
+      "requests": {
+       "fulfilled": 4
+      },
+      "tool_calls": 24,
+      "llm": {
+       "decisions": 58,
+       "llm_calls": 0,
+       "policy_fallbacks": 0,
+       "input_tokens": 0,
+       "output_tokens": 0,
+       "by_task": {
+        "orchestrator.plan": 1,
+        "code_quality.review": 1,
+        "orchestrator.review": 7,
+        "correlation.assess": 10,
+        "verification.judge": 26,
+        "recommendation.write": 13
+       },
+       "provider": "mock"
+      },
+      "duration_seconds": 4.11,
+      "parallelism": 8
+     },
+     "coverage_summary": {
+      "partial": 5,
+      "complete": 3
+     }
+    }
+   }
+  ]
+ },
+ "chat": [
+  {
+   "question": {
+    "message_id": "3e912470-9619-474a-8754-7de7a5e63603",
+    "role": "user",
+    "agent": null,
+    "agent_display_name": null,
+    "content": "What should I fix first?",
+    "citations": [],
+    "routing_reason": null,
+    "routed_by": null,
+    "follow_ups": [],
+    "decided_by": null,
+    "created_at": "2026-10-14T18:56:38.086250Z"
+   },
+   "answer": {
+    "message_id": "5f9caf2b-8721-4b16-be0f-d23b35d14d38",
+    "role": "agent",
+    "agent": "recommendation_agent",
+    "agent_display_name": "Recommendation Agent",
+    "content": "**Fix compound risk: Compound authentication upgrade risk: vulnerable PyJWT 1.7.1 in authentication code with insufficient tests** \u2014 P0, medium to implement\n\n_Problem:_ PyJWT 1.7.1 is affected by 11 known vulnerabilities | Vulnerable pyjwt is used by the authentication component (shopfront/auth/middleware.py) | Upgrading pyjwt 1.7.1 -> 2.14.0 breaks 2 call site(s) in shopfront/auth/middleware.py\u2026\n\n1. Upgrade PyJWT from 1.7.1 to 2.14.0 or later (resolves 11 advisories).\n2. In the same change, update the breaking call sites (shopfront/auth/middleware.py:17, shopfront/auth/middleware.py:26): Drop the .decode('utf-8') call on the token. Pass an explicit allow-list, e.g. algorithms=[\"HS256\"].\n3. Add regression tests for shopfront/auth/middleware.py, shopfront/auth/passwords.py before merging (valid/expired/tampered tokens, wrong algorithm).\n4. Re-run Skopeo to confirm the compound risk is closed.\n\n_Expected benefit:_ Closes a P0 risk (score 94.5) and makes the upgrade path safe.\n\nAlso recommended:\n\n- **Fix compound risk: Concentrated weaknesses in the authentication component (3 security findings, untested)** (P1, medium)\n- **PyJWT 1.7.1 is a major version behind latest 2.15.1, released 7 year(s) ago** (P2, medium)\n- **Database query executed inside a loop (N+1 pattern) in list_orders_with_items() (shopfront/services/orders.py) \u2014 MEASURED** (P2, low)",
+    "citations": [
+     {
+      "finding_id": "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+      "title": "PyJWT 1.7.1 is affected by 11 known vulnerabilities",
+      "severity": "critical",
+      "agent": "dependency_agent",
+      "file": "requirements.txt"
+     },
+     {
+      "finding_id": "139d3a2a-042f-4737-a2ad-6ce9ba52fc94",
+      "title": "Vulnerable pyjwt is used by the authentication component (shopfront/auth/middleware.py)",
+      "severity": "high",
+      "agent": "security_agent",
+      "file": "shopfront/auth/middleware.py"
+     },
+     {
+      "finding_id": "6ae50d21-e98c-49f2-9694-bfa2d7a1feb1",
+      "title": "Upgrading pyjwt 1.7.1 -> 2.14.0 breaks 2 call site(s) in shopfront/auth/middleware.py",
+      "severity": "medium",
+      "agent": "api_compatibility_agent",
+      "file": "shopfront/auth/middleware.py"
+     },
+     {
+      "finding_id": "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d",
+      "title": "Security-critical authentication code has no tests (shopfront/auth/middleware.py, shopfront/auth/passwords.py)",
+      "severity": "high",
+      "agent": "test_reliability_agent",
+      "file": "shopfront/auth/middleware.py"
+     },
+     {
+      "finding_id": "554afa99-804c-4a70-a6e9-608e2e27d1da",
+      "title": "Hardcoded fallback value for secret SHOPFRONT_SECRET in shopfront/auth/middleware.py",
+      "severity": "medium",
+      "agent": "security_agent",
+      "file": "shopfront/auth/middleware.py"
+     },
+     {
+      "finding_id": "59fd753e-cc91-4ef3-aa71-e7ba7ea2375d",
+      "title": "JWT decoded without an explicit algorithms allow-list in shopfront/auth/middleware.py",
+      "severity": "high",
+      "agent": "security_agent",
+      "file": "shopfront/auth/middleware.py"
+     },
+     {
+      "finding_id": "c622ce77-d991-4e01-91d1-3319c58c47eb",
+      "title": "Passwords hashed with MD5 (fast, unsalted) in shopfront/auth/passwords.py",
+      "severity": "high",
+      "agent": "security_agent",
+      "file": "shopfront/auth/passwords.py"
+     },
+     {
+      "finding_id": "d89d3712-c9de-49d1-8e49-d809de4585d2",
+      "title": "PyJWT 1.7.1 is a major version behind latest 2.15.1, released 7 year(s) ago",
+      "severity": "medium",
+      "agent": "dependency_agent",
+      "file": "requirements.txt"
+     }
+    ],
+    "routing_reason": "Recommendation Agent owns this topic (matched 'fix', 'what should').",
+    "routed_by": "policy",
+    "follow_ups": [
+     "What is the quickest fix with the biggest benefit?",
+     "Give me a remediation plan.",
+     "Which fixes are hard to implement?"
+    ],
+    "decided_by": "policy",
+    "created_at": "2026-10-14T18:56:38.087062Z"
+   }
+  },
+  {
+   "question": {
+    "message_id": "dc65a818-a37c-411d-b04f-286270aef52e",
+    "role": "user",
+    "agent": null,
+    "agent_display_name": null,
+    "content": "Is the JWT handling in this repository safe?",
+    "citations": [],
+    "routing_reason": null,
+    "routed_by": null,
+    "follow_ups": [],
+    "decided_by": null,
+    "created_at": "2026-10-14T18:56:38.106911Z"
+   },
+   "answer": {
+    "message_id": "49c92d73-ab1c-4378-9f3e-04733aff2bec",
+    "role": "agent",
+    "agent": "security_agent",
+    "agent_display_name": "Security Agent",
+    "content": "I (Security Agent) recorded **7 findings** (5 high, 1 medium, 1 low). Most relevant to your question:\n\n- **Vulnerable pyjwt is used by the authentication component (shopfront/auth/middleware.py)** (high, verified, confidence 99%) \u2014 `shopfront/auth/middleware.py`. Fix: Prioritise upgrading pyjwt; review the listed call sites.\n- **JWT decoded without an explicit algorithms allow-list in shopfront/auth/middleware.py** (high, verified, confidence 75%) \u2014 `shopfront/auth/middleware.py`. Fix: Pass an explicit allow-list, e.g. jwt.decode(token, key, algorithms=['HS256']).\n- **Passwords hashed with MD5 (fast, unsalted) in shopfront/auth/passwords.py** (high, verified, confidence 75%) \u2014 `shopfront/auth/passwords.py`. Fix: Use a slow, salted password KDF (argon2id, bcrypt or scrypt) and migrate stored hashes.\n- **Hardcoded fallback value for secret SHOPFRONT_SECRET in shopfront/auth/middleware.py** (medium, verified, confidence 75%) \u2014 `shopfront/auth/middleware.py`. Fix: Remove the literal fallback; fail fast when the secret is not configured, then rotate it.",
+    "citations": [
+     {
+      "finding_id": "139d3a2a-042f-4737-a2ad-6ce9ba52fc94",
+      "title": "Vulnerable pyjwt is used by the authentication component (shopfront/auth/middleware.py)",
+      "severity": "high",
+      "agent": "security_agent",
+      "file": "shopfront/auth/middleware.py"
+     },
+     {
+      "finding_id": "59fd753e-cc91-4ef3-aa71-e7ba7ea2375d",
+      "title": "JWT decoded without an explicit algorithms allow-list in shopfront/auth/middleware.py",
+      "severity": "high",
+      "agent": "security_agent",
+      "file": "shopfront/auth/middleware.py"
+     },
+     {
+      "finding_id": "c622ce77-d991-4e01-91d1-3319c58c47eb",
+      "title": "Passwords hashed with MD5 (fast, unsalted) in shopfront/auth/passwords.py",
+      "severity": "high",
+      "agent": "security_agent",
+      "file": "shopfront/auth/passwords.py"
+     },
+     {
+      "finding_id": "554afa99-804c-4a70-a6e9-608e2e27d1da",
+      "title": "Hardcoded fallback value for secret SHOPFRONT_SECRET in shopfront/auth/middleware.py",
+      "severity": "medium",
+      "agent": "security_agent",
+      "file": "shopfront/auth/middleware.py"
+     },
+     {
+      "finding_id": "3fd00276-3cc6-423d-8c76-77eb172495a2",
+      "title": "AI-directed instructions (possible prompt injection) in README.md",
+      "severity": "low",
+      "agent": "security_agent",
+      "file": "README.md"
+     },
+     {
+      "finding_id": "b0604fe7-fe3a-44d4-9755-cd437f206cc1",
+      "title": "Possible credential exposure: AWS access key ID in tests/fixtures/README.md",
+      "severity": "high",
+      "agent": "security_agent",
+      "file": "tests/fixtures/README.md"
+     },
+     {
+      "finding_id": "823e77b8-cb6c-44f4-913b-373ecafb1dda",
+      "title": "Possible credential exposure: AWS access key ID and AWS secret access key in tests/fixtures/example_credentials.txt",
+      "severity": "high",
+      "agent": "security_agent",
+      "file": "tests/fixtures/example_credentials.txt"
+     }
+    ],
+    "routing_reason": "Security Agent owns this topic (matched 'jwt', 'safe').",
+    "routed_by": "policy",
+    "follow_ups": [
+     "Which security finding is the most severe?",
+     "Is any of these reachable from user input?",
+     "How do I fix the most serious issue?"
+    ],
+    "decided_by": "policy",
+    "created_at": "2026-10-14T18:56:38.107369Z"
+   }
+  },
+  {
+   "question": {
+    "message_id": "05c24b89-c3d6-44df-adbf-1d71449a426e",
+    "role": "user",
+    "agent": null,
+    "agent_display_name": null,
+    "content": "Which findings did the red team reject, and why?",
+    "citations": [],
+    "routing_reason": null,
+    "routed_by": null,
+    "follow_ups": [],
+    "decided_by": null,
+    "created_at": "2026-10-14T18:56:38.125276Z"
+   },
+   "answer": {
+    "message_id": "7d61ce59-e9ad-4555-8dae-0445c96aba28",
+    "role": "agent",
+    "agent": "verification_agent",
+    "agent_display_name": "Verification Agent",
+    "content": "I made 33 rulings on findings and correlations, across all verification rounds: 24 verified, 3 rejected, 6 needs more evidence.\n\n- **Possible credential exposure: AWS access key ID and AWS secret access key in tests/fixtures/example_credentials.txt** \u2014 rejected (80%). The detected string occurs in tests/fixtures/example_credentials.txt and matches a documented placeholder pattern. AKIA************MPLE: value matches a documented placeholder (AWS documentation example access key ID); wJal********************************EKEY: value matches a documented placeholder (AWS documentation example secret access key)\u2026\n- **Possible credential exposure: AWS access key ID in tests/fixtures/README.md** \u2014 rejected (70%). The detected string occurs in tests/fixtures/README.md and matches a documented placeholder pattern. AKIA************MPLE: value matches a documented placeholder (AWS documentation example access key ID). all affected files are tests/fixtures/docs: tests/fixtures/README.md. No production credential exposure established.\n- **Data-access function list_orders_with_items() assessed acceptable for maintainability (shopfront/services/orders.py)** \u2014 rejected (67%). Rejected: measured evidence from performance_agent contradicts this assessment (query count grows linearly with rows (51 queries at n=50 -> 2001 at n=2000); N+1 confirmed).\n- **PyJWT 1.7.1 is affected by 11 known vulnerabilities** \u2014 verified (100%). Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. `jwt` imported by shopfront/auth/middleware.py; imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py. claimed critical matches the highest advisory severity in the evidence (critical) for the exact pinned version.\n- **Security-critical authentication code has no tests (shopfront/auth/middleware.py, shopfront/auth/passwords.py)** \u2014 verified (100%). Verified: re-hashed 5 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. independently rebuilt import graph: no test imports shopfront/auth/middleware.py, shopfront/auth/passwords.py. shopfront/auth/middleware.py: 0% line coverage (0/23 statements) during the executed test run.",
+    "citations": [
+     {
+      "finding_id": "823e77b8-cb6c-44f4-913b-373ecafb1dda",
+      "title": "Possible credential exposure: AWS access key ID and AWS secret access key in tests/fixtures/example_credentials.txt",
+      "severity": "high",
+      "agent": "security_agent",
+      "file": "tests/fixtures/example_credentials.txt"
+     },
+     {
+      "finding_id": "b0604fe7-fe3a-44d4-9755-cd437f206cc1",
+      "title": "Possible credential exposure: AWS access key ID in tests/fixtures/README.md",
+      "severity": "high",
+      "agent": "security_agent",
+      "file": "tests/fixtures/README.md"
+     },
+     {
+      "finding_id": "5bc382cb-3139-4530-a1d9-112e8f551558",
+      "title": "Data-access function list_orders_with_items() assessed acceptable for maintainability (shopfront/services/orders.py)",
+      "severity": "info",
+      "agent": "code_quality_agent",
+      "file": "shopfront/services/orders.py"
+     },
+     {
+      "finding_id": "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+      "title": "PyJWT 1.7.1 is affected by 11 known vulnerabilities",
+      "severity": "critical",
+      "agent": "dependency_agent",
+      "file": "requirements.txt"
+     },
+     {
+      "finding_id": "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d",
+      "title": "Security-critical authentication code has no tests (shopfront/auth/middleware.py, shopfront/auth/passwords.py)",
+      "severity": "high",
+      "agent": "test_reliability_agent",
+      "file": "shopfront/auth/middleware.py"
+     },
+     {
+      "finding_id": "59fd753e-cc91-4ef3-aa71-e7ba7ea2375d",
+      "title": "JWT decoded without an explicit algorithms allow-list in shopfront/auth/middleware.py",
+      "severity": "high",
+      "agent": "security_agent",
+      "file": "shopfront/auth/middleware.py"
+     },
+     {
+      "finding_id": "c622ce77-d991-4e01-91d1-3319c58c47eb",
+      "title": "Passwords hashed with MD5 (fast, unsalted) in shopfront/auth/passwords.py",
+      "severity": "high",
+      "agent": "security_agent",
+      "file": "shopfront/auth/passwords.py"
+     },
+     {
+      "finding_id": "80980334-cdc7-466e-8eb7-58ab1fd4fb31",
+      "title": "GPL-3.0 licensed source in a MIT project (shopfront/vendor/fastcsv.py)",
+      "severity": "high",
+      "agent": "license_agent",
+      "file": "shopfront/vendor/fastcsv.py"
+     }
+    ],
+    "routing_reason": "Verification Agent owns this topic (matched 'reject', 'red team').",
+    "routed_by": "policy",
+    "follow_ups": [
+     "Which findings were rejected and why?",
+     "How was the top finding verified?",
+     "Which findings need more evidence?"
+    ],
+    "decided_by": "policy",
+    "created_at": "2026-10-14T18:56:38.125790Z"
+   }
+  },
+  {
+   "question": {
+    "message_id": "db04928a-84ab-45e4-8fa5-221ea1ed634c",
+    "role": "user",
+    "agent": null,
+    "agent_display_name": null,
+    "content": "Is the project's license compatible with its dependencies?",
+    "citations": [],
+    "routing_reason": null,
+    "routed_by": null,
+    "follow_ups": [],
+    "decided_by": null,
+    "created_at": "2026-10-14T18:56:38.142390Z"
+   },
+   "answer": {
+    "message_id": "e5b22b97-1886-47d1-afa5-63e9bdfdad1a",
+    "role": "agent",
+    "agent": "license_agent",
+    "agent_display_name": "License Compliance Agent",
+    "content": "I (License Compliance Agent) recorded **2 findings** (1 high, 1 medium). Most relevant to your question:\n\n- **GPL-3.0 licensed source in a MIT project (shopfront/vendor/fastcsv.py)** (high, verified, confidence 72%) \u2014 `shopfront/vendor/fastcsv.py`. Fix: Replace the GPL-3.0 code, obtain it under a compatible license, or relicense consciously.\n- **License metadata mismatch: pyproject.toml declares Apache-2.0 but LICENSE is MIT** (medium, verified, confidence 95%) \u2014 `pyproject.toml`. Fix: Make pyproject.toml and LICENSE agree (decide which license is intended).",
+    "citations": [
+     {
+      "finding_id": "80980334-cdc7-466e-8eb7-58ab1fd4fb31",
+      "title": "GPL-3.0 licensed source in a MIT project (shopfront/vendor/fastcsv.py)",
+      "severity": "high",
+      "agent": "license_agent",
+      "file": "shopfront/vendor/fastcsv.py"
+     },
+     {
+      "finding_id": "c0845c1d-2421-456b-a1bb-553676b98388",
+      "title": "License metadata mismatch: pyproject.toml declares Apache-2.0 but LICENSE is MIT",
+      "severity": "medium",
+      "agent": "license_agent",
+      "file": "pyproject.toml"
+     }
+    ],
+    "routing_reason": "License Compliance Agent owns this topic (matched 'license').",
+    "routed_by": "policy",
+    "follow_ups": [
+     "Is the project license compatible with its dependencies?",
+     "Which dependencies are copyleft?",
+     "Is license metadata consistent?"
+    ],
+    "decided_by": "policy",
+    "created_at": "2026-10-14T18:56:38.142809Z"
+   }
+  }
+ ]
+}

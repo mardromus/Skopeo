@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" font-family="Inter, DejaVu Sans, sans-serif" font-size="12">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#4a5260"/></marker>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0c6870"/></marker>
+  </defs>
+  <rect width="1000" height="660" fill="#fff"/>
+  <text x="20" y="28" font-size="16" font-weight="700" fill="#14181e">Skopeo architecture: 13 agents coordinating through a shared blackboard</text>
+  <text x="20" y="46" font-size="11" fill="#6f7785">Arrows show the direction data flows. "LLM" marks agents whose decisions are made by the language model (schema-validated, with a deterministic fallback).</text>
+
+  <!-- left column -->
+  <g>
+    <rect x="20" y="66" width="160" height="40" rx="7" fill="none" stroke="#4a5260" stroke-width="1.2"/>
+    <text x="100" y="91" text-anchor="middle" font-weight="600">User (browser)</text>
+    <rect x="20" y="140" width="160" height="44" rx="7" fill="none" stroke="#4a5260" stroke-width="1.2"/>
+    <text x="100" y="159" text-anchor="middle" font-weight="600">Web UI (React)</text>
+    <text x="100" y="175" text-anchor="middle" font-size="10.5" fill="#6f7785">live trace, findings, chat</text>
+    <rect x="20" y="220" width="160" height="44" rx="7" fill="none" stroke="#4a5260" stroke-width="1.2"/>
+    <text x="100" y="239" text-anchor="middle" font-weight="600">FastAPI REST API</text>
+    <text x="100" y="255" text-anchor="middle" font-size="10.5" fill="#6f7785">validation, auth, rate limits</text>
+    <rect x="20" y="330" width="160" height="84" rx="7" fill="#eef6f6" stroke="#0c6870" stroke-width="1.6"/>
+    <text x="100" y="350" text-anchor="middle" font-weight="600">Ask-the-agents router</text>
+    <text x="100" y="366" text-anchor="middle" font-size="10.5" fill="#444b57">sends each question to the</text>
+    <text x="100" y="380" text-anchor="middle" font-size="10.5" fill="#444b57">responsible agent, which</text>
+    <text x="100" y="394" text-anchor="middle" font-size="10.5" fill="#444b57">answers from its own records</text>
+    <text x="168" y="408" text-anchor="end" font-size="9.5" font-weight="700" fill="#0c6870">LLM</text>
+    <rect x="20" y="470" width="160" height="58" rx="7" fill="none" stroke="#4a5260" stroke-width="1.2" stroke-dasharray="4 3"/>
+    <text x="100" y="491" text-anchor="middle" font-weight="600">Groq LLM</text>
+    <text x="100" y="507" text-anchor="middle" font-size="10.5" fill="#6f7785">gpt-oss-120b (reasoning)</text>
+    <text x="100" y="521" text-anchor="middle" font-size="10.5" fill="#6f7785">gpt-oss-20b (fast)</text>
+    <text x="20" y="548" font-size="10" fill="#6f7785">Called through one LLMProvider</text>
+    <text x="20" y="562" font-size="10" fill="#6f7785">by every agent marked LLM.</text>
+  </g>
+
+  <!-- orchestrator -->
+  <rect x="300" y="62" width="300" height="70" rx="8" fill="#e6f1f1" stroke="#0c6870" stroke-width="2"/>
+  <text x="450" y="85" text-anchor="middle" font-weight="700" font-size="13">Orchestrator agent</text>
+  <text x="450" y="102" text-anchor="middle" font-size="10.5" fill="#444b57">plans per repository · reviews after every phase</text>
+  <text x="450" y="117" text-anchor="middle" font-size="10.5" fill="#444b57">accepts requests · retries · replans · chooses next phase</text>
+  <text x="590" y="127" text-anchor="end" font-size="9.5" font-weight="700" fill="#0c6870">LLM</text>
+
+  <!-- evidence store cylinder -->
+  <path d="M330 262 v58 a120 14 0 0 0 240 0 v-58" fill="#fff" stroke="#14181e" stroke-width="1.4"/>
+  <ellipse cx="450" cy="262" rx="120" ry="14" fill="#f4f6f8" stroke="#14181e" stroke-width="1.4"/>
+  <text x="450" y="296" text-anchor="middle" font-weight="700" font-size="13">Evidence Store (blackboard)</text>
+  <text x="450" y="312" text-anchor="middle" font-size="10.2" fill="#444b57">findings · evidence · requests · correlations</text>
+  <text x="450" y="326" text-anchor="middle" font-size="10.2" fill="#444b57">verifications · risks · execution events</text>
+
+  <!-- specialists -->
+  <rect x="230" y="420" width="440" height="168" rx="9" fill="#fafbfc" stroke="#9aa1ad" stroke-width="1"/>
+  <text x="242" y="440" font-weight="600" fill="#444b57">8 specialist agents (worker pool, run in parallel)</text>
+  <g font-size="11">
+    <rect x="242" y="452" width="100" height="52" rx="6" fill="#fff" stroke="#4a5260"/><text x="292" y="474" text-anchor="middle" font-weight="600">Security</text><text x="292" y="490" text-anchor="middle" font-size="9.5" fill="#6f7785">secrets, AST, reach</text>
+    <rect x="350" y="452" width="100" height="52" rx="6" fill="#fff" stroke="#4a5260"/><text x="400" y="474" text-anchor="middle" font-weight="600">Dependency</text><text x="400" y="490" text-anchor="middle" font-size="9.5" fill="#6f7785">OSV, registries</text>
+    <rect x="458" y="452" width="100" height="52" rx="6" fill="#fff" stroke="#4a5260"/><text x="508" y="474" text-anchor="middle" font-weight="600">Code Quality</text><text x="508" y="490" text-anchor="middle" font-size="9.5" fill="#6f7785">metrics + review</text><text x="552" y="499" text-anchor="end" font-size="8.5" font-weight="700" fill="#0c6870">LLM</text>
+    <rect x="566" y="452" width="100" height="52" rx="6" fill="#fff" stroke="#4a5260"/><text x="616" y="474" text-anchor="middle" font-weight="600">API Compat.</text><text x="616" y="490" text-anchor="middle" font-size="9.5" fill="#6f7785">deprecations</text>
+    <rect x="242" y="512" width="100" height="52" rx="6" fill="#fff" stroke="#4a5260"/><text x="292" y="534" text-anchor="middle" font-weight="600">Test Reliability</text><text x="292" y="550" text-anchor="middle" font-size="9.5" fill="#6f7785">pytest, coverage</text>
+    <rect x="350" y="512" width="100" height="52" rx="6" fill="#fff" stroke="#4a5260"/><text x="400" y="534" text-anchor="middle" font-weight="600">License</text><text x="400" y="550" text-anchor="middle" font-size="9.5" fill="#6f7785">SPDX, metadata</text>
+    <rect x="458" y="512" width="100" height="52" rx="6" fill="#fff" stroke="#4a5260"/><text x="508" y="534" text-anchor="middle" font-weight="600">Maintenance</text><text x="508" y="550" text-anchor="middle" font-size="9.5" fill="#6f7785">git history</text>
+    <rect x="566" y="512" width="100" height="52" rx="6" fill="#fff" stroke="#4a5260"/><text x="616" y="534" text-anchor="middle" font-weight="600">Performance</text><text x="616" y="550" text-anchor="middle" font-size="9.5" fill="#6f7785">AST + benchmarks</text>
+  </g>
+  <text x="242" y="580" font-size="9.5" fill="#6f7785">Each runs behind a fault boundary with its own iteration, tool-call and time budget.</text>
+
+  <!-- coordination column -->
+  <rect x="740" y="150" width="240" height="410" rx="9" fill="#fafbfc" stroke="#9aa1ad" stroke-width="1"/>
+  <text x="752" y="170" font-weight="600" fill="#444b57">Coordination agents</text>
+  <rect x="756" y="182" width="208" height="62" rx="6" fill="#fff" stroke="#4a5260"/>
+  <text x="768" y="201" font-weight="600">Correlation agent</text>
+  <text x="768" y="217" font-size="10" fill="#6f7785">compound risks, root causes,</text>
+  <text x="768" y="231" font-size="10" fill="#6f7785">duplicates, contradictions</text>
+  <text x="954" y="239" text-anchor="end" font-size="9.5" font-weight="700" fill="#0c6870">LLM</text>
+  <rect x="756" y="254" width="208" height="76" rx="6" fill="#fff" stroke="#b3261e" stroke-width="1.4"/>
+  <text x="768" y="273" font-weight="600">Red-Team (Verification)</text>
+  <text x="768" y="289" font-size="10" fill="#6f7785">challenges specialists, re-checks</text>
+  <text x="768" y="303" font-size="10" fill="#6f7785">with its own tools; verifies, rejects</text>
+  <text x="768" y="317" font-size="10" fill="#6f7785">or requests more evidence</text>
+  <text x="954" y="325" text-anchor="end" font-size="9.5" font-weight="700" fill="#0c6870">LLM</text>
+  <rect x="756" y="340" width="208" height="62" rx="6" fill="#fff" stroke="#4a5260"/>
+  <text x="768" y="359" font-weight="600">Risk Assessment agent</text>
+  <text x="768" y="375" font-size="10" fill="#6f7785">scores verified findings only,</text>
+  <text x="768" y="389" font-size="10" fill="#6f7785">P0–P4 with every factor shown</text>
+  <rect x="756" y="426" width="208" height="62" rx="6" fill="#fff" stroke="#4a5260"/>
+  <text x="768" y="445" font-weight="600">Recommendation agent</text>
+  <text x="768" y="461" font-size="10" fill="#6f7785">fixes, GitHub issue and</text>
+  <text x="768" y="475" font-size="10" fill="#6f7785">draft-PR proposals</text>
+  <text x="954" y="483" text-anchor="end" font-size="9.5" font-weight="700" fill="#0c6870">LLM</text>
+  <path d="M860 402V426" fill="none" stroke="#4a5260" stroke-width="1.3" marker-end="url(#a)"/>
+  <rect x="756" y="590" width="208" height="46" rx="6" fill="none" stroke="#4a5260" stroke-dasharray="4 3"/>
+  <text x="860" y="609" text-anchor="middle" font-weight="600">Human approval</text>
+  <text x="860" y="625" text-anchor="middle" font-size="10" fill="#6f7785">then GitHub (DRY_RUN by default)</text>
+
+  <!-- connectors -->
+  <g fill="none" stroke="#4a5260" stroke-width="1.3">
+    <path d="M100 106V140" marker-end="url(#a)"/>
+    <path d="M100 184V220" marker-end="url(#a)"/>
+    <path d="M180 242H240V92H300" marker-end="url(#a)"/>
+    <path d="M100 264V330" marker-end="url(#a)"/>
+    <path d="M430 132V248" marker-end="url(#a)"/>
+    <path d="M470 248V132" marker-end="url(#a)"/>
+    <path d="M300 118H270V420" marker-end="url(#a)"/>
+    <path d="M450 420V336" marker-end="url(#a)"/>
+    <path d="M600 92H860V150" marker-end="url(#a)"/>
+    <path d="M576 292H740" marker-start="url(#a)" marker-end="url(#a)"/>
+    <path d="M860 560V590" marker-end="url(#a)"/>
+    <path d="M180 372H300V306H330" stroke="#0c6870" stroke-dasharray="5 3" marker-end="url(#g)"/>
+  </g>
+  <g font-size="10" fill="#444b57">
+    <text x="186" y="236">start case</text>
+    <text x="262" y="282" text-anchor="end">tasks (LangGraph</text><text x="262" y="295" text-anchor="end">Send, fan-out)</text>
+    <text x="424" y="190" text-anchor="end">plan, decisions</text>
+    <text x="478" y="190">reads state at</text><text x="478" y="203">every review</text>
+    <text x="458" y="380">findings, evidence,</text><text x="458" y="393">follow-up requests</text>
+    <text x="640" y="86">routes: correlate · verify · assess</text>
+    <text x="600" y="284">read / write</text>
+    <text x="106" y="300">ask a question</text>
+    <text x="308" y="352" fill="#0c6870">reads that agent's</text><text x="308" y="365" fill="#0c6870">records</text>
+  </g>
+</svg>

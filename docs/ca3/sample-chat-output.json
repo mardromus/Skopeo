@@ -1,0 +1,82 @@
+{
+  "question": {
+    "message_id": "dc65a818-a37c-411d-b04f-286270aef52e",
+    "role": "user",
+    "agent": null,
+    "agent_display_name": null,
+    "content": "Is the JWT handling in this repository safe?",
+    "citations": [],
+    "routing_reason": null,
+    "routed_by": null,
+    "follow_ups": [],
+    "decided_by": null,
+    "created_at": "2026-10-14T18:56:38.106911Z"
+  },
+  "answer": {
+    "message_id": "49c92d73-ab1c-4378-9f3e-04733aff2bec",
+    "role": "agent",
+    "agent": "security_agent",
+    "agent_display_name": "Security Agent",
+    "content": "I (Security Agent) recorded **7 findings** (5 high, 1 medium, 1 low). Most relevant to your question:\n\n- **Vulnerable pyjwt is used by the authentication component (shopfront/auth/middleware.py)** (high, verified, confidence 99%) \u2014 `shopfront/auth/middleware.py`. Fix: Prioritise upgrading pyjwt; review the listed call sites.\n- **JWT decoded without an explicit algorithms allow-list in shopfront/auth/middleware.py** (high, verified, confidence 75%) \u2014 `shopfront/auth/middleware.py`. Fix: Pass an explicit allow-list, e.g. jwt.decode(token, key, algorithms=['HS256']).\n- **Passwords hashed with MD5 (fast, unsalted) in shopfront/auth/passwords.py** (high, verified, confidence 75%) \u2014 `shopfront/auth/passwords.py`. Fix: Use a slow, salted password KDF (argon2id, bcrypt or scrypt) and migrate stored hashes.\n- **Hardcoded fallback value for secret SHOPFRONT_SECRET in shopfront/auth/middleware.py** (medium, verified, confidence 75%) \u2014 `shopfront/auth/middleware.py`. Fix: Remove the literal fallback; fail fast when the secret is not configured, then rotate it.",
+    "citations": [
+      {
+        "finding_id": "139d3a2a-042f-4737-a2ad-6ce9ba52fc94",
+        "title": "Vulnerable pyjwt is used by the authentication component (shopfront/auth/middleware.py)",
+        "severity": "high",
+        "agent": "security_agent",
+        "file": "shopfront/auth/middleware.py"
+      },
+      {
+        "finding_id": "59fd753e-cc91-4ef3-aa71-e7ba7ea2375d",
+        "title": "JWT decoded without an explicit algorithms allow-list in shopfront/auth/middleware.py",
+        "severity": "high",
+        "agent": "security_agent",
+        "file": "shopfront/auth/middleware.py"
+      },
+      {
+        "finding_id": "c622ce77-d991-4e01-91d1-3319c58c47eb",
+        "title": "Passwords hashed with MD5 (fast, unsalted) in shopfront/auth/passwords.py",
+        "severity": "high",
+        "agent": "security_agent",
+        "file": "shopfront/auth/passwords.py"
+      },
+      {
+        "finding_id": "554afa99-804c-4a70-a6e9-608e2e27d1da",
+        "title": "Hardcoded fallback value for secret SHOPFRONT_SECRET in shopfront/auth/middleware.py",
+        "severity": "medium",
+        "agent": "security_agent",
+        "file": "shopfront/auth/middleware.py"
+      },
+      {
+        "finding_id": "3fd00276-3cc6-423d-8c76-77eb172495a2",
+        "title": "AI-directed instructions (possible prompt injection) in README.md",
+        "severity": "low",
+        "agent": "security_agent",
+        "file": "README.md"
+      },
+      {
+        "finding_id": "b0604fe7-fe3a-44d4-9755-cd437f206cc1",
+        "title": "Possible credential exposure: AWS access key ID in tests/fixtures/README.md",
+        "severity": "high",
+        "agent": "security_agent",
+        "file": "tests/fixtures/README.md"
+      },
+      {
+        "finding_id": "823e77b8-cb6c-44f4-913b-373ecafb1dda",
+        "title": "Possible credential exposure: AWS access key ID and AWS secret access key in tests/fixtures/example_credentials.txt",
+        "severity": "high",
+        "agent": "security_agent",
+        "file": "tests/fixtures/example_credentials.txt"
+      }
+    ],
+    "routing_reason": "Security Agent owns this topic (matched 'jwt', 'safe').",
+    "routed_by": "policy",
+    "follow_ups": [
+      "Which security finding is the most severe?",
+      "Is any of these reachable from user input?",
+      "How do I fix the most serious issue?"
+    ],
+    "decided_by": "policy",
+    "created_at": "2026-10-14T18:56:38.107369Z"
+  }
+}

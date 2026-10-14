@@ -1,0 +1,454 @@
+{
+  "investigation_id": "a2d2d2d9-32ba-420e-af12-d187dee772af",
+  "repository": "examples/vulnerable-demo-repo",
+  "commit_sha": "5eda3b9ec3c34ef25e95cc8180a669e983de998a",
+  "status": "completed_with_limitations",
+  "overall_risk": {
+    "score": 97.8,
+    "level": "critical"
+  },
+  "execution_summary": {
+    "rounds": 3,
+    "replans": 2,
+    "agent_runs": 21,
+    "agent_failures": 1,
+    "retries": 1,
+    "follow_ups": 5,
+    "findings": 24,
+    "verified": 20,
+    "rejected": 3,
+    "insufficient_evidence": 1,
+    "risks_by_priority": {
+      "P0": 2,
+      "P1": 4,
+      "P2": 5,
+      "P3": 9,
+      "P4": 2
+    }
+  },
+  "findings": [
+    {
+      "finding_id": "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+      "agent": "dependency_agent",
+      "category": "dependency",
+      "rule_id": "dependency.vulnerable",
+      "title": "PyJWT 1.7.1 is affected by 11 known vulnerabilities",
+      "description": "PyJWT==1.7.1 (declared in requirements.txt) matches 11 distinct advisories in offline snapshot of osv.dev (retrieved 2026-10-06). Highest severity: CRITICAL. Version 2.14.0 fixes 10 of them. 1 advisory(ies) have no published fix.",
+      "severity": "critical",
+      "confidence": 0.99,
+      "confidence_factors": [
+        {
+          "factor": "evidence_strength",
+          "delta": 0.95,
+          "detail": "12 evidence item(s): dependency"
+        },
+        {
+          "factor": "reachability",
+          "delta": 0.05,
+          "detail": "affected code is reachable from non-test code"
+        },
+        {
+          "factor": "corroboration",
+          "delta": 0.15,
+          "detail": "3 other agent(s) produced related evidence"
+        },
+        {
+          "factor": "verification",
+          "delta": 0.1,
+          "detail": "survived red-team verification"
+        }
+      ],
+      "status": "verified",
+      "subject": "pkg:PyPI/pyjwt",
+      "affected_files": [
+        "requirements.txt"
+      ],
+      "affected_components": [
+        "dependencies",
+        "authentication"
+      ],
+      "evidence_ids": [
+        "cb6d0009-677a-43de-86dd-a861856bde99",
+        "1f9084b5-66e1-49a7-96e5-6941c046b776",
+        "3602378c-2eb6-4a0b-a27f-46cc72a8b647",
+        "5d63cc55-8600-4b45-95f2-d59e473ce780",
+        "703780b4-10e1-45ba-81dc-1b0e3cf3e115",
+        "0503ae33-a491-4c64-8d3e-b1c379e9d185",
+        "5da4db64-2ca9-4c95-a4d4-c162ad67755c",
+        "28f88d4f-5717-4be6-a780-dd2ea6df85d3",
+        "20a707aa-caf7-4cdb-a1cb-40ca0ee2e0c0",
+        "b155ad81-1441-4f99-820a-a463f0f20232",
+        "07dc98c8-1778-4977-bc86-6456fbb31bd1",
+        "2939e54e-1cda-4547-970b-29cf6ef4ae3b"
+      ],
+      "attributes": {
+        "package": "pyjwt",
+        "display_name": "PyJWT",
+        "ecosystem": "PyPI",
+        "version": "1.7.1",
+        "import_name": "jwt",
+        "vulnerable": true,
+        "advisory_ids": [
+          "GHSA-ffc3-869f-jxw9",
+          "GHSA-752w-5fwx-jx9f",
+          "GHSA-9v7f-9g4p-ffgj",
+          "GHSA-ffqj-6fqr-9h24",
+          "GHSA-xgmm-8j9v-c9wx",
+          "GHSA-2gx3-rcp4-g85q",
+          "GHSA-hxm8-2xgr-2p9m",
+          "GHSA-jwrc-g2q2-pq5p",
+          "PYSEC-2025-183",
+          "PYSEC-2026-175",
+          "PYSEC-2026-177"
+        ],
+        "advisory_max_severity": "critical",
+        "fixed_version": "2.14.0",
+        "security_sensitive_package": true,
+        "advisory_source": "offline snapshot of osv.dev (retrieved 2026-10-06)",
+        "commit_sha": "5eda3b9ec3c34ef25e95cc8180a669e983de998a",
+        "confidence_inputs": {
+          "corroborating_agents": 3,
+          "verification": "verified",
+          "reachable": true
+        },
+        "verification_round": 1,
+        "verified_evidence_count": 12,
+        "reachability": "entrypoint"
+      },
+      "reasoning_summary": "Exact pinned version 1.7.1 matched 11 advisory groups (aliases merged). Severity taken from the advisory database, not estimated. Whether the vulnerable code is reachable in this repository is not established by this agent.",
+      "recommended_action": "Upgrade PyJWT to 2.14.0 or later.",
+      "is_hypothesis": false,
+      "agent_run_id": "f16f6b60-4dba-4339-9578-a6a874514fca",
+      "created_at": "2026-10-14T18:56:33.060164",
+      "updated_at": "2026-10-14T18:56:36.732742",
+      "verification": {
+        "verification_id": "525b8765-1e97-413a-a07f-5bd07591bd23",
+        "finding_id": "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+        "correlation_id": null,
+        "round": 1,
+        "decision": "verified",
+        "confidence": 1.0,
+        "challenge": "Is pyjwt actually imported and reachable, and is the critical severity backed by the advisory data?",
+        "checks": [
+          {
+            "check": "evidence_integrity",
+            "question": "Is the evidence real?",
+            "outcome": "pass",
+            "detail": "re-hashed 1 referenced line range(s); all match the repository",
+            "supports": null
+          },
+          {
+            "check": "staleness",
+            "question": "Is the evidence stale?",
+            "outcome": "pass",
+            "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+            "supports": null
+          },
+          {
+            "check": "dependency_used",
+            "question": "Is the vulnerable dependency actually used?",
+            "outcome": "pass",
+            "detail": "`jwt` imported by shopfront/auth/middleware.py; imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py",
+            "supports": null
+          },
+          {
+            "check": "severity_justified",
+            "question": "Is the claimed severity justified?",
+            "outcome": "pass",
+            "detail": "claimed critical matches the highest advisory severity in the evidence (critical) for the exact pinned version",
+            "supports": null
+          }
+        ],
+        "evidence_checked": [
+          "cb6d0009-677a-43de-86dd-a861856bde99",
+          "1f9084b5-66e1-49a7-96e5-6941c046b776",
+          "3602378c-2eb6-4a0b-a27f-46cc72a8b647",
+          "5d63cc55-8600-4b45-95f2-d59e473ce780",
+          "703780b4-10e1-45ba-81dc-1b0e3cf3e115",
+          "0503ae33-a491-4c64-8d3e-b1c379e9d185",
+          "5da4db64-2ca9-4c95-a4d4-c162ad67755c",
+          "28f88d4f-5717-4be6-a780-dd2ea6df85d3",
+          "20a707aa-caf7-4cdb-a1cb-40ca0ee2e0c0",
+          "b155ad81-1441-4f99-820a-a463f0f20232",
+          "07dc98c8-1778-4977-bc86-6456fbb31bd1",
+          "2939e54e-1cda-4547-970b-29cf6ef4ae3b"
+        ],
+        "additional_tests": [],
+        "counter_evidence": [],
+        "adjusted_severity": null,
+        "reasoning_summary": "Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. `jwt` imported by shopfront/auth/middleware.py; imported (transitively) by entrypoint(s) shopfront/api/routes.py, shopfront/app.py. claimed critical matches the highest advisory severity in the evidence (critical) for the exact pinned version.",
+        "decided_by": "policy",
+        "verified_at": "2026-10-14T18:56:35.007660"
+      }
+    }
+  ],
+  "rejected_findings": [
+    {
+      "finding_id": "b0604fe7-fe3a-44d4-9755-cd437f206cc1",
+      "agent": "security_agent",
+      "title": "Possible credential exposure: AWS access key ID in tests/fixtures/README.md",
+      "status": "rejected",
+      "confidence": 0.1
+    }
+  ],
+  "correlations": [
+    {
+      "correlation_id": "078d4455-2f90-477a-9d2f-a16990a9a51d",
+      "finding_ids": [
+        "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+        "139d3a2a-042f-4737-a2ad-6ce9ba52fc94",
+        "6ae50d21-e98c-49f2-9694-bfa2d7a1feb1",
+        "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d"
+      ],
+      "relationship_type": "compound_risk",
+      "title": "Compound authentication upgrade risk: vulnerable PyJWT 1.7.1 in authentication code with insufficient tests",
+      "description": "These findings form a compound risk: dependency_agent: PyJWT 1.7.1 is affected by 11 known vulnerabilities | security_agent: Vulnerable pyjwt is used by the authentication component (shopfront/auth/middleware.py) | api_compatibility_agent: Upgrading pyjwt 1.7.1 -> 2.14.0 breaks 2 call site(s) in shopfront/auth/middleware.py | test_reliability_agent: Security-critical authentication code has no tests (shopfront/auth/middleware.py, shopfront/auth/passwords.py). A vulnerable dependency is used in security-critical authentication code whose upgrade is insufficiently tested and the upgrade breaks existing call sites.",
+      "risk_multiplier": 1.75,
+      "confidence": 0.941,
+      "status": "verified",
+      "links": [
+        {
+          "type": "same_package",
+          "value": "pyjwt"
+        },
+        {
+          "type": "usage_files",
+          "value": [
+            "shopfront/auth/middleware.py"
+          ]
+        },
+        {
+          "type": "categories",
+          "value": [
+            "api_compatibility",
+            "dependency",
+            "security",
+            "testing"
+          ]
+        }
+      ],
+      "reasoning_summary": "Linked through package 'pyjwt' (dependency evidence) and usage files ['shopfront/auth/middleware.py']; 4 engineering dimensions involved. (decided by policy; confidence = geometric mean of member confidences x link strength 0.95)",
+      "resolution": null,
+      "signature": "compound:dep:pyjwt",
+      "created_at": "2026-10-14T18:56:34.906719",
+      "updated_at": "2026-10-14T18:56:36.730728"
+    }
+  ],
+  "verifications": [
+    {
+      "verification_id": "42cb18d0-a369-409e-a42e-4f2ab061dd5b",
+      "finding_id": "b0604fe7-fe3a-44d4-9755-cd437f206cc1",
+      "correlation_id": null,
+      "round": 1,
+      "decision": "rejected",
+      "confidence": 0.7,
+      "challenge": "Is this a live credential, or a documented dummy value in a fixture? Is it used by production code?",
+      "checks": [
+        {
+          "check": "evidence_integrity",
+          "question": "Is the evidence real?",
+          "outcome": "pass",
+          "detail": "re-hashed 1 referenced line range(s); all match the repository",
+          "supports": null
+        },
+        {
+          "check": "staleness",
+          "question": "Is the evidence stale?",
+          "outcome": "pass",
+          "detail": "evidence captured at the analysed commit 5eda3b9ec3",
+          "supports": null
+        },
+        {
+          "check": "location_context",
+          "question": "Could this be a false positive?",
+          "outcome": "fail",
+          "detail": "all affected files are tests/fixtures/docs: tests/fixtures/README.md",
+          "supports": "downgrade"
+        },
+        {
+          "check": "placeholder",
+          "question": "Is this a documented dummy credential?",
+          "outcome": "fail",
+          "detail": "AKIA************MPLE: value matches a documented placeholder (AWS documentation example access key ID)",
+          "supports": "rejection"
+        },
+        {
+          "check": "production_reference",
+          "question": "Is the value used by production code?",
+          "outcome": "pass",
+          "detail": "README.md referenced by production files pyproject.toml",
+          "supports": null
+        }
+      ],
+      "evidence_checked": [
+        "03b46ab3-8f37-4044-b7c6-b41ecad33e0c"
+      ],
+      "additional_tests": [],
+      "counter_evidence": [
+        {
+          "check": "location_context",
+          "detail": "all affected files are tests/fixtures/docs: tests/fixtures/README.md"
+        },
+        {
+          "check": "placeholder",
+          "detail": "AKIA************MPLE: value matches a documented placeholder (AWS documentation example access key ID)"
+        }
+      ],
+      "adjusted_severity": null,
+      "reasoning_summary": "The detected string occurs in tests/fixtures/README.md and matches a documented placeholder pattern. AKIA************MPLE: value matches a documented placeholder (AWS documentation example access key ID). all affected files are tests/fixtures/docs: tests/fixtures/README.md. No production credential exposure established.",
+      "decided_by": "policy",
+      "verified_at": "2026-10-14T18:56:35.022764"
+    }
+  ],
+  "risks": [
+    {
+      "risk_id": "78ed9262-0006-4177-825e-abee89eb78a3",
+      "finding_id": null,
+      "correlation_id": "078d4455-2f90-477a-9d2f-a16990a9a51d",
+      "kind": "compound",
+      "title": "Compound authentication upgrade risk: vulnerable PyJWT 1.7.1 in authentication code with insufficient tests",
+      "category": "compound",
+      "severity": "critical",
+      "score": 94.5,
+      "priority": "P0",
+      "confidence": 0.941,
+      "impact": 1.0,
+      "exploitability": 0.8,
+      "correlation_multiplier": 1.75,
+      "factors": {
+        "severity_weight": 1.0,
+        "confidence": 0.941,
+        "impact": 1.0,
+        "exploitability": 0.8,
+        "correlation_multiplier": 1.75,
+        "raw": 1.3174,
+        "score": 94.5,
+        "priority": "P0"
+      },
+      "member_finding_ids": [
+        "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+        "139d3a2a-042f-4737-a2ad-6ce9ba52fc94",
+        "6ae50d21-e98c-49f2-9694-bfa2d7a1feb1",
+        "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d"
+      ],
+      "rationale": "P0 compound risk: most severe verified member is critical (PyJWT 1.7.1 is affected by 11 known vulnerabilities); correlation confidence 0.94; max member impact 1.00; max exploitability 0.80; multiplier 1.75 because 4 independently verified dimensions (api_compatibility, dependency, security, testing) reinforce each other. raw 1.317 -> score 94.5.",
+      "created_at": "2026-10-14T18:56:36.898725"
+    }
+  ],
+  "recommendations": [
+    {
+      "recommendation_id": "f16334b5-e7aa-414b-9510-9c0b76a10329",
+      "risk_id": "78ed9262-0006-4177-825e-abee89eb78a3",
+      "finding_ids": [
+        "88cd8dcb-830f-408a-9c9b-ebf5fb89e608",
+        "139d3a2a-042f-4737-a2ad-6ce9ba52fc94",
+        "6ae50d21-e98c-49f2-9694-bfa2d7a1feb1",
+        "cd40835a-8603-4dbb-a2c8-d8f8f1f8349d"
+      ],
+      "title": "Fix compound risk: Compound authentication upgrade risk: vulnerable PyJWT 1.7.1 in authentication code with insufficient tests",
+      "problem": "Compound authentication upgrade risk: vulnerable PyJWT 1.7.1 in authentication code with insufficient tests. PyJWT 1.7.1 is affected by 11 known vulnerabilities | Vulnerable pyjwt is used by the authentication component (shopfront/auth/middleware.py) | Upgrading pyjwt 1.7.1 -> 2.14.0 breaks 2 call site(s) in shopfront/auth/middleware.py | Security-critical authentication code has no tests (shopfront/auth/middleware.py, shopfront/auth/passwords.py)",
+      "affected_component": "authentication",
+      "why_it_matters": "Independent agents verified 4 linked problems across 4 dimensions; together they are worse than each alone (multiplier 1.75).",
+      "proposed_fix": "1. Upgrade PyJWT from 1.7.1 to 2.14.0 or later (resolves 11 advisories).\n2. In the same change, update the breaking call sites (shopfront/auth/middleware.py:17, shopfront/auth/middleware.py:26): Drop the .decode('utf-8') call on the token. Pass an explicit allow-list, e.g. algorithms=[\"HS256\"].\n3. Add regression tests for shopfront/auth/middleware.py, shopfront/auth/passwords.py before merging (valid/expired/tampered tokens, wrong algorithm).\n4. Re-run Skopeo to confirm the compound risk is closed.",
+      "estimated_risk": {
+        "priority": "P0",
+        "score": 94.5
+      },
+      "verification_status": "verified",
+      "expected_benefit": "Closes a P0 risk (score 94.5) and makes the upgrade path safe.",
+      "implementation_difficulty": "medium",
+      "priority": "P0",
+      "created_at": "2026-10-14T18:56:36.927244"
+    }
+  ],
+  "coverage": {
+    "agents": {
+      "performance_agent": {
+        "status": "partial",
+        "runs": 4,
+        "failures": 1,
+        "findings": 2,
+        "analyzed": [
+          "Static performance analysis: 2 suspect(s)"
+        ],
+        "limitations": [
+          "attempt 1 (full/default) FAILED: ToolUnavailableError: benchmark harness unavailable [controlled fault injection: SKOPEO_FAULT_INJECTION=performance_agent@1]",
+          "Degraded strategy 'static_only': no benchmarks or profiling in this run",
+          "No benchmark harness for notify_customers() (shopfront/services/notifications.py)"
+        ]
+      }
+    }
+  },
+  "events": [
+    {
+      "event_id": "0219bb02-635a-4d7f-9fc5-54892ce97cbe",
+      "investigation_id": "a2d2d2d9-32ba-420e-af12-d187dee772af",
+      "seq": 1,
+      "sender": "orchestrator",
+      "receiver": "all_agents",
+      "event_type": "investigation_started",
+      "severity": "info",
+      "message": "Orchestrator created investigation of examples/vulnerable-demo-repo (main, depth=standard, mode=mock, DRY_RUN=True)",
+      "correlation_id": null,
+      "payload": {
+        "repository": "examples/vulnerable-demo-repo",
+        "source": "demo_fixture",
+        "llm_provider": "mock",
+        "fault_injection": "performance_agent@1"
+      },
+      "timestamp": "2026-10-14T18:56:32.923883"
+    },
+    {
+      "event_id": "e2f0bce8-1991-407d-9e4f-dc90d0bce55d",
+      "investigation_id": "a2d2d2d9-32ba-420e-af12-d187dee772af",
+      "seq": 2,
+      "sender": "orchestrator",
+      "receiver": "blackboard",
+      "event_type": "repository_prepared",
+      "severity": "info",
+      "message": "Repository prepared (demo_fixture) at 5eda3b9ec3: 28 files, primary language Python",
+      "correlation_id": null,
+      "payload": {
+        "languages": {
+          "Python": 21,
+          "SQL": 1
+        },
+        "ecosystems": [
+          "PyPI"
+        ],
+        "manifests": [
+          "pyproject.toml",
+          "requirements.txt"
+        ],
+        "test_file_count": 3,
+        "git_commits_available": 1,
+        "trusted_execution": true
+      },
+      "timestamp": "2026-10-14T18:56:33.018671"
+    },
+    {
+      "event_id": "d70d5a1b-2c68-47d2-aa01-0056d40bc184",
+      "investigation_id": "a2d2d2d9-32ba-420e-af12-d187dee772af",
+      "seq": 3,
+      "sender": "orchestrator",
+      "receiver": "blackboard",
+      "event_type": "agent_message",
+      "severity": "info",
+      "message": "Repository detected as Python project (19 source files, 3 test files, ecosystems: PyPI, 1 commit(s) of history).",
+      "correlation_id": null,
+      "payload": {
+        "profile_summary": {
+          "primary_language": "Python",
+          "ecosystems": [
+            "PyPI"
+          ],
+          "file_count": 28,
+          "test_file_count": 3
+        },
+        "run_id": "2285732e-7e5c-4dc0-9568-b5f0afcd8af2"
+      },
+      "timestamp": "2026-10-14T18:56:33.026213"
+    }
+  ],
+  "_note": "Excerpt: each list shows its first relevant item. Full real output: docs/ca3/sample-output-full.json"
+}

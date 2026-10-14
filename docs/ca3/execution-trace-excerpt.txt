@@ -1,0 +1,59 @@
+Skopeo — captured execution trace (excerpt, unedited lines)
+Run: investigation a2d2d2d9-32ba-420e-af12-d187dee772af, reference repository examples/vulnerable-demo-repo, 15 Oct 2026, controlled failure of the performance agent on.
+54 of 233 events shown, in order. Full trace (all 233 events, agent runs, red-team rulings, risks and 4 routed chat answers):
+https://github.com/mardromus/Skopeo/blob/main/docs/ca3/execution-trace.md  (JSON: docs/ca3/execution-trace.json)
+
+[001] orchestrator → all_agents (investigation_started): Orchestrator created investigation of examples/vulnerable-demo-repo (main, depth=standard, mode=mock, DRY_RUN=True)
+[004] orchestrator → all_agents (plan_created): Plan created: 8 specialist(s) in parallel — security_agent, dependency_agent, test_reliability_agent, api_compatibility_agent, performance_agent, code_quality_agent, license_agent, maintenance_agent
+[016] dependency_agent → orchestrator (investigation_requested): Requests impact analysis: Assess real-world impact of vulnerable PyJWT 1.7.1 (usage, upgrade compatibility, test coverage)
+[040] performance_agent → orchestrator (agent_failed): Performance Agent FAILED: ToolUnavailableError: benchmark harness unavailable [controlled fault injection: SKOPEO_FAULT_INJECTION=performance_agent@1]
+[051] code_quality_agent → blackboard (evidence_added): Maintainability review attached to build_sales_report (policy)
+[053] test_reliability_agent → blackboard (tool_executed): test_reliability_agent executed python -B -m coverage run --data-file=/tmp/claude-0/-home-claude-skopeo/ae5ac9f1-2a34-589b-a566-78c054655430/scratchpad/cap/ws/a2d2d2d9-32ba-420e-af12-d187dee772af/artifacts/.coverage --source=sh…
+[056] test_reliability_agent → blackboard (evidence_added): Coverage run confirms shopfront/auth/middleware.py at 0% coverage
+[060] orchestrator → performance_agent (agent_retry_scheduled): performance_agent FAILED -> RETRYING (attempt 2, strategy 'static_only'): ToolUnavailableError: benchmark harness unavailable [controlled fault injection: SKOPEO_FAULT_INJECTION=performance_agent@1]; retry 2 with strategy 'stat…
+[061] orchestrator → dependency_agent (request_decided): Accepted request from dependency_agent: assigning security_agent:dependency_usage, api_compatibility_agent:upgrade_compatibility, test_reliability_agent:dependency_coverage
+[062] orchestrator → all_agents (replan): Replanned: +security_agent (dependency_usage), +api_compatibility_agent (upgrade_compatibility), +test_reliability_agent (dependency_coverage); performance follow-up not required (pyjwt is not on a performance-sensitive path)
+[063] orchestrator → all_agents (orchestrator_decision): Review round 1: performance_agent failed (ToolUnavailableError); retrying with 'static_only'; 3 follow-up(s) scheduled Next: dispatch.
+[084] orchestrator → all_agents (orchestrator_decision): Review round 2: 4 task(s) completed, 4 new finding(s) Next: correlate.
+[087] correlation_agent → blackboard (correlation_created): Contradiction: Agents disagree about list_orders_with_items()
+[089] correlation_agent → blackboard (correlation_created): Shared Root Cause: Shared root cause: stale pin of pyjwt 1.7.1
+[090] correlation_agent → blackboard (correlation_created): Compound Risk: Compound authentication upgrade risk: vulnerable PyJWT 1.7.1 in authentication code with insufficient tests
+[091] correlation_agent → blackboard (correlation_created): Compound Risk: Concentrated weaknesses in the authentication component (3 security findings, untested)
+[092] correlation_agent → blackboard (correlation_created): Dependency: Unpinned requests is used on a hot path
+[094] orchestrator → all_agents (orchestrator_decision): Review round 2: phase complete Next: verify.
+[097] verification_agent → dependency_agent (challenge): Challenge to dependency_agent: Is pyjwt actually imported and reachable, and is the critical severity backed by the advisory data?
+[098] verification_agent → dependency_agent (finding_verified): VERIFIED: PyJWT 1.7.1 is affected by 11 known vulnerabilities — Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. `jwt` imported by shopfront/auth/mid…
+[099] verification_agent → security_agent (challenge): Challenge to security_agent: Is this a live credential, or a documented dummy value in a fixture? Is it used by production code?
+[100] verification_agent → security_agent (finding_rejected): REJECTED: Possible credential exposure: AWS access key ID in tests/fixtures/README.md — The detected string occurs in tests/fixtures/README.md and matches a documented placeholder pattern. AKIA************MPLE: value matches a …
+[101] verification_agent → security_agent (challenge): Challenge to security_agent: Is this a live credential, or a documented dummy value in a fixture? Is it used by production code?
+[102] verification_agent → security_agent (finding_rejected): REJECTED: Possible credential exposure: AWS access key ID and AWS secret access key in tests/fixtures/example_credentials.txt — The detected string occurs in tests/fixtures/example_credentials.txt and matches a documented place…
+[103] verification_agent → test_reliability_agent (challenge): Challenge to test_reliability_agent: Do tests really not exercise this code? Re-derive the mapping independently.
+[104] verification_agent → test_reliability_agent (finding_verified): VERIFIED: Security-critical authentication code has no tests (shopfront/auth/middleware.py, shopfront/auth/passwords.py) — Verified: re-hashed 5 referenced line range(s); all match the repository. evidence captured at the analy…
+[106] verification_agent → security_agent (finding_verified): VERIFIED: JWT decoded without an explicit algorithms allow-list in shopfront/auth/middleware.py — Verified: re-hashed 1 referenced line range(s); all match the repository. evidence captured at the analysed commit 5eda3b9ec3. im…
+[125] verification_agent → blackboard (tool_executed): verification_agent executed python -B -m pytest -q -p no:cacheprovider --no-header --color=no tests/test_pricing.py::test_format_price_pads_single_digit_cents
+[130] verification_agent → performance_agent (verification_completed): NEEDS MORE EVIDENCE: Blocking network call inside a loop in notify_customers() (shopfront/services/notifications.py) — STATIC SUSPECT — Needs more evidence: STATIC SUSPECT only — no benchmark has measured the impact; a medium+ …
+[131] verification_agent → orchestrator (investigation_requested): Requests benchmark: Run a benchmark for notify_customers() to measure the suspected network in loop
+[133] verification_agent → performance_agent (verification_completed): NEEDS MORE EVIDENCE: Database query executed inside a loop (N+1 pattern) in list_orders_with_items() (shopfront/services/orders.py) — STATIC SUSPECT — Needs more evidence: STATIC SUSPECT only — no benchmark has measured the imp…
+[134] verification_agent → orchestrator (investigation_requested): Requests benchmark: Run a benchmark for list_orders_with_items() to measure the suspected n plus one
+[148] verification_agent → code_quality_agent (verification_completed): NEEDS MORE EVIDENCE: Data-access function list_orders_with_items() assessed acceptable for maintainability (shopfront/services/orders.py) — Needs more evidence: contested by performance_agent; neither side measured.
+[149] verification_agent → orchestrator (investigation_requested): Requests benchmark: Run a benchmark for list_orders_with_items() to measure the suspected n plus one
+[150] verification_agent → orchestrator (correlation_updated): Correlation needs more evidence: Agents disagree about list_orders_with_items() — Contradiction unresolved: performance_agent=needs_more_evidence, code_quality_agent=needs_more_evidence
+[151] verification_agent → orchestrator (correlation_updated): Correlation verified: Shared root cause: stale pin of pyjwt 1.7.1 — 2 of 2 member findings verified
+[152] verification_agent → orchestrator (correlation_updated): Correlation verified: Compound authentication upgrade risk: vulnerable PyJWT 1.7.1 in authentication code with insufficient tests — 4 of 4 member findings verified
+[156] orchestrator → verification_agent (request_decided): Accepted request from verification_agent: assigning performance_agent:benchmark
+[157] orchestrator → verification_agent (request_decided): Accepted request from verification_agent: assigning performance_agent:benchmark
+[158] orchestrator → verification_agent (request_decided): Accepted request from verification_agent: assigning performance_agent:benchmark
+[159] orchestrator → all_agents (replan): Replanned: +performance_agent (benchmark), +performance_agent (benchmark)
+[160] orchestrator → all_agents (orchestrator_decision): Review round 2: phase complete; 3 follow-up(s) scheduled Next: dispatch.
+[167] performance_agent → blackboard (tool_executed): performance_agent executed python -B benchmarks/bench_orders.py --json
+[171] orchestrator → all_agents (orchestrator_decision): Review round 3: 2 task(s) completed, 0 new finding(s) Next: correlate.
+[176] orchestrator → all_agents (orchestrator_decision): Review round 3: phase complete Next: verify.
+[182] verification_agent → code_quality_agent (finding_rejected): REJECTED: Data-access function list_orders_with_items() assessed acceptable for maintainability (shopfront/services/orders.py) — Rejected: measured evidence from performance_agent contradicts this assessment (query count grows …
+[186] orchestrator → all_agents (orchestrator_decision): Review round 3: phase complete Next: assess.
+[188] risk_agent → recommendation_agent (risk_assessed): P0 (score 82.5): PyJWT 1.7.1 is affected by 11 known vulnerabilities
+[189] risk_agent → recommendation_agent (risk_assessed): P4 (score 5.5): 1 test(s) in tests/test_orders.py only make weak assertions
+[190] risk_agent → recommendation_agent (risk_assessed): P2 (score 50.2): PyJWT 1.7.1 is a major version behind latest 2.15.1, released 7 year(s) ago
+[230] orchestrator → human (human_approval_required): Human approval required before '[Skopeo P0] Fix compound risk: Compound authentication upgrade risk: vulnerable PyJWT 1.7.1 in authentication code with insufficient tests' (github_issue). Status: ACTION PROPOSED (DRY_RUN).
+[231] orchestrator → human (human_approval_required): Human approval required before '[Skopeo] Upgrade PyJWT to 2.15.1 (draft)' (pull_request). Status: ACTION PROPOSED (DRY_RUN).
+[232] orchestrator → human (human_approval_required): Human approval required before '[Skopeo P1] Fix compound risk: Concentrated weaknesses in the authentication component (3 security findings, untested)' (github_issue). Status: ACTION PROPOSED (DRY_RUN).
+[233] orchestrator → human (investigation_completed): Investigation COMPLETED_WITH_LIMITATIONS: 20 verified, 3 rejected, 1 insufficient evidence; overall risk 97.8 (critical); partial coverage: security_agent, dependency_agent, api_compatibility_agent, maintenance_agent, performan…

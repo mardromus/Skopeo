@@ -273,3 +273,14 @@ def test_markdown_export_is_presentation_ready(demo):
     ):
         assert heading in md
     assert "AKIAIOSFODNN7EXAMPLE" not in md
+
+
+def test_trace_export_of_a_real_run(demo):
+    from app.utils.trace_exporter import TraceExporter
+
+    exporter = TraceExporter(demo["svc"].store)
+    md = exporter.export_markdown(demo["id"])
+    assert "`investigation_started`" in md and "`finding_rejected`" in md and "ruling = `rejected`" in md
+    assert "score `" in md
+    data = exporter.export_json(demo["id"])
+    assert len(data["events"]) >= len(demo["report"]["events"]) and data["agent_runs"]

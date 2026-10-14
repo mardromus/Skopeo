@@ -46,6 +46,7 @@ orchestrator chooses every transition after inspecting it.
 | 11 | **Verification / Red-Team Agent** | adversarial checks; verifies, rejects or requests more evidence |
 | 12 | **Risk Assessment Agent** | scores verified findings and compound risks, P0–P4 with explanations |
 | 13 | **Recommendation Agent** | actionable remediation; GitHub issue and draft-PR proposals requiring approval |
+| + | **Ask-the-agents router** | after a case, routes each user question to the agent responsible for the topic; that agent answers only from its own findings, evidence and code, citing them (`backend/app/chat/service.py`) |
 
 Details, modes and tools: [agent-specifications.md](agent-specifications.md).
 
@@ -203,10 +204,12 @@ verifies the N+1 finding and rejects the opposing "acceptable" assessment; the c
 
 | Choice | Why |
 | --- | --- |
-| Python 3.12, FastAPI, Pydantic 2 | typed schemas end-to-end; validation of every LLM output |
+| Python 3.12+, FastAPI, Pydantic 2 | typed schemas end-to-end; validation of every LLM output |
+| Groq (`openai/gpt-oss-120b` reasoning, `openai/gpt-oss-20b` fast) | fast hosted open-weight models with JSON output; reasoning model for planning, review, red-team judgements and chat answers |
+| Firebase Authentication | Google and GitHub sign-in; the API verifies ID tokens itself |
 | LangGraph | explicit state machine with conditional edges, `Send` fan-out and fan-in, recursion limits |
-| SQLite + SQLAlchemy 2 + Alembic | a real relational blackboard with migrations; portable to PostgreSQL |
-| `httpx` provider abstraction | OpenAI, any OpenAI-compatible server, or the mock — no vendor lock-in |
+| SQLite or PostgreSQL + SQLAlchemy 2 + Alembic | a real relational blackboard with migrations; PostgreSQL (e.g. free Neon) keeps data on hosts without a disk |
+| `httpx` provider abstraction | Groq, OpenAI, any OpenAI-compatible server, or the mock — no vendor lock-in |
 | OSV.dev + PyPI/npm, offline snapshot | real advisory data; deterministic offline demos without fabricating anything |
 | Python `ast`, coverage.py, pytest | deterministic tools before any LLM call |
 | React, TypeScript, Vite, Recharts | typed client mirroring the API schemas |
@@ -225,4 +228,4 @@ verifies the N+1 finding and rejects the opposing "acceptable" assessment; the c
   cannot have performance claims measured, so they stay INSUFFICIENT EVIDENCE.
 * In mock mode the agents' "reasoning" is a transparent rule-based policy. The event flow and state
   transitions are genuine, but the natural-language judgement of a model is absent.
-* The API has no authentication; deploy it behind your own gateway.
+* Sign-in is optional: without Firebase configured the server runs as one shared local workspace, protected only by the optional access key and rate limits.

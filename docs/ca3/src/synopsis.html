@@ -1,0 +1,28 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Skopeo — Project Synopsis</title><link rel="stylesheet" href="doc.css"></head><body>
+<div class="eyebrow">F0003 CA3 · Agentic AI · Project Synopsis</div>
+<h1>Skopeo: multi-agent repository intelligence and risk analysis</h1>
+<div class="meta">
+<b>Team</b><span>Kushagra Goyal (GitHub <span class="mono">mardromus</span>) · Mayank Hete (GitHub <span class="mono">Rancidcake</span>)</span>
+<b>Institute</b><span>Department of Computer Science and Engineering, Symbiosis Institute of Technology, Pune</span>
+<b>Repository</b><span>https://github.com/mardromus/Skopeo</span>
+<b>Framework</b><span>LangGraph (Python 3.12+, FastAPI) · React UI · Groq-hosted LLMs (openai/gpt-oss-120b, openai/gpt-oss-20b)</span>
+</div>
+
+<h2>Problem</h2>
+<p>Before a team adopts, upgrades or ships a codebase, someone has to decide what in it is actually risky. Today that means running separate tools — vulnerability scanners, linters, coverage, license checkers — whose results are siloed and noisy. No tool says that the vulnerable library sits in the login path, that upgrading it breaks two call sites, and that nothing tests that code; and many alerts are false, such as an "exposed AWS key" that is the documented example value in a test fixture. Engineers end up either drowning in alerts or missing the compound risks that matter.</p>
+
+<h2>Solution</h2>
+<p>Skopeo investigates a GitHub repository the way a small review team would. An <b>Orchestrator agent</b> reads the repository and plans which of <b>eight specialist agents</b> (security, dependency health, code quality, API compatibility, test reliability, license, maintenance, performance) to run; they work in parallel and post evidence to a shared <b>Evidence Store</b> (blackboard). When evidence raises new questions, agents request follow-up work and the orchestrator re-plans; if an agent fails, it retries with a degraded strategy. A <b>Correlation agent</b> links findings across specialists into compound risks and flags disagreements; a <b>Red-Team (Verification) agent</b> challenges every finding with its own checks and rejects what does not hold; a <b>Risk agent</b> scores only verified findings and a <b>Recommendation agent</b> writes fixes, with any GitHub action held for human approval. After the run, users can <b>ask the agents questions</b>: each question is routed to the agent responsible for that topic, which answers from its own evidence and cites the findings it used. On the bundled reference repository, Skopeo produced 24 findings, rejected 3 that did not hold up (including two "exposed" AWS keys that were documented example values), measured an N+1 query to settle a disagreement between two agents, recovered from an injected agent failure, and ranked a compound authentication-upgrade risk as P0.</p>
+
+<h2>Target users</h2>
+<p>Engineering leads and tech-debt owners deciding what to fix first; security reviewers triaging scanner output before a release or an acquisition; and maintainers evaluating an open-source dependency before adopting or upgrading it. Users sign in with Google or GitHub, import their repositories, follow the investigation live, and get a verified, explained risk report rather than a list of raw alerts.</p>
+
+<h2>Scope since the CA2 proposal</h2>
+<div class="callout">The core of the approved project — a team of specialist agents that investigates a repository, cross-checks itself and scores verified risk — is unchanged. During CA3 we <b>extended</b> it to make it usable as a real, deployed product:
+<ul>
+<li><b>Ask the agents</b>: per-case chat in which a router agent sends each question to the responsible agent (added to show agent responsibilities directly to users);</li>
+<li><b>Sign-in with Google or GitHub</b> and <b>import of the user's GitHub repositories</b> (so users need not paste URLs, and private repositories can be analysed with the owner's consent);</li>
+<li><b>Projects and upstream watches</b> with email/Slack/Discord/webhook notifications, showing which lines of the user's own code a change in a watched open-source dependency affects;</li>
+<li><b>Groq</b> as the production LLM provider and <b>PostgreSQL</b> support, so the system can be hosted for free without losing data.</li>
+</ul>No feature was removed.</div>
+</body></html>

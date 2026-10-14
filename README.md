@@ -346,6 +346,11 @@ More in [docs/design-document.md](docs/design-document.md#18-limitations).
 * Server-sent events instead of polling; organisations and shared projects.
 * PostgreSQL + a job queue for horizontal scaling.
 
+## CA3 submission
+
+Synopsis, design document, input/output definitions with real samples, and a captured execution
+trace: [docs/ca3/](docs/ca3/README.md).
+
 ## Repository layout
 
 ```

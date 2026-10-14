@@ -18,7 +18,7 @@
 | **C. Live Demo** | End-to-end working system, fault isolation, error handling, live URL | **6 / 6** | Live deployment URL, `docker-compose.yml`, `render.yaml`, `backend/app/graph/runtime.py` |
 | **D. Project Presentation** | Technical choice articulation, Q&A readiness, multi-agent justification | **8 / 8** | `docs/ca3_evaluation_matrix.md`, presentation Q&A prep guide (Section 3 below) |
 | **E. Documentation** | Synopsis clarity, cross-document consistency across all submission fields | **5 / 5** | `README.md`, `docs/sample-report.md`, Exam Studio Project Synopsis |
-| **F. Code Review & Engineering Practice** | Code structure, unit/integration test suite, .gitignore, clean commits | **5 / 5** | `backend/tests/` (158 passing automated tests), `backend/app/`, git commit history |
+| **F. Code Review & Engineering Practice** | Code structure, unit/integration test suite, .gitignore, clean commits | **5 / 5** | `backend/tests/` (209 passing automated tests, SQLite and PostgreSQL), `backend/app/`, git commit history |
 | **G. Individual Contributions** | Student commits, PRs, active build days, registered GitHub username | **5 / 5** | GitHub user `Rancidcake`, git commit log (`8a1aaa6`, `7d8edd8`, `d5af71b`, etc.) |
 | **TOTAL** | | **45 / 45** | |
 
@@ -46,19 +46,19 @@ When filling out your **Project Artifacts** page on Exam Studio, use the followi
 - **Sample Input**:
 ```json
 {
-  "repository_url": "https://github.com/psf/requests",
+  "repository_url": "https://github.com/pallets/itsdangerous",
   "branch": "main",
-  "analysis_depth": "full",
+  "analysis_depth": "standard",
   "enable_github_actions": false
 }
 ```
 
 ### 4. Output Definition (Feeds into Category B - 8 Marks)
 - **Schema**: Full JSON payload detailing `investigation_id`, `status`, `overall_risk_score`, `verified_findings`, `compound_risks`, `verifications`, and `recommendations`.
-- **Sample Output**: See full sample in [`docs/api.md`](docs/api.md) or [`docs/sample-report.md`](docs/sample-report.md).
+- **Sample Output**: real samples in [`docs/ca3/output-definition.md`](ca3/output-definition.md) and the full report [`docs/ca3/sample-output-full.json`](ca3/sample-output-full.json).
 
 ### 5. Agent Execution Trace / Log (Feeds into Category A - 8 Marks)
-- Copy contents from [`docs/execution-trace.md`](docs/execution-trace.md) or run `python -m app.utils.trace_exporter` to export live traces directly.
+- Submitted trace: [`docs/ca3/execution-trace.md`](ca3/execution-trace.md) (and `.json`), a captured run exported with `backend/app/utils/trace_exporter.py`.
 
 ---
 
