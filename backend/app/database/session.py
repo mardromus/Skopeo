@@ -1,7 +1,8 @@
 """Database engine / session management.
 
-SQLite is the MVP backend. The models only use portable column types (String UUIDs,
-JSON, DateTime with timezone) so PostgreSQL can be swapped in via DATABASE_URL.
+SQLite by default. The models only use portable column types (String UUIDs, JSON, DateTime
+with timezone), so PostgreSQL works by setting DATABASE_URL (e.g. a free Neon database); the
+psycopg 3 driver is bundled and ``postgres://`` URLs are accepted as given.
 """
 
 from __future__ import annotations
@@ -49,7 +50,9 @@ def create_db_engine(url: str) -> Engine:
             engine = create_engine(url, connect_args={"check_same_thread": False, "timeout": 30}, future=True)
         _configure_sqlite(engine)
         return engine
-    return create_engine(url, pool_pre_ping=True, future=True)
+    # Hosted Postgres (Neon, Supabase) closes idle connections and may suspend between bursts:
+    # check each pooled connection before use and recycle it well before a server-side timeout.
+    return create_engine(url, pool_pre_ping=True, pool_recycle=300, pool_size=5, max_overflow=5, future=True)
 
 
 def get_engine() -> Engine:

@@ -16,6 +16,13 @@ services:
         value: groq
       - key: GROQ_API_KEY
         sync: false
+      # Keep data across restarts on the free plan: paste a free Neon Postgres URL here
+      # (postgresql://user:password@host/db?sslmode=require). Blank = SQLite, erased on every restart.
+      - key: DATABASE_URL
+        sync: false
+      # One scheduler query every 30 min lets a free Neon database sleep between checks.
+      - key: WATCH_SCHEDULER_INTERVAL_SECONDS
+        value: "1800"
       - key: SKOPEO_DEMO_MODE
         value: "true"
       - key: SKOPEO_DEMO_STEP_DELAY_MS
@@ -62,9 +69,9 @@ services:
         sync: false
       - key: GITHUB_TOKEN
         sync: false
-    # The free plan has no persistent disk: cases, accounts and watches are kept until the service restarts,
-    # and the service sleeps when idle, so scheduled watch checks only run while it is awake.
-    # On a paid plan, uncomment to keep them:
+    # The free plan has no persistent disk: without DATABASE_URL, cases, accounts and watches are kept
+    # only until the service restarts. The service sleeps when idle, so scheduled watch checks run only
+    # while it is awake. Alternative to DATABASE_URL on a paid plan: uncomment the disk below.
     # disk:
     #   name: skopeo-data
     #   mountPath: /data

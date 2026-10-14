@@ -8,6 +8,7 @@ alembic>=1.20
 httpx>=0.28.1
 pyjwt[crypto]>=2.15
 cryptography>=50.0
+psycopg[binary]>=3.3
 packaging>=26.3
 coverage>=7.16
 pytest>=9.1

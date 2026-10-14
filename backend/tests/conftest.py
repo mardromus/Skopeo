@@ -15,7 +15,9 @@ import pytest
 _TMP = Path(tempfile.mkdtemp(prefix="skopeo-tests-"))
 os.environ.update(
     {
-        "DATABASE_URL": f"sqlite:///{(_TMP / 'test.db').as_posix()}",
+        # SKOPEO_TEST_DATABASE_URL runs the suite against another database, e.g. PostgreSQL
+        # (its public schema is wiped first, so point it at a throwaway database).
+        "DATABASE_URL": os.environ.get("SKOPEO_TEST_DATABASE_URL") or f"sqlite:///{(_TMP / 'test.db').as_posix()}",
         "SKOPEO_WORKSPACE_DIR": str(_TMP / "workspaces"),
         "SKOPEO_MODE": "mock",
         "LLM_PROVIDER": "mock",
@@ -43,6 +45,14 @@ DEMO_REPO = BACKEND.parent / "examples" / "vulnerable-demo-repo"
 
 @pytest.fixture(scope="session", autouse=True)
 def _database():
+    if os.environ.get("SKOPEO_TEST_DATABASE_URL"):
+        from sqlalchemy import text
+
+        from app.database import get_engine
+
+        with get_engine().begin() as conn:
+            conn.execute(text("DROP SCHEMA public CASCADE"))
+            conn.execute(text("CREATE SCHEMA public"))
     init_db()
     yield
     reset_engine()

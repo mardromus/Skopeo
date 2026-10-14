@@ -208,6 +208,7 @@ Copy `.env.example` to `.env`. The defaults run everything offline-capable in mo
 | `SKOPEO_MODE` | `mock` | `mock` (deterministic policies) or `live` (LLM decisions) |
 | `LLM_PROVIDER` / `GROQ_API_KEY` | `mock` / — | `groq` (recommended: `openai/gpt-oss-120b` + `openai/gpt-oss-20b`), `openai` (`OPENAI_API_KEY`), `openai_compatible` (`LLM_BASE_URL`); without the key live mode stays deterministic |
 | `LLM_MODEL_REASONING` / `LLM_MODEL_FAST` | `gpt-6.1-sol` / `gpt-6-luna` | model by task type; reasoning models get `max_completion_tokens` + `LLM_REASONING_EFFORT(_FAST)` (`medium` / `low`), older or self-hosted models `temperature` + `max_tokens` |
+| `DATABASE_URL` | SQLite file | `postgresql://...` (e.g. free Neon) keeps data on hosts without a disk ([deployment](docs/deployment.md)) |
 | `SKOPEO_DEMO_MODE` | `true` | enables the reference case |
 | `SKOPEO_OFFLINE` | `false` | no network; bundled advisory snapshot only |
 | `DRY_RUN` | `true` | approvals are recorded, never sent |

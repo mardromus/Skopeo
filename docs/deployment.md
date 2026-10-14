@@ -33,6 +33,29 @@ deterministic policies, so a deploy without a key still works. `GET /api/health`
 rate-limited; 429 responses are retried with back-off and any call that still fails falls back to
 the deterministic policy for that decision.
 
+## Keeping data on free hosting: PostgreSQL on Neon
+
+Free container hosts (Render's free plan, Cloud Run) have no persistent disk, so the default SQLite
+file is erased on every restart. Point Skopeo at a free hosted PostgreSQL database instead and
+nothing is lost:
+
+1. Create a free project at <https://neon.com> (no credit card). Pick the region closest to your
+   host (Render's Oregon / Frankfurt / Singapore → the matching AWS region).
+2. On the project dashboard click **Connect** and copy the connection string, e.g.
+   `postgresql://neondb_owner:...@ep-xxx.region.aws.neon.tech/neondb?sslmode=require`.
+3. Set it as `DATABASE_URL` on the host. `postgres://` and `postgresql://` URLs are accepted as
+   given; the psycopg 3 driver is bundled. Migrations run automatically at start-up.
+4. Set `SKOPEO_SECRET_KEY` (the Render blueprint generates it). Without it, the key that encrypts
+   stored GitHub tokens would live on the erased disk.
+5. Set `WATCH_SCHEDULER_INTERVAL_SECONDS=1800` (the blueprint does). Neon's free compute sleeps
+   after 5 minutes without queries and allows 100 compute-hours a month; one scheduler query
+   every 30 minutes keeps usage around 30 hours, where the default 60 s would keep it awake.
+
+Cloned repositories still live on the container's temporary disk; they are deleted after each
+case anyway. Any PostgreSQL works the same way (Supabase, Railway, a VM). To run the test suite
+against PostgreSQL: `SKOPEO_TEST_DATABASE_URL=postgresql://... pytest` (it wipes that database's
+public schema).
+
 ## Render (free tier)
 
 The repository contains a blueprint (`render.yaml`).
@@ -43,8 +66,11 @@ The repository contains a blueprint (`render.yaml`).
 4. Find the generated key under *Environment* if you want to scan real repositories; the
    reference case works without it.
 
-The free plan sleeps when idle (the first request takes about a minute) and has no persistent
-disk, so cases disappear on restart. Add the commented `disk:` block on a paid plan to keep them.
+The free plan sleeps after 15 minutes without traffic (the next request takes about a minute)
+and has no persistent disk: set `DATABASE_URL` to a free Neon database (above) so accounts,
+cases and watches survive restarts. On a paid plan the commented `disk:` block works too.
+The free plan also blocks outbound SMTP ports 25, 465 and 587; use port 2525 if your email
+provider offers it.
 
 ## Railway
 

@@ -173,6 +173,28 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     log_json: bool = True
 
+    @field_validator("database_url", mode="after")
+    @classmethod
+    def _postgres_driver(cls, value: str) -> str:
+        """Hosted Postgres (Neon, Supabase, Render, Railway) hands out ``postgres://`` or
+        ``postgresql://`` URLs; use the bundled psycopg 3 driver for both."""
+        value = value.strip()
+        if not value:  # an empty DATABASE_URL (e.g. a blank host variable) means the built-in SQLite file
+            return f"sqlite:///{(_BACKEND_DIR / 'data' / 'skopeo.db').as_posix()}"
+        for prefix in ("postgres://", "postgresql://"):
+            if value.startswith(prefix):
+                return "postgresql+psycopg://" + value[len(prefix) :]
+        return value
+
+    @property
+    def database_password(self) -> str | None:
+        from sqlalchemy.engine import make_url
+
+        try:
+            return make_url(self.database_url).password
+        except Exception:  # noqa: BLE001 - a malformed URL fails later, with a clearer error
+            return None
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def _split_origins(cls, value: object) -> object:
@@ -206,6 +228,8 @@ class Settings(BaseSettings):
         ):
             if secret is not None and secret.get_secret_value():
                 values.append(secret.get_secret_value())
+        if self.database_password:
+            values.append(str(self.database_password))
         return values
 
     @property

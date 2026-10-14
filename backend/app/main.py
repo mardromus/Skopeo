@@ -72,6 +72,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
     configure_logging(settings.log_level, settings.log_json)
     register_secrets(settings.secret_values())
+    secret_set = settings.skopeo_secret_key is not None and settings.skopeo_secret_key.get_secret_value().strip()
+    if not settings.database_url.startswith("sqlite") and not secret_set:
+        log.warning(
+            "SKOPEO_SECRET_KEY is not set: the key for stored GitHub tokens lives on this container's disk, "
+            "and users must reconnect GitHub after every redeploy. Set SKOPEO_SECRET_KEY to a long random value."
+        )
 
     accounts = AccountStore()
     notifier = NotificationService(settings, accounts)
