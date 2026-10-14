@@ -6,6 +6,7 @@ Secrets are typed as ``SecretStr`` so they never appear in reprs or logs.
 
 from __future__ import annotations
 
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Annotated, Literal
@@ -23,6 +24,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
         case_sensitive=False,
+        hide_input_in_errors=True,
     )
 
     # --- Modes -----------------------------------------------------------------
@@ -179,11 +181,28 @@ class Settings(BaseSettings):
         """Hosted Postgres (Neon, Supabase, Render, Railway) hands out ``postgres://`` or
         ``postgresql://`` URLs; use the bundled psycopg 3 driver for both."""
         value = value.strip()
+        # Tolerate what people paste from a provider dashboard: ``psql 'postgresql://…'``,
+        # ``DATABASE_URL=…``, surrounding quotes, or a trailing newline.
+        found = re.search(r"postgres(?:ql)?(?:\+\w+)?://[^\s'\"]+", value)
+        if found:
+            value = found.group(0)
+        value = value.strip("'\" \t\r\n")
         if not value:  # an empty DATABASE_URL (e.g. a blank host variable) means the built-in SQLite file
             return f"sqlite:///{(_BACKEND_DIR / 'data' / 'skopeo.db').as_posix()}"
         for prefix in ("postgres://", "postgresql://"):
             if value.startswith(prefix):
-                return "postgresql+psycopg://" + value[len(prefix) :]
+                value = "postgresql+psycopg://" + value[len(prefix) :]
+                break
+        from sqlalchemy.engine import make_url
+
+        try:
+            make_url(value)
+        except Exception as exc:  # noqa: BLE001 - never echo the value: it holds the password
+            raise ValueError(
+                "DATABASE_URL is not a valid database URL. Paste only the connection string, e.g. "
+                "postgresql://USER:PASSWORD@HOST/DBNAME?sslmode=require (percent-encode special "
+                "characters in the password), or leave it empty to use the built-in SQLite file."
+            ) from exc
         return value
 
     @property
