@@ -58,6 +58,8 @@ def auth_config(request: Request) -> dict[str, Any]:
         "require_login": s.auth_mode == "firebase" and s.auth_require_login,
         "email_configured": s.email_configured,
         "public_base_url": s.public_base_url or None,
+        "providers": ["google", "github"] if s.auth_github_enabled else ["google"],
+        "github": {"enabled": s.auth_github_enabled, "private_repos": s.github_private_repos},
     }
 
 

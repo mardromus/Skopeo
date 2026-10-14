@@ -8,6 +8,7 @@ import { useInvestigation } from "../hooks/useInvestigation";
 import { caseNo, fmtTime } from "../lib/format";
 import { api } from "../services/api";
 import { ActionsTab } from "./investigation/ActionsTab";
+import { AskTab } from "./investigation/AskTab";
 import { AgentsTab } from "./investigation/AgentsTab";
 import { CorrelationsTab } from "./investigation/CorrelationsTab";
 import { FindingsTab } from "./investigation/FindingsTab";
@@ -15,8 +16,8 @@ import { OverviewTab } from "./investigation/OverviewTab";
 import { TraceTab } from "./investigation/TraceTab";
 import { VerificationTab } from "./investigation/VerificationTab";
 
-type TabId = "overview" | "agents" | "findings" | "correlations" | "verification" | "trace" | "actions";
-const TAB_IDS: TabId[] = ["overview", "agents", "findings", "correlations", "verification", "trace", "actions"];
+type TabId = "overview" | "ask" | "agents" | "findings" | "correlations" | "verification" | "trace" | "actions";
+const TAB_IDS: TabId[] = ["overview", "ask", "agents", "findings", "correlations", "verification", "trace", "actions"];
 
 function Tabs({ tabs, active, onSelect }: { tabs: { id: TabId; label: string; count?: number }[]; active: TabId; onSelect: (t: TabId) => void }) {
   const refs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -63,6 +64,7 @@ export function InvestigationPage() {
     () =>
       [
         { id: "overview", label: "Summary" },
+        { id: "ask", label: "Ask the agents" },
         { id: "agents", label: "Agents", count: data?.agents.length },
         { id: "findings", label: "Findings", count: data?.findings.length },
         { id: "correlations", label: "Correlations", count: data?.correlations.length },
@@ -111,6 +113,11 @@ export function InvestigationPage() {
             <Aperture size={40} live={running} gap="var(--paper)" openness={running ? 0.42 : 0.5} />
             <h1>{d.repository}</h1>
             <StatusBadge status={d.status} />
+            {d.private && (
+              <span className="tag warn" title="Imported from a private GitHub repository; visible only to you">
+                private
+              </span>
+            )}
           </div>
           <div className="meta">
             <span>{d.source === "demo_fixture" ? "bundled reference case" : d.repository_url}</span>
@@ -201,6 +208,7 @@ export function InvestigationPage() {
 
       <div className="tab-panel" key={tab}>
         {tab === "overview" && <OverviewTab data={data} onNavigate={(t) => setTab(t as TabId)} />}
+        {tab === "ask" && <AskTab data={data} onNavigate={(t) => setTab(t as TabId)} />}
         {tab === "agents" && <AgentsTab data={data} />}
         {tab === "findings" && <FindingsTab data={data} />}
         {tab === "correlations" && <CorrelationsTab data={data} />}

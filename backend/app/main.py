@@ -20,14 +20,18 @@ from app import __version__
 from app.api.access import RateLimiter
 from app.api.account_routes import router as account_router
 from app.api.auth import UserResolver
+from app.api.chat_routes import router as chat_router
+from app.api.github_routes import router as github_router
 from app.api.project_routes import router as project_router
 from app.api.routes import router
+from app.chat import ChatService
 from app.config import Settings, get_settings
 from app.database import init_db
 from app.notifications import NotificationService
 from app.observability import configure_logging, get_logger
 from app.security.redaction import redact, register_secrets
 from app.services.account_store import AccountStore
+from app.services.github_accounts import GitHubAccounts
 from app.services.investigation_service import InvestigationService
 from app.watch import WatchService
 
@@ -49,8 +53,8 @@ def spa_csp(settings: Settings) -> str:
     return (
         "default-src 'self'; script-src 'self' https://www.gstatic.com https://apis.google.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; "
-        "img-src 'self' data: https://lh3.googleusercontent.com; "
         "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; "
+        "img-src 'self' data: https://lh3.googleusercontent.com https://avatars.githubusercontent.com; "
         f"frame-src https://{auth_domain} https://accounts.google.com; "
         "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
     )
@@ -112,6 +116,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.accounts = accounts
     app.state.notifier = notifier
     app.state.user_resolver = UserResolver(settings, accounts)
+    app.state.github_accounts = GitHubAccounts(settings)
+    app.state.chat = ChatService(settings)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -134,6 +140,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(router)
     app.include_router(account_router)
     app.include_router(project_router)
+    app.include_router(github_router)
+    app.include_router(chat_router)
     if settings.static_dir is not None:
         _mount_frontend(app, settings.static_dir, spa_csp(settings))
     return app

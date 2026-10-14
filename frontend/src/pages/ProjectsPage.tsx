@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FilePicker } from "../components/FilePicker";
+import { GitHubImport } from "../components/GitHubConnect";
 import { ImpactBadge } from "../components/WatchBits";
 import { fmtTime } from "../lib/format";
 import { fmtBytes, type PickedFiles } from "../lib/projectFiles";
@@ -63,7 +64,12 @@ export function ProjectsPage() {
           </div>
         </section>
       )}
-      {creating && <NewProject onCancel={projects && projects.length ? () => setCreating(false) : undefined} />}
+      {creating && (
+        <>
+          <GitHubImport targets={["project"]} compact />
+          <NewProject onCancel={projects && projects.length ? () => setCreating(false) : undefined} />
+        </>
+      )}
     </main>
   );
 }

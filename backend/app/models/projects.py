@@ -21,6 +21,8 @@ class Project(UUIDPrimaryKey, Timestamped, Base):
     source: Mapped[str] = mapped_column(String(16), default="upload")  # github | upload
     repository_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     branch: Mapped[str] = mapped_column(String(256), default="main")
+    github_private: Mapped[bool] = mapped_column(Boolean, default=False)
+    """Private repository: cloned with the owner's connected GitHub token."""
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
 
 

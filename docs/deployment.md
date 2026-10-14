@@ -13,6 +13,26 @@ Open http://localhost:8000. With Compose: `docker compose up --build`.
 The image runs as a non-root user, keeps all state in `/data` (SQLite database and temporary
 clones), deletes each clone when its investigation ends, and exposes `/api/health` for health checks.
 
+## Using Groq as the LLM
+
+Create a key at <https://console.groq.com/keys> and set, on any host:
+
+```bash
+SKOPEO_MODE=live
+LLM_PROVIDER=groq
+GROQ_API_KEY=gsk_...
+# optional overrides
+GROQ_MODEL_REASONING=openai/gpt-oss-120b
+GROQ_MODEL_FAST=openai/gpt-oss-20b
+```
+
+The Render blueprint and `docker-compose.yml` already set `SKOPEO_MODE=live` and `LLM_PROVIDER=groq`;
+paste only the key (Render asks for it on the first deploy). Until a key is present the app runs its
+deterministic policies, so a deploy without a key still works. `GET /api/health` shows
+`"llm_provider": "groq"` and `"llm_key_configured": true` once Groq is active. Groq's free tier is
+rate-limited; 429 responses are retried with back-off and any call that still fails falls back to
+the deterministic policy for that decision.
+
 ## Render (free tier)
 
 The repository contains a blueprint (`render.yaml`).

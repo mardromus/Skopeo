@@ -12,6 +12,70 @@ export interface AuthConfig {
   require_login: boolean;
   email_configured: boolean;
   public_base_url: string | null;
+  providers?: AuthProviderId[];
+  github?: { enabled: boolean; private_repos: boolean };
+}
+
+export type AuthProviderId = "google" | "github";
+
+export interface GitHubConnection {
+  connected: boolean;
+  login?: string;
+  avatar_url?: string | null;
+  scopes?: string[];
+  source?: "oauth" | "pat";
+  private_repos?: boolean;
+  connected_at?: string;
+  private_repos_enabled?: boolean;
+}
+
+export interface GitHubRepo {
+  full_name: string;
+  html_url: string;
+  description: string;
+  private: boolean;
+  fork: boolean;
+  archived: boolean;
+  default_branch: string;
+  language: string | null;
+  stars: number;
+  pushed_at: string | null;
+}
+
+export interface GitHubRepoPage {
+  repos: GitHubRepo[];
+  page: number;
+  has_more: boolean;
+  private_repos: boolean;
+}
+
+export interface ChatCitation {
+  finding_id: string;
+  title: string;
+  severity: string;
+  agent: string;
+  file: string | null;
+}
+
+export interface ChatMessage {
+  message_id: string;
+  role: "user" | "agent";
+  agent: string | null;
+  agent_display_name: string | null;
+  content: string;
+  citations: ChatCitation[];
+  routing_reason: string | null;
+  routed_by: string | null;
+  follow_ups: string[];
+  decided_by: string | null;
+  created_at: string;
+}
+
+export interface ChatAgent {
+  name: string;
+  display_name: string;
+  category: string | null;
+  examples: string[];
 }
 
 export interface AccountUser {

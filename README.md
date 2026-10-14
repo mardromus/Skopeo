@@ -152,9 +152,19 @@ without approval. Details: [docs/security.md](docs/security.md).
 
 Beyond one-off investigations, Skopeo keeps watch over **your own software**:
 
-* **Sign in with Google** through Firebase Authentication. The API verifies every Firebase ID
-  token itself, so no service account is needed. Without Firebase configured, a single local
-  workspace is used. Setup: [docs/firebase-setup.md](docs/firebase-setup.md).
+* **Sign in with Google or GitHub** through Firebase Authentication. The API verifies every
+  Firebase ID token itself, so no service account is needed. Without Firebase configured, a single
+  local workspace is used. Setup: [docs/firebase-setup.md](docs/firebase-setup.md).
+* **Import from GitHub**: signing in with GitHub (or connecting GitHub / a personal access token
+  from Account) lists your repositories; one click investigates a repository or adds it as a
+  project. Tokens are verified with GitHub and stored encrypted. Private repositories are opt-in
+  (`GITHUB_PRIVATE_REPOS`); their cases are visible only to their owner.
+* **Ask the agents**: every case has an *Ask the agents* tab. A question is routed to the agent
+  responsible for the topic (security, dependencies, licensing, verification, risk, fixes …),
+  which answers only from its own findings, their evidence and the code they point at, and cites
+  the findings it used. With a live model (e.g. Groq) the router and the answer use the LLM,
+  validated against the known agents and findings; without one, a deterministic answer is built
+  from the same records.
 * **Notifications** to email (any SMTP provider), Slack, Discord or HMAC-signed webhooks. Rules
   cover finished or failed cases, P0/P1 risks, upstream changes that affect your project, and
   failed checks. Each channel has a test button, and a delivery log records every attempt.
@@ -196,7 +206,7 @@ Copy `.env.example` to `.env`. The defaults run everything offline-capable in mo
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `SKOPEO_MODE` | `mock` | `mock` (deterministic policies) or `live` (LLM decisions) |
-| `LLM_PROVIDER` / `OPENAI_API_KEY` / `LLM_BASE_URL` | `openai` / — / OpenAI | provider for live mode; any OpenAI-compatible server works |
+| `LLM_PROVIDER` / `GROQ_API_KEY` | `mock` / — | `groq` (recommended: `openai/gpt-oss-120b` + `openai/gpt-oss-20b`), `openai` (`OPENAI_API_KEY`), `openai_compatible` (`LLM_BASE_URL`); without the key live mode stays deterministic |
 | `LLM_MODEL_REASONING` / `LLM_MODEL_FAST` | `gpt-6.1-sol` / `gpt-6-luna` | model by task type; reasoning models get `max_completion_tokens` + `LLM_REASONING_EFFORT(_FAST)` (`medium` / `low`), older or self-hosted models `temperature` + `max_tokens` |
 | `SKOPEO_DEMO_MODE` | `true` | enables the reference case |
 | `SKOPEO_OFFLINE` | `false` | no network; bundled advisory snapshot only |
@@ -207,6 +217,7 @@ Copy `.env.example` to `.env`. The defaults run everything offline-capable in mo
 | `SKOPEO_API_KEY` / `SKOPEO_DEMO_PUBLIC` / `RATE_LIMIT_PER_MINUTE` | — / `true` / 6 | protect a public instance; see [deployment](docs/deployment.md) |
 | `FIREBASE_PROJECT_ID` / `FIREBASE_WEB_API_KEY` / `FIREBASE_AUTH_DOMAIN` / `FIREBASE_APP_ID` | — | Google sign-in; empty = single local workspace ([setup](docs/firebase-setup.md)) |
 | `AUTH_REQUIRE_LOGIN` / `AUTH_SIGNED_IN_USERS_CAN_SCAN` | `false` / `true` | who may scan repositories when sign-in is on |
+| `AUTH_GITHUB_ENABLED` / `GITHUB_PRIVATE_REPOS` / `SKOPEO_SECRET_KEY` | `true` / `false` / — | GitHub sign-in and import; private repositories; key that encrypts stored GitHub tokens (generated next to the DB when empty) |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USERNAME` / `SMTP_PASSWORD` / `SMTP_FROM` / `SMTP_SECURITY` | — / 587 / — / — / — / `starttls` | email notifications ([providers](docs/notifications.md)) |
 | `PUBLIC_BASE_URL` | — | links inside notifications |
 | `NOTIFICATIONS_DRY_RUN` | `false` | log deliveries without sending |
@@ -279,7 +290,9 @@ cd frontend && npm run lint && npm run build
 Accounts and watches: `GET /api/auth/config`, `GET|DELETE /api/auth/me`,
 `/api/notifications/{catalog,channels,rules,deliveries}` (+ `channels/{id}/verify|resend|test|rotate-secret`),
 `/api/projects` (+ `/{id}/files`, `/{id}/watches`), `/api/watches/{id}` (+ `/check`, `/reports`),
-`GET /api/watch-reports/{id}`. Schemas: [docs/api.md](docs/api.md);
+`GET /api/watch-reports/{id}`. GitHub: `GET /api/github/connection`, `POST /api/github/connect`,
+`DELETE /api/github/connection`, `GET /api/github/repos`, `POST /api/github/import`. Case chat:
+`GET /api/chat/agents`, `GET|POST|DELETE /api/investigations/{id}/chat`. Schemas: [docs/api.md](docs/api.md);
 OpenAPI at `/docs`.
 
 ## 19. Screenshots

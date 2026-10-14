@@ -1,7 +1,7 @@
 from app.config import Settings
 from app.llm.base import LLMBudgetExceeded, LLMDecision, LLMProvider, LLMRequest
 from app.llm.mock_provider import MockLLMProvider
-from app.llm.openai_provider import OpenAICompatibleProvider, OpenAIProvider, is_reasoning_model
+from app.llm.openai_provider import GroqProvider, OpenAICompatibleProvider, OpenAIProvider, is_reasoning_model
 
 
 def create_provider(settings: Settings) -> LLMProvider:
@@ -9,7 +9,7 @@ def create_provider(settings: Settings) -> LLMProvider:
     if settings.is_mock:
         return MockLLMProvider(max_calls=settings.llm_max_calls_per_investigation)
     common = {
-        "api_key": settings.openai_api_key.get_secret_value() if settings.openai_api_key else None,
+        "api_key": settings.llm_api_key,
         "model_fast": settings.llm_model_fast,
         "model_reasoning": settings.llm_model_reasoning,
         "max_output_tokens": settings.llm_max_output_tokens,
@@ -22,10 +22,14 @@ def create_provider(settings: Settings) -> LLMProvider:
     }
     if settings.llm_provider == "openai":
         return OpenAIProvider(**common)
+    if settings.llm_provider == "groq":
+        common |= {"model_fast": settings.groq_model_fast, "model_reasoning": settings.groq_model_reasoning}
+        return GroqProvider(base_url=settings.groq_base_url, **common)
     return OpenAICompatibleProvider(base_url=settings.llm_base_url, **common)
 
 
 __all__ = [
+    "GroqProvider",
     "LLMBudgetExceeded",
     "LLMDecision",
     "LLMProvider",

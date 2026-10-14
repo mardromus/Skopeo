@@ -13,6 +13,8 @@ from sqlalchemy import delete, func, or_, select, update
 
 from app.database import session_scope
 from app.models import (
+    ChatMessage,
+    GitHubConnection,
     Investigation,
     NotificationChannel,
     NotificationDelivery,
@@ -72,6 +74,8 @@ class AccountStore:
     def delete_user(self, user_id: str) -> None:
         with session_scope(write=True) as s:
             s.execute(update(Investigation).where(Investigation.owner_id == user_id).values(owner_id=None))
+            s.execute(delete(GitHubConnection).where(GitHubConnection.user_id == user_id))
+            s.execute(delete(ChatMessage).where(ChatMessage.user_id == user_id))
             for model in (WatchReport, Watch, ProjectFile, NotificationDelivery, NotificationRule, NotificationChannel):
                 if model is ProjectFile:
                     project_ids = select(Project.id).where(Project.user_id == user_id)

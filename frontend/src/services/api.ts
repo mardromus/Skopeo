@@ -17,6 +17,10 @@ import type {
   AccountUser,
   AuthConfig,
   Channel,
+  ChatAgent,
+  ChatMessage,
+  GitHubConnection,
+  GitHubRepoPage,
   ChannelCreated,
   Delivery,
   Frequency,
@@ -123,6 +127,23 @@ export const accountApi = {
   config: () => request<AuthConfig>("/auth/config"),
   me: () => request<AccountUser>("/auth/me"),
   deleteMe: () => request<void>("/auth/me", json("DELETE")),
+};
+
+export const githubApi = {
+  connection: () => request<GitHubConnection>("/github/connection"),
+  connect: (access_token: string, source: "oauth" | "pat") => request<GitHubConnection>("/github/connect", json("POST", { access_token, source })),
+  disconnect: () => request<void>("/github/connection", json("DELETE")),
+  repos: (q = "", page = 1) => request<GitHubRepoPage>(`/github/repos?q=${encodeURIComponent(q)}&page=${page}`),
+  importRepo: (body: { full_name: string; target: "investigation" | "project"; branch?: string; analysis_depth?: string; project_name?: string }) =>
+    request<{ target: "investigation"; investigation: InvestigationSummary } | { target: "project"; project: Project }>("/github/import", json("POST", body)),
+};
+
+export const chatApi = {
+  agents: () => request<ChatAgent[]>("/chat/agents"),
+  history: (id: string) => request<{ messages: ChatMessage[] }>(`/investigations/${id}/chat`),
+  ask: (id: string, question: string, agent?: string) =>
+    request<{ question: ChatMessage; answer: ChatMessage }>(`/investigations/${id}/chat`, json("POST", { question, ...(agent ? { agent } : {}) })),
+  clear: (id: string) => request<void>(`/investigations/${id}/chat`, json("DELETE")),
 };
 
 export const notificationsApi = {

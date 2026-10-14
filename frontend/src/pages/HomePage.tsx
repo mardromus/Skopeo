@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { StatusBadge } from "../components/Badges";
 import { GettingStarted } from "../components/GettingStarted";
+import { GitHubImport } from "../components/GitHubConnect";
 import { HeroAperture } from "../components/HeroAperture";
 import { caseNo, fmtTime, fmtTimeMs, shortAgent } from "../lib/format";
 import { ApiError, api, getAccessKey, setAccessKey } from "../services/api";
@@ -164,6 +165,8 @@ export function HomePage({ health }: { health: Health | null }) {
               <span className="small muted">Repository code is treated as untrusted. Nothing is merged or deployed.</span>
             </div>
           </form>
+
+          <GitHubImport targets={["investigation"]} compact />
 
           <div className="demo-box">
             <span className="eyebrow">Or run the reference case</span>

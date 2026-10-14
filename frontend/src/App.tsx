@@ -11,6 +11,7 @@ const InvestigationPage = lazy(() => import("./pages/InvestigationPage").then((m
 const ProjectsPage = lazy(() => import("./pages/ProjectsPage").then((m) => ({ default: m.ProjectsPage })));
 const ProjectPage = lazy(() => import("./pages/ProjectPage").then((m) => ({ default: m.ProjectPage })));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage").then((m) => ({ default: m.NotificationsPage })));
+const GitHubPage = lazy(() => import("./pages/GitHubPage").then((m) => ({ default: m.GitHubPage })));
 const AccountPage = lazy(() => import("./pages/AccountPage").then((m) => ({ default: m.AccountPage })));
 
 function Loading({ label }: { label: string }) {
@@ -99,6 +100,7 @@ export default function App() {
           {user && (
             <>
               <NavLink to="/projects">Projects</NavLink>
+              <NavLink to="/github">GitHub</NavLink>
               <NavLink to="/settings/notifications">Notifications</NavLink>
             </>
           )}
@@ -169,6 +171,16 @@ export default function App() {
               <RequireUser what="notifications">
                 <Suspense fallback={<Loading label="Loading…" />}>
                   <NotificationsPage />
+                </Suspense>
+              </RequireUser>
+            }
+          />
+          <Route
+            path="/github"
+            element={
+              <RequireUser what="your GitHub repositories">
+                <Suspense fallback={<Loading label="Loading…" />}>
+                  <GitHubPage />
                 </Suspense>
               </RequireUser>
             }

@@ -29,7 +29,7 @@ def client():
 
 @pytest.fixture()
 def fake_clone(monkeypatch):
-    def clone(settings, runner, investigation_id, url, branch):
+    def clone(settings, runner, investigation_id, url, branch, token=None):
         handle = repository_ingestion.prepare_demo_fixture(settings, runner, investigation_id)
         handle.source = "github"
         handle.full_name = "acme/shopfront"

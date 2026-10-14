@@ -45,8 +45,15 @@ class Settings(BaseSettings):
     skopeo_run_migrations: bool = True
 
     # --- LLM -------------------------------------------------------------------------
-    llm_provider: Literal["mock", "openai", "openai_compatible"] = "mock"
+    llm_provider: Literal["mock", "openai", "groq", "openai_compatible"] = "mock"
     openai_api_key: SecretStr | None = None
+    groq_api_key: SecretStr | None = None
+    """Groq API key (console.groq.com/keys). Used when LLM_PROVIDER=groq."""
+    groq_base_url: str = "https://api.groq.com/openai/v1"
+    groq_model_reasoning: str = "openai/gpt-oss-120b"
+    """Groq model for planning, correlation and red-team judgement."""
+    groq_model_fast: str = "openai/gpt-oss-20b"
+    """Groq model for summaries, reviews and recommendation text."""
     llm_base_url: str = "https://api.openai.com/v1"
     llm_model_reasoning: str = "gpt-6.1-sol"
     llm_model_fast: str = "gpt-6-luna"
@@ -130,6 +137,12 @@ class Settings(BaseSettings):
     auth_require_login: bool = False
     """With Firebase configured: starting investigations requires signing in (the reference case stays public)."""
     auth_signed_in_users_can_scan: bool = True
+    auth_github_enabled: bool = True
+    """Offer "Sign in with GitHub" (enable the GitHub provider in Firebase Authentication first)."""
+    github_private_repos: bool = False
+    """Let users import private repositories: GitHub sign-in then asks for the broad `repo` scope."""
+    skopeo_secret_key: SecretStr | None = None
+    """Encrypts stored GitHub tokens. Unset: a random key is created next to the database on first start."""
     """With an access key set, a signed-in Google user may also start investigations without the key."""
 
     # --- Notifications ---------------------------------------------------------------------
@@ -169,12 +182,28 @@ class Settings(BaseSettings):
 
     @property
     def is_mock(self) -> bool:
-        return self.skopeo_mode == "mock" or self.llm_provider == "mock"
+        """Deterministic policies instead of an LLM: mock mode, the mock provider, or a hosted provider without its key."""
+        if self.skopeo_mode == "mock" or self.llm_provider == "mock":
+            return True
+        return self.llm_api_key is None and self.llm_provider in ("openai", "groq")
+
+    @property
+    def llm_api_key(self) -> str | None:
+        secret = self.groq_api_key if self.llm_provider == "groq" else self.openai_api_key
+        value = secret.get_secret_value().strip() if secret is not None else ""
+        return value or None
 
     def secret_values(self) -> list[str]:
         """Concrete secret values that must be redacted from every log line and output."""
         values = []
-        for secret in (self.openai_api_key, self.github_token, self.skopeo_api_key, self.smtp_password):
+        for secret in (
+            self.openai_api_key,
+            self.groq_api_key,
+            self.github_token,
+            self.skopeo_api_key,
+            self.smtp_password,
+            self.skopeo_secret_key,
+        ):
             if secret is not None and secret.get_secret_value():
                 values.append(secret.get_secret_value())
         return values

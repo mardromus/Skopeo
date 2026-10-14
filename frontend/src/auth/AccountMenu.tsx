@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import type { AuthProviderId } from "../types/account";
 import { useAuth } from "./context";
 
 function GoogleMark() {
@@ -13,13 +14,43 @@ function GoogleMark() {
   );
 }
 
-export function SignInButton({ label = "Sign in with Google", className = "btn" }: { label?: string; className?: string }) {
-  const { signIn, loading } = useAuth();
+export function GitHubMark({ size = 16 }: { size?: number }) {
   return (
-    <button className={`${className} google-btn`} onClick={() => void signIn()} disabled={loading}>
-      <GoogleMark />
-      {label}
+    <svg width={size} height={size} viewBox="0 0 16 16" aria-hidden fill="currentColor">
+      <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+    </svg>
+  );
+}
+
+export function SignInButton({
+  label,
+  className = "btn",
+  provider = "google",
+}: {
+  label?: string;
+  className?: string;
+  provider?: AuthProviderId;
+}) {
+  const { signIn, loading } = useAuth();
+  const github = provider === "github";
+  return (
+    <button className={`${className} ${github ? "github-btn" : "google-btn"}`} onClick={() => void signIn(provider)} disabled={loading}>
+      {github ? <GitHubMark /> : <GoogleMark />}
+      {label ?? (github ? "Sign in with GitHub" : "Sign in with Google")}
     </button>
+  );
+}
+
+/** One button per sign-in method the server offers. */
+export function SignInChoices({ className = "btn" }: { className?: string }) {
+  const { config } = useAuth();
+  const providers = config?.providers ?? ["google"];
+  return (
+    <div className="signin-choices">
+      {providers.map((p) => (
+        <SignInButton key={p} provider={p} className={className} />
+      ))}
+    </div>
   );
 }
 
@@ -58,7 +89,24 @@ export function AccountMenu() {
   }, [open]);
 
   if (!config || (loading && !user)) return null;
-  if (config.mode === "firebase" && !user) return <SignInButton className="btn sm" label="Sign in" />;
+  if (config.mode === "firebase" && !user) {
+    return (
+      <div className="account" ref={ref}>
+        <button className="btn sm" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="menu">
+          Sign in
+        </button>
+        {open && (
+          <div className="account-pop signin-pop" role="menu">
+            <div className="account-head">
+              <b>Sign in to Skopeo</b>
+              <span className="small muted">Keep projects, watches, alerts and chats in your account.</span>
+            </div>
+            <SignInChoices className="btn" />
+          </div>
+        )}
+      </div>
+    );
+  }
   if (!user) return null;
   const local = user.provider === "local";
   return (
@@ -75,6 +123,9 @@ export function AccountMenu() {
           </div>
           <MenuLink to="/projects" onClick={() => setOpen(false)}>
             Projects and watches
+          </MenuLink>
+          <MenuLink to="/github" onClick={() => setOpen(false)}>
+            GitHub repositories
           </MenuLink>
           <MenuLink to="/settings/notifications" onClick={() => setOpen(false)}>
             Notifications
@@ -125,10 +176,10 @@ export function RequireUser({ children, what }: { children: ReactNode; what: str
           <span className="eyebrow">Sign in required</span>
           <h1>Sign in to manage {what}</h1>
           <p className="ink2">
-            Your projects, watched repositories and notification channels belong to your account. Skopeo uses your Google account only to know who you are; it never posts anything on your
-            behalf.
+            Your projects, watched repositories and notification channels belong to your account. Skopeo uses your Google or GitHub account to know who you are; with GitHub it can also list
+            your repositories so you can import them. It never posts anything on your behalf.
           </p>
-          {config.mode === "firebase" ? <SignInButton className="btn primary" /> : <div className="callout warn">Accounts are not available on this server.</div>}
+          {config.mode === "firebase" ? <SignInChoices className="btn primary" /> : <div className="callout warn">Accounts are not available on this server.</div>}
           {error && <div className="callout bad">{error}</div>}
         </div>
       </main>

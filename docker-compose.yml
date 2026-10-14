@@ -9,7 +9,9 @@ services:
       - path: .env
         required: false
     environment:
-      SKOPEO_MODE: ${SKOPEO_MODE:-mock}
+      SKOPEO_MODE: ${SKOPEO_MODE:-live}
+      LLM_PROVIDER: ${LLM_PROVIDER:-groq}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
       SKOPEO_DEMO_MODE: ${SKOPEO_DEMO_MODE:-true}
       SKOPEO_DEMO_STEP_DELAY_MS: ${SKOPEO_DEMO_STEP_DELAY_MS:-150}
       DRY_RUN: ${DRY_RUN:-true}

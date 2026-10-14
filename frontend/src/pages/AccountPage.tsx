@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar } from "../auth/AccountMenu";
+import { GitHubConnectionCard } from "../components/GitHubConnect";
 import { useAuth } from "../auth/context";
 import { fmtTime } from "../lib/format";
 import { accountApi } from "../services/api";
@@ -34,11 +35,12 @@ export function AccountPage() {
             <b className="profile-name">{local ? "Local workspace" : user.display_name}</b>
             <div className="ink2">{user.email}</div>
             <div className="small muted">
-              {local ? "This server has no sign-in configured; everything here belongs to one shared local workspace." : `Signed in with Google · member since ${fmtTime(user.created_at)}`}
+              {local ? "This server has no sign-in configured; everything here belongs to one shared local workspace." : `Signed in with ${user.provider === "github" ? "GitHub" : "Google"} · member since ${fmtTime(user.created_at)}`}
             </div>
           </div>
         </div>
       </section>
+      <GitHubConnectionCard />
       {!local && (
         <section className="section">
           <div className="section-head">
@@ -54,7 +56,7 @@ export function AccountPage() {
           <div className="section-head">
             <h2>Delete account</h2>
           </div>
-          <p className="ink2">Removes your projects, uploaded files, watches, reports, notification channels, rules and delivery log.</p>
+          <p className="ink2">Removes your projects, uploaded files, watches, reports, notification channels, rules, delivery log, GitHub connection and case conversations.</p>
           {error && <div className="callout bad">{error}</div>}
           <button className="btn danger" onClick={() => void remove()}>
             Delete my account

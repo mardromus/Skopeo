@@ -8,8 +8,14 @@ services:
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
+      # live + groq: agent decisions, summaries and the repo chatbot use Groq once GROQ_API_KEY is set;
+      # without a key the app stays in its deterministic built-in mode.
       - key: SKOPEO_MODE
-        value: mock
+        value: live
+      - key: LLM_PROVIDER
+        value: groq
+      - key: GROQ_API_KEY
+        sync: false
       - key: SKOPEO_DEMO_MODE
         value: "true"
       - key: SKOPEO_DEMO_STEP_DELAY_MS
@@ -34,6 +40,13 @@ services:
         sync: false
       - key: FIREBASE_APP_ID
         sync: false
+      # GitHub sign-in and repository import. SKOPEO_SECRET_KEY encrypts the stored GitHub tokens.
+      - key: AUTH_GITHUB_ENABLED
+        value: "true"
+      - key: GITHUB_PRIVATE_REPOS
+        value: "false"
+      - key: SKOPEO_SECRET_KEY
+        generateValue: true
       # Notifications (docs/notifications.md)
       - key: PUBLIC_BASE_URL
         sync: false

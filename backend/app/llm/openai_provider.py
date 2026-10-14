@@ -111,3 +111,34 @@ class OpenAIProvider(OpenAICompatibleProvider):
     def __init__(self, **kwargs) -> None:
         kwargs.setdefault("base_url", "https://api.openai.com/v1")
         super().__init__(**kwargs)
+
+
+class GroqProvider(OpenAICompatibleProvider):
+    """Groq's OpenAI-compatible endpoint.
+
+    GPT-OSS models are reasoning models: they take ``max_completion_tokens`` and
+    ``reasoning_effort`` (low | medium | high), and ``include_reasoning: false`` keeps their
+    reasoning out of the response. Other Groq models (Llama, ...) get ``temperature: 0``.
+    """
+
+    name = "groq"
+
+    def __init__(self, **kwargs) -> None:
+        kwargs.setdefault("base_url", "https://api.groq.com/openai/v1")
+        super().__init__(**kwargs)
+
+    def build_body(self, model: str, messages: list[dict[str, str]], tier: str, max_output_tokens: int) -> dict:
+        body: dict = {
+            "model": model,
+            "messages": messages,
+            "response_format": {"type": "json_object"},
+            "max_completion_tokens": max_output_tokens,
+        }
+        if "gpt-oss" in model.lower():
+            effort = self.reasoning_effort if tier == "reasoning" else self.reasoning_effort_fast
+            if effort in ("low", "medium", "high"):
+                body["reasoning_effort"] = effort
+            body["include_reasoning"] = False
+        else:
+            body["temperature"] = 0
+        return body

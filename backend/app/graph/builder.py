@@ -32,6 +32,7 @@ from app.agents.verification import VerificationAgent, needs_verification
 from app.graph.runtime import run_agent_isolated
 from app.graph.state import InvestigationState, SpecialistInput
 from app.schemas import AgentTask, EventType, TaskResult
+from app.services.github_accounts import clone_token
 from app.services.repository_ingestion import build_profile, clone_repository, prepare_demo_fixture
 from app.tools.command_runner import SafeCommandRunner
 from app.tools.repository import RepositoryTools
@@ -60,7 +61,12 @@ class InvestigationGraph:
             if inv.source == "demo_fixture":
                 handle = await asyncio.to_thread(prepare_demo_fixture, self.s.settings, self.runner, inv.id)
             else:
-                handle = await asyncio.to_thread(clone_repository, self.s.settings, self.runner, inv.id, inv.repository_url, inv.branch)
+                auth_user = ((inv.execution_summary or {}).get("options") or {}).get("github_auth_user")
+                token = await asyncio.to_thread(clone_token, self.s.settings, auth_user) if auth_user else None
+                extra = {"token": token} if token else {}
+                handle = await asyncio.to_thread(
+                    clone_repository, self.s.settings, self.runner, inv.id, inv.repository_url, inv.branch, **extra
+                )
             tools = RepositoryTools(handle, self.runner, self.s.settings)
             handle.profile = await asyncio.to_thread(build_profile, tools)
             self.s.repo, self.s.tools = handle, tools

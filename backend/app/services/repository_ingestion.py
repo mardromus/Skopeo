@@ -3,6 +3,7 @@ followed by deterministic profiling (languages, ecosystems, tests, entrypoints, 
 
 from __future__ import annotations
 
+import base64
 import contextlib
 import shutil
 from collections import Counter
@@ -11,6 +12,7 @@ from typing import Any
 
 from app.config import Settings
 from app.observability import get_logger
+from app.security.redaction import register_secrets
 from app.security.url_validation import validate_branch, validate_repository_url
 from app.tools.command_runner import SafeCommandRunner
 from app.tools.manifests import detect_ecosystems
@@ -63,7 +65,24 @@ def _git_safety_flags(ws: Path) -> list[str]:
     ]
 
 
-def clone_repository(settings: Settings, runner: SafeCommandRunner, investigation_id: str, url: str, branch: str) -> RepositoryHandle:
+def git_auth_env(token: str | None) -> dict[str, str] | None:
+    """Environment that authenticates git to github.com for one command, without putting the token
+    in argv, the URL or .git/config (git reads GIT_CONFIG_* only for that process)."""
+    if not token:
+        return None
+    basic = base64.b64encode(f"x-access-token:{token}".encode()).decode()
+    register_secrets([token, basic])
+    return {
+        "GIT_CONFIG_COUNT": "1",
+        "GIT_CONFIG_KEY_0": "http.https://github.com/.extraheader",
+        "GIT_CONFIG_VALUE_0": f"AUTHORIZATION: basic {basic}",
+        "GIT_TERMINAL_PROMPT": "0",
+    }
+
+
+def clone_repository(
+    settings: Settings, runner: SafeCommandRunner, investigation_id: str, url: str, branch: str, token: str | None = None
+) -> RepositoryHandle:
     ref = validate_repository_url(url)
     branch = validate_branch(branch)
     ws = _workspace(settings, investigation_id)
@@ -83,7 +102,7 @@ def clone_repository(settings: Settings, runner: SafeCommandRunner, investigatio
         ref.clone_url,
         str(dest),
     ]
-    result = runner.run(argv, ws, repo_root=ws, timeout=settings.clone_timeout_seconds)
+    result = runner.run(argv, ws, repo_root=ws, timeout=settings.clone_timeout_seconds, env=git_auth_env(token))
     if not result.ok:
         detail = (result.stderr or result.stdout).strip().splitlines()[-1:] or ["unknown error"]
         raise IngestionError(f"git clone failed ({'timeout' if result.timed_out else result.exit_code}): {detail[0][:300]}")

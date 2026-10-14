@@ -83,5 +83,5 @@ def optional_user(request: Request, authorization: str | None = Header(default=N
 
 def require_user(request: Request, user: User | None = Depends(optional_user)) -> User:
     if user is None:
-        raise HTTPException(status_code=401, detail="Sign in with Google to use this feature.", headers={"WWW-Authenticate": "Bearer"})
+        raise HTTPException(status_code=401, detail="Sign in to use this feature.", headers={"WWW-Authenticate": "Bearer"})
     return user

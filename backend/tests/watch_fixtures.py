@@ -132,7 +132,7 @@ class FakeSource:
             shutil.rmtree(root)
         self.trees[(url, ref)] = (write_tree(root, files), sha)
 
-    def checkout(self, url: str, ref: str | None, dest: Path, depth: int) -> Checkout:
+    def checkout(self, url: str, ref: str | None, dest: Path, depth: int, token: str | None = None) -> Checkout:
         self.checkouts.append((url, ref))
         if (url, ref) not in self.trees:
             raise RuntimeError(f"no such ref {url}@{ref}")

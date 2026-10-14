@@ -23,6 +23,7 @@ export interface InvestigationSummary {
   started_at: string | null;
   completed_at: string | null;
   duration_seconds: number | null;
+  private?: boolean;
 }
 
 export interface AgentCoverage {

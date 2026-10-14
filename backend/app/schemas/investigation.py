@@ -53,6 +53,7 @@ class InvestigationSummary(BaseModel):
     started_at: datetime | None = None
     completed_at: datetime | None = None
     duration_seconds: float | None = None
+    private: bool = False
 
 
 class InvestigationDetail(InvestigationSummary):

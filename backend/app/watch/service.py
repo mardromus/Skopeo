@@ -32,6 +32,7 @@ from app.observability import get_logger
 from app.security.redaction import redact
 from app.security.url_validation import InvalidBranchName, InvalidRepositoryURL, validate_branch, validate_repository_url
 from app.services.account_store import AccountStore
+from app.services.github_accounts import clone_token
 from app.watch.diff import changelog_highlights, diff_surfaces
 from app.watch.impact import IMPACT_ORDER, assess_impacts, impact_level, usage_inventory
 from app.watch.sources import Checkout, GitSource, RepositorySource, read_project_tree, tag_for_version
@@ -376,7 +377,9 @@ class WatchService:
 
     def _project_files(self, project: Project, ws) -> list[tuple[str, str]]:
         if project.source == "github" and project.repository_url:
-            co = self.source.checkout(project.repository_url, project.branch or None, ws / "project", 1)
+            token = clone_token(self.settings, project.user_id) if project.github_private else None
+            extra = {"token": token} if token else {}
+            co = self.source.checkout(project.repository_url, project.branch or None, ws / "project", 1, **extra)
             files = read_project_tree(co.root)
         else:
             files = [(f.path, f.content) for f in self.store.list_project_files(project.id)]

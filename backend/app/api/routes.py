@@ -54,12 +54,27 @@ def _summary(inv) -> dict[str, Any]:
         "started_at": inv.started_at,
         "completed_at": inv.completed_at,
         "duration_seconds": duration,
+        "private": is_private(inv),
     }
+
+
+def is_private(inv) -> bool:
+    """Investigations of private GitHub repositories (imported with the owner's token)."""
+    return bool(((inv.execution_summary or {}).get("options") or {}).get("private"))
+
+
+def _viewer_id(request: Request) -> str | None:
+    user = request.app.state.user_resolver.resolve(request.headers.get("authorization"))
+    return user.id if user else None
+
+
+def visible(inv, viewer_id: str | None) -> bool:
+    return not is_private(inv) or (viewer_id is not None and inv.owner_id == viewer_id)
 
 
 def _get(request: Request, investigation_id: str):
     inv = _svc(request).store.get_investigation(investigation_id)
-    if inv is None:
+    if inv is None or (is_private(inv) and not visible(inv, _viewer_id(request))):
         raise HTTPException(status_code=404, detail="investigation not found")
     return inv
 
@@ -72,6 +87,7 @@ def health(request: Request) -> dict[str, Any]:
         "version": __version__,
         "mode": s.skopeo_mode,
         "llm_provider": "mock" if s.is_mock else s.llm_provider,
+        "llm_key_configured": s.llm_api_key is not None,
         "demo_mode": s.skopeo_demo_mode,
         "dry_run": s.dry_run,
         "offline": s.skopeo_offline,
@@ -128,7 +144,9 @@ def list_investigations(
         if user is None:
             raise HTTPException(status_code=401, detail="Sign in to list your own investigations.")
         return [_summary(i) for i in _svc(request).store.list_investigations(limit, owner_id=user.id)]
-    return [_summary(i) for i in _svc(request).store.list_investigations(limit)]
+    viewer = user.id if user else None
+    rows = _svc(request).store.list_investigations(min(100, limit * 2))
+    return [_summary(i) for i in rows if visible(i, viewer)][:limit]
 
 
 @router.get("/investigations/{investigation_id}", response_model=InvestigationDetail)

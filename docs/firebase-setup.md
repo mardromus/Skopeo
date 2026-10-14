@@ -1,6 +1,6 @@
-# Google sign-in with Firebase
+# Google and GitHub sign-in with Firebase
 
-Skopeo uses **Firebase Authentication** for "Sign in with Google". The browser signs in with
+Skopeo uses **Firebase Authentication** for "Sign in with Google" and "Sign in with GitHub". The browser signs in with
 Firebase, then sends the Firebase **ID token** to the API with every request
 (`Authorization: Bearer <token>`). The API verifies each token itself (RS256 signature against
 Google's published certificates, audience, issuer, expiry), so the backend needs **no service
@@ -24,6 +24,29 @@ Allow about 10 minutes.
 1. In the project, open **Build → Authentication → Get started**.
 2. On **Sign-in method**, choose **Google**, switch it to **Enabled**, pick a **support email**
    and **Save**.
+
+## 2b. Turn on GitHub sign-in (optional, lets users import their repositories)
+
+Signing in with GitHub also hands Skopeo a GitHub access token, so users can pick repositories
+from a list (**GitHub** in the top bar) and import them as cases or projects, and later ask the
+agents questions about them. Google users can attach GitHub from **Account → GitHub**.
+
+1. In Firebase: **Authentication → Sign-in method → Add new provider → GitHub → Enable**. Copy
+   the **callback URL** it shows (`https://<project-id>.firebaseapp.com/__/auth/handler`).
+2. On GitHub: **Settings → Developer settings → OAuth Apps → New OAuth App**.
+   *Homepage URL*: your Skopeo URL. *Authorization callback URL*: the URL from step 1.
+   Register it, then **Generate a new client secret**.
+3. Back in Firebase, paste the GitHub **Client ID** and **Client secret** and **Save**.
+4. On the server, keep `AUTH_GITHUB_ENABLED=true` (default) and set `SKOPEO_SECRET_KEY` to a long
+   random value: GitHub tokens are stored encrypted with it and never returned by the API.
+5. Private repositories are off by default. With `GITHUB_PRIVATE_REPOS=true` the sign-in also asks
+   for GitHub's `repo` scope; a private repository is cloned with its owner's token (passed to git
+   in the environment, never in the URL or on disk), and the case is visible only to its owner.
+
+If an email address already belongs to a Google account, GitHub sign-in reports
+`auth/account-exists-with-different-credential`: sign in with Google and connect GitHub from
+**Account** instead. Without Firebase (local mode), connect GitHub with a **personal access
+token** on the Account page.
 
 ## 3. Register the web app and copy its config
 
@@ -102,7 +125,9 @@ account's row behaves exactly like a missing row (404).
 | Symptom | Cause / fix |
 | --- | --- |
 | `auth/unauthorized-domain` | Add the host under Authentication → Settings → Authorized domains. |
-| `auth/operation-not-allowed` | Enable the Google provider (step 2). |
+| `auth/operation-not-allowed` | Enable the Google provider (step 2) or the GitHub provider (step 2b). |
+| GitHub popup shows "redirect_uri is not associated" | The GitHub OAuth App's callback URL must be exactly Firebase's `/__/auth/handler` URL. |
+| "Private repositories are not enabled" (403) on import | Set `GITHUB_PRIVATE_REPOS=true`, then reconnect GitHub so it grants the `repo` scope. |
 | `auth/invalid-api-key` | `FIREBASE_WEB_API_KEY` is wrong; copy `apiKey` again from Project settings. |
 | API returns 401 "token rejected: InvalidAudienceError" | `FIREBASE_PROJECT_ID` does not match the project the browser signed in to. |
 | "could not load Google signing certificates" | The API cannot reach `www.googleapis.com`. Allow outbound HTTPS to it. |

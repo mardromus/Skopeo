@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { AccountUser, AuthConfig } from "../types/account";
+import type { AccountUser, AuthConfig, AuthProviderId } from "../types/account";
 
 export interface AuthState {
   /** Server sign-in configuration; null until loaded. */
@@ -9,7 +9,11 @@ export interface AuthState {
   /** True while the config, the Firebase SDK or the session are still loading. */
   loading: boolean;
   error: string | null;
-  signIn: () => Promise<void>;
+  signIn: (provider?: AuthProviderId) => Promise<void>;
+  /** Connect GitHub to the signed-in account through Firebase (GitHub OAuth); returns true when connected. */
+  connectGitHub: () => Promise<boolean>;
+  /** Bumped whenever the GitHub connection changes, so views can reload it. */
+  githubVersion: number;
   signOut: () => Promise<void>;
   /** Reload the account from the server. */
   refresh: () => Promise<void>;
@@ -21,6 +25,8 @@ export const AuthContext = createContext<AuthState>({
   loading: true,
   error: null,
   signIn: async () => {},
+  connectGitHub: async () => false,
+  githubVersion: 0,
   signOut: async () => {},
   refresh: async () => {},
 });

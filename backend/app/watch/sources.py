@@ -9,7 +9,7 @@ from typing import Any, Protocol
 
 from app.config import Settings
 from app.security.url_validation import validate_branch, validate_repository_url
-from app.services.repository_ingestion import _git_safety_flags
+from app.services.repository_ingestion import _git_safety_flags, git_auth_env
 from app.tools.command_runner import SafeCommandRunner
 
 PROJECT_FILE_SUFFIXES = (".py", ".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx", ".mts", ".cts")
@@ -44,7 +44,7 @@ class Checkout:
 
 
 class RepositorySource(Protocol):
-    def checkout(self, url: str, ref: str | None, dest: Path, depth: int) -> Checkout: ...
+    def checkout(self, url: str, ref: str | None, dest: Path, depth: int, token: str | None = None) -> Checkout: ...
 
     def list_tags(self, url: str, workdir: Path) -> list[str]: ...
 
@@ -56,7 +56,7 @@ class GitSource:
         self.settings = settings
         self.runner = runner or SafeCommandRunner(settings.command_timeout_seconds, settings.max_output_bytes)
 
-    def checkout(self, url: str, ref: str | None, dest: Path, depth: int) -> Checkout:
+    def checkout(self, url: str, ref: str | None, dest: Path, depth: int, token: str | None = None) -> Checkout:
         repo = validate_repository_url(url)
         ws = dest.parent
         ws.mkdir(parents=True, exist_ok=True)
@@ -75,7 +75,7 @@ class GitSource:
         if ref:
             argv += ["--branch", validate_branch(ref)]
         argv += [repo.clone_url, str(dest)]
-        res = self.runner.run(argv, ws, repo_root=ws, timeout=self.settings.clone_timeout_seconds)
+        res = self.runner.run(argv, ws, repo_root=ws, timeout=self.settings.clone_timeout_seconds, env=git_auth_env(token))
         if not res.ok:
             detail = (res.stderr or res.stdout).strip().splitlines()[-1:] or ["unknown error"]
             raise SourceError(f"could not fetch {repo.full_name}{'@' + ref if ref else ''}: {detail[0][:300]}")
