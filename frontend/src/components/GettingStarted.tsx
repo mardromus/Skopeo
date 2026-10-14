@@ -40,13 +40,16 @@ export function GettingStarted() {
           </p>
           {error && <div className="callout bad">{error}</div>}
         </div>
-        <SignInButton className="btn primary" />
+        <div className="signin-choices">
+          <SignInButton className="btn primary" provider="google" />
+          {(config.providers ?? ["google"]).includes("github") && <SignInButton className="btn" provider="github" />}
+        </div>
       </section>
     );
   }
   if (!progress) return null;
   const steps = [
-    { done: user.provider !== "local", label: "Sign in with Google", hint: "Your projects and channels belong to your account.", to: null, skip: user.provider === "local" },
+    { done: user.provider !== "local", label: "Sign in with Google or GitHub", hint: "Your projects and channels belong to your account.", to: null, skip: user.provider === "local" },
     { done: progress.channels > 0, label: "Connect a notification channel", hint: "Email, Slack, Discord or a webhook.", to: "/settings/notifications" },
     { done: progress.projects > 0, label: "Connect your project", hint: "A GitHub repository, or upload the files that use your dependencies.", to: "/projects" },
     { done: progress.watches > 0, label: "Watch an open-source dependency", hint: "See how its changes affect your code, on every release.", to: "/projects" },
