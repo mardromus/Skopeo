@@ -187,10 +187,53 @@ class DefaultTransport:
             raise DeliveryError(f"HTTP {resp.status_code}: {redact(resp.text)[:200]}")
         return {"http_status": resp.status_code}
 
+    def _email_api(self, to: str, m: Message) -> dict[str, Any]:
+        """Send through an HTTPS email API (Brevo or Resend): works where SMTP ports are blocked."""
+        s = self.settings
+        name, addr = parseaddr(s.smtp_from.strip())
+        key = s.email_api_key.get_secret_value()  # type: ignore[union-attr]
+        if s.email_provider == "brevo":
+            url = "https://api.brevo.com/v3/smtp/email"
+            headers = {"api-key": key, "accept": "application/json"}
+            body = {
+                "sender": {"name": name or "Skopeo", "email": addr},
+                "to": [{"email": to}],
+                "subject": m.subject,
+                "htmlContent": render_html(m),
+                "textContent": render_text(m),
+            }
+        else:
+            url = "https://api.resend.com/emails"
+            headers = {"Authorization": f"Bearer {key}"}
+            body = {
+                "from": formataddr((name or "Skopeo", addr)),
+                "to": [to],
+                "subject": m.subject,
+                "html": render_html(m),
+                "text": render_text(m),
+            }
+        try:
+            resp = httpx.post(
+                url,
+                json=body,
+                headers={"User-Agent": "Skopeo-Notifications/1.0", **headers},
+                timeout=s.notification_timeout_seconds,
+                follow_redirects=False,
+            )
+        except httpx.HTTPError as exc:
+            raise DeliveryError(f"{s.email_provider} error: {type(exc).__name__}: {redact(str(exc))[:200]}") from exc
+        if resp.status_code >= 300:
+            raise DeliveryError(f"{s.email_provider} HTTP {resp.status_code}: {redact(resp.text)[:200]}")
+        return {"provider": s.email_provider}
+
     def _email(self, to: str, m: Message) -> dict[str, Any]:
         s = self.settings
         if not s.email_configured:
-            raise DeliveryError("email is not configured on this server (set SMTP_HOST and SMTP_FROM)")
+            raise DeliveryError(
+                "email is not configured on this server (set SMTP_HOST and SMTP_FROM, or EMAIL_PROVIDER, EMAIL_API_KEY and SMTP_FROM)"
+            )
+        if s.email_provider != "smtp":
+            return self._email_api(to, m)
         sender = s.smtp_from.strip() or s.smtp_username.strip()
         name, addr = parseaddr(sender)
         msg = EmailMessage()

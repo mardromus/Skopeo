@@ -160,6 +160,9 @@ class Settings(BaseSettings):
     smtp_from: str = ""
     """Sender address, e.g. "Skopeo <alerts@example.com>". Defaults to SMTP_USERNAME."""
     smtp_security: Literal["starttls", "ssl", "none"] = "starttls"
+    # Email over HTTPS instead of SMTP: for hosts that block SMTP ports (Render's free plan, most clouds).
+    email_provider: Literal["smtp", "brevo", "resend"] = "smtp"
+    email_api_key: SecretStr | None = None
     notifications_dry_run: bool = False
     """Record deliveries without sending anything (useful in development)."""
     notification_timeout_seconds: float = 10.0
@@ -246,6 +249,7 @@ class Settings(BaseSettings):
             self.github_token,
             self.skopeo_api_key,
             self.smtp_password,
+            self.email_api_key,
             self.skopeo_secret_key,
         ):
             if secret is not None and secret.get_secret_value():
@@ -261,6 +265,8 @@ class Settings(BaseSettings):
 
     @property
     def email_configured(self) -> bool:
+        if self.email_provider != "smtp":
+            return bool(self.email_api_key and self.email_api_key.get_secret_value() and self.smtp_from.strip())
         return bool(self.smtp_host.strip() and (self.smtp_from.strip() or self.smtp_username.strip()))
 
     @property

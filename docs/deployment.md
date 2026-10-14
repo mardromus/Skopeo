@@ -69,8 +69,13 @@ The repository contains a blueprint (`render.yaml`).
 The free plan sleeps after 15 minutes without traffic (the next request takes about a minute)
 and has no persistent disk: set `DATABASE_URL` to a free Neon database (above) so accounts,
 cases and watches survive restarts. On a paid plan the commented `disk:` block works too.
-The free plan also blocks outbound SMTP ports 25, 465 and 587; use port 2525 if your email
-provider offers it.
+The free plan also blocks outbound SMTP ports 25, 465 and 587 (the error is
+`SMTP error: OSError: [Errno 101] Network is unreachable`). Send email over HTTPS instead:
+create a free [Brevo](https://www.brevo.com) account (about 300 emails a day, verify one sender
+address, no domain needed), create an API key (SMTP & API → API Keys), then set
+`EMAIL_PROVIDER=brevo`, `EMAIL_API_KEY=<key>` and `SMTP_FROM="Skopeo <your verified sender>"`.
+Resend works the same way (`EMAIL_PROVIDER=resend`) but only delivers to other people once you
+verify a domain. Leave the `SMTP_*` host and password empty.
 
 ## Railway
 
