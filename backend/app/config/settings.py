@@ -270,7 +270,7 @@ class Settings(BaseSettings):
         return candidate if (candidate / "index.html").is_file() else None
 
 
-def effective_settings(settings: "Settings", options: dict | None) -> "Settings":
+def effective_settings(settings: Settings, options: dict | None) -> Settings:
     """Server settings with one case's own choices applied (dry run, sandbox execution)."""
     options = options or {}
     update: dict = {}

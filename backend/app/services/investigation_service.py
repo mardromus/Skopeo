@@ -45,7 +45,9 @@ class InvestigationService:
     def create(self, req: InvestigationCreate, owner_id: str | None = None) -> str:
         ref = validate_repository_url(req.repository_url)
         if req.sandbox_execution and not self.settings.skopeo_sandbox_execution and not self.settings.skopeo_allow_case_execution:
-            raise ValueError("this server does not allow running repository code; set SKOPEO_ALLOW_CASE_EXECUTION=true to permit it per case")
+            raise ValueError(
+                "this server does not allow running repository code; set SKOPEO_ALLOW_CASE_EXECUTION=true to permit it per case"
+            )
         options: dict = {"fault_injection": self.settings.skopeo_fault_injection or None}
         if req.dry_run is not None:
             options["dry_run"] = req.dry_run
