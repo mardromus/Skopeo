@@ -112,6 +112,7 @@ export const api = {
     request<InvestigationSummary>("/investigations", { method: "POST", body: JSON.stringify(body) }),
   createDemo: (body: { fault_injection: boolean; analysis_depth?: string }) =>
     request<InvestigationSummary>("/demo/investigations", { method: "POST", body: JSON.stringify(body) }),
+  setCaseOptions: (id: string, body: { dry_run: boolean }) => request<InvestigationSummary>(`/investigations/${id}/options`, json("PATCH", body)),
   detail: (id: string) => request<InvestigationDetail>(`/investigations/${id}`),
   agents: (id: string) => request<AgentRun[]>(`/investigations/${id}/agents`),
   findings: (id: string) => request<Finding[]>(`/investigations/${id}/findings`),
@@ -134,6 +135,7 @@ export const accountApi = {
   config: () => request<AuthConfig>("/auth/config"),
   me: () => request<AccountUser>("/auth/me"),
   deleteMe: () => request<void>("/auth/me", json("DELETE")),
+  setPreferences: (body: { dry_run: boolean | null }) => request<{ dry_run?: boolean }>("/auth/preferences", json("PUT", body)),
 };
 
 export const githubApi = {
@@ -141,7 +143,16 @@ export const githubApi = {
   connect: (access_token: string, source: "oauth" | "pat") => request<GitHubConnection>("/github/connect", json("POST", { access_token, source })),
   disconnect: () => request<void>("/github/connection", json("DELETE")),
   repos: (q = "", page = 1) => request<GitHubRepoPage>(`/github/repos?q=${encodeURIComponent(q)}&page=${page}`),
-  importRepo: (body: { full_name: string; target: "investigation" | "project"; branch?: string; analysis_depth?: string; project_name?: string }) =>
+  importRepo: (body: {
+    full_name: string;
+    target: "investigation" | "project";
+    branch?: string;
+    analysis_depth?: string;
+    project_name?: string;
+    enable_github_actions?: boolean;
+    dry_run?: boolean;
+    sandbox_execution?: boolean;
+  }) =>
     request<{ target: "investigation"; investigation: InvestigationSummary } | { target: "project"; project: Project }>("/github/import", json("POST", body)),
 };
 

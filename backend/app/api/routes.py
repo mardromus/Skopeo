@@ -6,6 +6,7 @@ from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import PlainTextResponse
+from pydantic import BaseModel, ConfigDict
 
 from app import __version__
 from app.agents.registry import all_agent_descriptions
@@ -55,7 +56,22 @@ def _summary(inv) -> dict[str, Any]:
         "completed_at": inv.completed_at,
         "duration_seconds": duration,
         "private": is_private(inv),
+        "options": case_options(inv),
     }
+
+
+def case_options(inv) -> dict[str, Any]:
+    """This case's own choices (None = the server default applies)."""
+    options = (inv.execution_summary or {}).get("options") or {}
+    return {"dry_run": options.get("dry_run"), "sandbox_execution": options.get("sandbox_execution")}
+
+
+def apply_user_defaults(body: InvestigationCreate, user: User | None) -> InvestigationCreate:
+    """A case that does not choose dry run follows its owner's personal default, then the server's."""
+    pref = (user.preferences or {}).get("dry_run") if user else None
+    if body.dry_run is None and isinstance(pref, bool):
+        return body.model_copy(update={"dry_run": pref})
+    return body
 
 
 def is_private(inv) -> bool:
@@ -116,7 +132,7 @@ def agents() -> list[dict[str, str]]:
 def create_investigation(body: InvestigationCreate, request: Request, user: User | None = Depends(optional_user)) -> dict[str, Any]:
     svc = _svc(request)
     try:
-        iid = svc.create(body, owner_id=user.id if user else None)
+        iid = svc.create(apply_user_defaults(body, user), owner_id=user.id if user else None)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     svc.start(iid)
@@ -244,6 +260,26 @@ def cancel(investigation_id: str, request: Request) -> dict[str, Any]:
     _get(request, investigation_id)
     accepted = _svc(request).cancel(investigation_id)
     return {"investigation_id": investigation_id, "cancel_requested": accepted}
+
+
+class CaseOptionsBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    dry_run: bool
+
+
+@router.patch("/investigations/{investigation_id}/options", dependencies=[Depends(require_write_access)])
+def set_case_options(
+    investigation_id: str, body: CaseOptionsBody, request: Request, user: User | None = Depends(optional_user)
+) -> dict[str, Any]:
+    """Switch dry run for one case at any time, also while it runs: it decides what the next approval does."""
+    inv = _get(request, investigation_id)
+    if inv.owner_id and (user is None or user.id != inv.owner_id):
+        raise HTTPException(status_code=403, detail="only the person who started this case can change its options")
+    store = _svc(request).store
+    summary = dict(inv.execution_summary or {})
+    summary["options"] = {**(summary.get("options") or {}), "dry_run": body.dry_run}
+    store.update_investigation(investigation_id, execution_summary=summary)
+    return _summary(store.get_investigation(investigation_id))
 
 
 @router.post(

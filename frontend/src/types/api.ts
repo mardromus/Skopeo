@@ -24,6 +24,7 @@ export interface InvestigationSummary {
   completed_at: string | null;
   duration_seconds: number | null;
   private?: boolean;
+  options?: { dry_run?: boolean | null; sandbox_execution?: boolean | null };
 }
 
 export interface AgentCoverage {

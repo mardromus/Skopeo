@@ -87,6 +87,7 @@ export interface AccountUser {
   provider: string;
   created_at: string;
   last_login_at: string | null;
+  preferences?: { dry_run?: boolean };
 }
 
 export type ChannelKind = "email" | "slack" | "discord" | "webhook";

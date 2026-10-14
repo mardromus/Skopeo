@@ -21,6 +21,8 @@ class User(UUIDPrimaryKey, Timestamped, Base):
     display_name: Mapped[str | None] = mapped_column(String(256), nullable=True)
     photo_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Personal defaults, e.g. {"dry_run": false}: applied to every new case this user starts.
+    preferences: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, server_default="{}")
 
 
 class NotificationChannel(UUIDPrimaryKey, Timestamped, Base):

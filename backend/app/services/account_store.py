@@ -36,6 +36,20 @@ class AccountStore:
         with session_scope() as s:
             return s.get(User, user_id)
 
+    def set_preferences(self, user_id: str, changes: dict[str, Any]) -> dict[str, Any]:
+        with session_scope(write=True) as s:
+            user = s.get(User, user_id)
+            if user is None:
+                raise LookupError("user not found")
+            prefs = {**(user.preferences or {})}
+            for k, v in changes.items():
+                if v is None:
+                    prefs.pop(k, None)
+                else:
+                    prefs[k] = v
+            user.preferences = prefs
+            return dict(prefs)
+
     def upsert_firebase_user(self, claims: dict[str, Any]) -> User:
         uid = str(claims["sub"])
         provider = str((claims.get("firebase") or {}).get("sign_in_provider") or "google")

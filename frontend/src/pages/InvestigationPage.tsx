@@ -1,4 +1,5 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { CaseDryRunSwitch } from "../components/CaseOptionsDialog";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { AnimatedNumber } from "../components/AnimatedNumber";
 import { Aperture } from "../components/Aperture";
@@ -153,6 +154,7 @@ export function InvestigationPage() {
                 Cancel investigation
               </button>
             )}
+            <CaseDryRunSwitch caseId={d.investigation_id} value={d.options?.dry_run} onChange={refresh} />
             {running && <span className="small muted">Updating live as agents report.</span>}
           </div>
         </div>

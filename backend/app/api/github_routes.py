@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.api.access import account_rate_limit, rate_limit, require_login_for_scans, require_write_access
 from app.api.auth import require_user
 from app.api.project_routes import project_out
-from app.api.routes import _summary
+from app.api.routes import _summary, apply_user_defaults
 from app.models import User
 from app.schemas.investigation import InvestigationCreate
 from app.security.url_validation import InvalidBranchName, InvalidRepositoryURL, validate_branch, validate_repository_url
@@ -33,6 +33,9 @@ class ImportBody(BaseModel):
     analysis_depth: Literal["quick", "standard", "deep"] = "standard"
     project_name: str | None = Field(default=None, max_length=120)
     notes: str = Field(default="", max_length=8000)
+    enable_github_actions: bool = False
+    dry_run: bool | None = None
+    sandbox_execution: bool | None = None
 
 
 def _accounts(request: Request) -> GitHubAccounts:
@@ -107,9 +110,23 @@ def import_repo(body: ImportBody, request: Request, user: User = Depends(require
         return {"target": "project", "project": project_out(request, p)}
 
     svc = request.app.state.investigations
-    iid = svc.create(
-        InvestigationCreate(repository_url=ref.canonical_url, branch=branch, analysis_depth=body.analysis_depth), owner_id=user.id
-    )
+    try:
+        iid = svc.create(
+            apply_user_defaults(
+                InvestigationCreate(
+                    repository_url=ref.canonical_url,
+                    branch=branch,
+                    analysis_depth=body.analysis_depth,
+                    enable_github_actions=body.enable_github_actions,
+                    dry_run=body.dry_run,
+                    sandbox_execution=body.sandbox_execution,
+                ),
+                user,
+            ),
+            owner_id=user.id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     if info["private"]:
         inv = svc.store.get_investigation(iid)
         summary = dict(inv.execution_summary or {})

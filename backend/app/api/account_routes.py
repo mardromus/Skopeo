@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
+from pydantic import BaseModel, ConfigDict
 
 from app.api.access import account_rate_limit
 from app.api.auth import optional_user, require_user
@@ -29,6 +30,7 @@ def user_out(user: User) -> dict[str, Any]:
         "provider": user.provider,
         "created_at": user.created_at,
         "last_login_at": user.last_login_at,
+        "preferences": dict(user.preferences or {}),
     }
 
 
@@ -66,6 +68,17 @@ def auth_config(request: Request) -> dict[str, Any]:
 @router.get("/auth/me")
 def me(user: User = Depends(require_user)) -> dict[str, Any]:
     return user_out(user)
+
+
+class PreferencesBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    dry_run: bool | None = None  # null = follow the server default (DRY_RUN)
+
+
+@router.put("/auth/preferences")
+def set_preferences(body: PreferencesBody, request: Request, user: User = Depends(require_user)) -> dict[str, Any]:
+    """Personal defaults for new cases. Sending null for a key removes it."""
+    return request.app.state.accounts.set_preferences(user.id, body.model_dump())
 
 
 @router.delete("/auth/me", status_code=204)

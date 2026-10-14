@@ -3,6 +3,7 @@ import { Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
 import { AccountMenu, RequireUser } from "./auth/AccountMenu";
 import { useAuth } from "./auth/context";
 import { Aperture } from "./components/Aperture";
+import { useDryRunDefault } from "./lib/caseOptions";
 import { Logo } from "./components/Logo";
 import { HomePage } from "./pages/HomePage";
 
@@ -22,7 +23,7 @@ function Loading({ label }: { label: string }) {
     </main>
   );
 }
-import { api } from "./services/api";
+import { accountApi, api } from "./services/api";
 import type { Health } from "./types/api";
 
 type Theme = "system" | "light" | "dark";
@@ -74,7 +75,8 @@ export default function App() {
   const [healthError, setHealthError] = useState(false);
   const [theme, setTheme] = useState<Theme>(readTheme);
   const live = useAnyLive();
-  const { user } = useAuth();
+  const { user, refresh } = useAuth();
+  const dryDefault = useDryRunDefault(health);
 
   useEffect(() => {
     api.health().then(setHealth).catch(() => setHealthError(true));
@@ -119,9 +121,23 @@ export default function App() {
           {health && (
             <>
               <span title="Which model makes the agents' decisions">llm {health.llm_provider}</span>
-              <span className={health.dry_run ? "on" : "warnc"} title="With dry run on, approved GitHub actions are recorded but never sent">
-                dry run {health.dry_run ? "on" : "off"}
-              </span>
+              <button
+                type="button"
+                className={`env-toggle ${dryDefault ? "on" : "warnc"}`}
+                disabled={!user}
+                title={user ? "Your default for new cases. Click to switch. With dry run on, approved GitHub actions are recorded but never sent." : "Sign in to set your own default"}
+                onClick={async () => {
+                  const next = !dryDefault;
+                  const msg = next
+                    ? "Turn dry run ON for your new cases? Approved actions will only be recorded."
+                    : "Turn dry run OFF for your new cases? Approving an action will create real issues or draft PRs on GitHub.";
+                  if (!window.confirm(msg)) return;
+                  await accountApi.setPreferences({ dry_run: next });
+                  await refresh();
+                }}
+              >
+                dry run {dryDefault ? "on" : "off"}
+              </button>
               <span className="hide-sm" title="Whether tests and benchmarks of cloned repositories may run">
                 repo exec {health.sandbox_execution ? "sandbox" : "off"}
               </span>

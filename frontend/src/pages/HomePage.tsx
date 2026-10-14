@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { StatusBadge } from "../components/Badges";
 import { GettingStarted } from "../components/GettingStarted";
+import { CaseOptionsDialog, type CaseOptions } from "../components/CaseOptionsDialog";
 import { GitHubImport } from "../components/GitHubConnect";
 import { HeroAperture } from "../components/HeroAperture";
 import { caseNo, fmtTime, fmtTimeMs, shortAgent } from "../lib/format";
@@ -36,9 +37,7 @@ export function HomePage({ health }: { health: Health | null }) {
   const [url, setUrl] = useState("https://github.com/");
   const [branch, setBranch] = useState("main");
   const [depth, setDepth] = useState("standard");
-  const [actions, setActions] = useState(false);
-  const [dryRun, setDryRun] = useState<boolean | null>(null); // null = the server default
-  const [execOn, setExecOn] = useState<boolean | null>(null);
+  const [asking, setAsking] = useState(false);
   const [fault, setFault] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -80,38 +79,23 @@ export function HomePage({ health }: { health: Health | null }) {
       .catch(() => setHistory([]));
   }, []);
 
-  async function start(e: FormEvent) {
+  function start(e: FormEvent) {
     e.preventDefault();
+    setError(null);
+    setAsking(true);
+  }
+
+  async function launch(o: CaseOptions) {
     setBusy(true);
     setError(null);
     try {
       setAccessKey(accessKey.trim());
-      const inv = await api.create({ repository_url: url.trim(), branch: branch.trim(), analysis_depth: depth,
-        enable_github_actions: actions,
-        ...(dryRun === null ? {} : { dry_run: dryRun }),
-        ...(execOn === null ? {} : { sandbox_execution: execOn }),
-      });
+      const inv = await api.create({ repository_url: url.trim(), branch: branch.trim(), analysis_depth: depth, ...o });
       nav(`/investigations/${inv.investigation_id}`);
     } catch (err) {
       setError(explain(err));
       setBusy(false);
     }
-  }
-
-  const serverExec = Boolean(health?.sandbox_execution);
-  const effectiveExec = execOn ?? serverExec;
-  const effectiveDry = dryRun ?? (health?.dry_run ?? true);
-  const canExec = serverExec || Boolean(health?.allow_case_execution);
-
-  /** Changing sandbox execution is deliberate: it is asked twice before it takes effect. */
-  function changeExec(on: boolean) {
-    if (on === effectiveExec) return;
-    const what = on
-      ? "Turn sandbox execution ON? Skopeo will RUN this repository's own tests and scripts on the server."
-      : "Turn sandbox execution OFF? Skopeo will only read the code and will not run tests or benchmarks.";
-    if (!window.confirm(`${what}\n\nConfirmation 1 of 2`)) return;
-    if (!window.confirm(`Are you sure? ${on ? "Untrusted code will execute." : "Findings will not be confirmed by running tests."}\n\nConfirmation 2 of 2`)) return;
-    setExecOn(on);
   }
 
   async function demo() {
@@ -158,29 +142,6 @@ export function HomePage({ health }: { health: Health | null }) {
                 </select>
               </label>
             </div>
-            <label className="check-label" htmlFor="repo-actions">
-              <input id="repo-actions" type="checkbox" checked={actions} onChange={(e) => setActions(e.target.checked)} />
-              Let approved issues and draft PRs be sent to GitHub
-            </label>
-            <div className="form-row">
-              <label className="field" htmlFor="repo-dry">
-                Dry run
-                <select id="repo-dry" className="input" value={effectiveDry ? "on" : "off"} onChange={(e) => setDryRun(e.target.value === "on")}>
-                  <option value="on">On: approvals are recorded, nothing is sent to GitHub</option>
-                  <option value="off">Off: approved actions are sent to GitHub</option>
-                </select>
-              </label>
-              <label className="field" htmlFor="repo-exec">
-                Code execution
-                <select id="repo-exec" className="input" value={effectiveExec ? "on" : "off"} onChange={(e) => changeExec(e.target.value === "on")} disabled={!canExec && !effectiveExec}>
-                  <option value="off">Off: read the code only, never run it</option>
-                  <option value="on" disabled={!canExec}>
-                    On: run the repository's tests in the sandbox{canExec ? "" : " (not allowed on this server)"}
-                  </option>
-                </select>
-                <span className="small muted">Changing this asks for confirmation twice.</span>
-              </label>
-            </div>
             {askKey && (
               <label className="field" htmlFor="access-key">
                 Access key
@@ -198,7 +159,7 @@ export function HomePage({ health }: { health: Health | null }) {
                 </span>
               </label>
             )}
-            {error && <div className="callout bad">{error}</div>}
+            {error && !asking && <div className="callout bad">{error}</div>}
             <div className="row">
               <button className="btn primary" type="submit" disabled={busy}>
                 Start investigation
@@ -206,6 +167,14 @@ export function HomePage({ health }: { health: Health | null }) {
               <span className="small muted">Repository code is treated as untrusted. Nothing is merged or deployed.</span>
             </div>
           </form>
+          <CaseOptionsDialog
+            open={asking}
+            repo={`${url.trim()} @ ${branch.trim()}`}
+            busy={busy}
+            error={asking ? error : null}
+            onClose={() => !busy && setAsking(false)}
+            onStart={(o) => void launch(o)}
+          />
 
           <GitHubImport targets={["investigation"]} compact />
 

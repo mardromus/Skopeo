@@ -57,6 +57,7 @@ class InvestigationSummary(BaseModel):
     completed_at: datetime | None = None
     duration_seconds: float | None = None
     private: bool = False
+    options: dict[str, Any] = Field(default_factory=dict)
 
 
 class InvestigationDetail(InvestigationSummary):

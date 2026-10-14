@@ -95,7 +95,8 @@ def finalize_investigation(services: AgentServices, state: dict[str, Any]) -> No
     now = utcnow()
     duration = (now - (started if started.tzinfo else started.replace(tzinfo=now.tzinfo))).total_seconds() if started else None
     summary = {
-        "options": (inv.execution_summary or {}).get("options", {}),
+        # re-read: the owner may have switched dry run while the case ran
+        "options": ((store.get_investigation(iid) or inv).execution_summary or {}).get("options", {}),
         "rounds": state.get("round", 0),
         "replans": state.get("replans", 0),
         "agent_runs": len(runs),

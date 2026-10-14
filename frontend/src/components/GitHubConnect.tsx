@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Avatar, GitHubMark } from "../auth/AccountMenu";
 import { useAuth } from "../auth/context";
+import { CaseOptionsDialog, type CaseOptions } from "./CaseOptionsDialog";
 import { fmtTime } from "../lib/format";
 import { ApiError, githubApi } from "../services/api";
 import type { GitHubConnection, GitHubRepo } from "../types/account";
@@ -211,6 +212,7 @@ export function GitHubImport({ targets = ["investigation", "project"], compact =
   const [depth, setDepth] = useState("standard");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState<GitHubRepo | null>(null); // repository waiting for its case options
   const connected = conn !== null && conn !== "signed-out" && conn.connected;
 
   useEffect(() => {
@@ -247,11 +249,20 @@ export function GitHubImport({ targets = ["investigation", "project"], compact =
     }
   }
 
-  async function importRepo(repo: GitHubRepo, target: Target) {
+  function importRepo(repo: GitHubRepo, target: Target) {
+    if (target === "investigation") {
+      setError(null);
+      setPending(repo);
+      return;
+    }
+    void doImport(repo, target);
+  }
+
+  async function doImport(repo: GitHubRepo, target: Target, options?: CaseOptions) {
     setBusy(true);
     setError(null);
     try {
-      const res = await githubApi.importRepo({ full_name: repo.full_name, target, branch: repo.default_branch, analysis_depth: depth });
+      const res = await githubApi.importRepo({ full_name: repo.full_name, target, branch: repo.default_branch, analysis_depth: depth, ...(options ?? {}) });
       if (res.target === "investigation") nav(`/investigations/${res.investigation.investigation_id}`);
       else nav(`/projects/${res.project.project_id}`);
     } catch (err) {
@@ -324,7 +335,7 @@ export function GitHubImport({ targets = ["investigation", "project"], compact =
           </select>
         )}
       </div>
-      {error && <div className="callout bad">{error}</div>}
+      {error && !pending && <div className="callout bad">{error}</div>}
       <div className="gh-list">
         {repos === null ? (
           <p className="small muted">Loading repositories…</p>
@@ -333,6 +344,14 @@ export function GitHubImport({ targets = ["investigation", "project"], compact =
         ) : (
           repos.map((r) => <RepoRow key={r.full_name} repo={r} targets={targets} onImport={importRepo} busy={busy} />)
         )}
+        <CaseOptionsDialog
+          open={pending !== null}
+          repo={pending ? `${pending.full_name} @ ${pending.default_branch}` : ""}
+          busy={busy}
+          error={pending ? error : null}
+          onClose={() => !busy && setPending(null)}
+          onStart={(o) => pending && void doImport(pending, "investigation", o)}
+        />
         {hasMore && (
           <button className="btn sm quiet" onClick={() => void more()}>
             Load more
