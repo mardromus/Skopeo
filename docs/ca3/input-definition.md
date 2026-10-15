@@ -11,7 +11,9 @@ Schema (`InvestigationCreate`, `backend/app/schemas/investigation.py`):
 | `repository_url` | string | yes | `https://github.com/<owner>/<repo>` only (no other hosts, no `http://`, no query string, no credentials); normalised to the canonical URL |
 | `branch` | string | no, default `"main"` | valid git ref name; no `..`, no leading `-`, no control characters |
 | `analysis_depth` | enum | no, default `"standard"` | `"quick"` (security, dependencies, tests) · `"standard"` (every relevant agent) · `"deep"` (every agent, always) |
-| `enable_github_actions` | boolean | no, default `false` | allow approved issues / draft PRs to be proposed for GitHub (still human-approved; `DRY_RUN` on by default) |
+| `enable_github_actions` | boolean | no, default `false` | allow approved issues / draft PRs to be proposed for GitHub (still human-approved) |
+| `dry_run` | boolean or null | no, default `null` | `true`: approvals are only recorded; `false`: approved actions are sent to GitHub. `null` uses the user's saved default, then the server's `DRY_RUN` |
+| `sandbox_execution` | boolean or null | no, default `null` | allow this case to run the repository's own tests/benchmarks. `true` is refused (HTTP 400) unless the server sets `SKOPEO_ALLOW_CASE_EXECUTION`; the UI asks for confirmation twice |
 
 Authentication: a signed-in user's Firebase ID token (`Authorization: Bearer <token>`, Google or GitHub sign-in), or the server access key (`X-Skopeo-Key`). The bundled reference case needs neither.
 
@@ -22,7 +24,8 @@ Authentication: a signed-in user's Firebase ID token (`Authorization: Bearer <to
   "repository_url": "https://github.com/pallets/itsdangerous",
   "branch": "main",
   "analysis_depth": "standard",
-  "enable_github_actions": false
+  "enable_github_actions": false,
+  "dry_run": true
 }
 ```
 
@@ -46,6 +49,7 @@ After "Sign in with GitHub" (or connecting a personal access token), the user pi
 | `target` | enum | `"investigation"` (start a case) or `"project"` (add to Projects for upstream watching) |
 | `branch` | string, optional | defaults to the repository's default branch |
 | `analysis_depth` | enum, optional | as above |
+| `enable_github_actions`, `dry_run`, `sandbox_execution` | optional | as in section 1 (chosen in the pop-up shown before the case starts) |
 
 Sample: `{ "full_name": "mardromus/Skopeo", "target": "investigation", "analysis_depth": "standard" }`
 
@@ -62,13 +66,24 @@ Sample: `{ "full_name": "mardromus/Skopeo", "target": "investigation", "analysis
 { "question": "Is the JWT handling in this repository safe?" }
 ```
 
-## 5. Invalid input is rejected (real responses from the running API)
+## 5. Guardrails during and across cases
+
+| Endpoint | Body | Effect |
+| --- | --- | --- |
+| `PATCH /api/investigations/{id}/options` | `{ "dry_run": false }` | switch dry run for one case at any time, even while it runs; only the case owner may change it |
+| `PUT /api/auth/preferences` | `{ "dry_run": false }` (or `null` to clear) | the signed-in user's default for new cases |
+
+Real response to the PATCH above: `200 { "investigation_id": "aa224829-…", "status": "running", "options": { "dry_run": false, "sandbox_execution": null } }`.
+
+## 6. Invalid input is rejected (real responses from the running API)
 
 | Input | Response (HTTP 422) |
 | --- | --- |
 | `{"repository_url": "https://github.com/psf/requests", "analysis_depth": "full"}` | `Input should be 'quick', 'standard' or 'deep'` |
 | `{"repository_url": "http://evil.example/a/b"}` | `Value error, only https:// GitHub URLs are supported` |
 | `{"repository_url": "https://github.com/psf/requests", "extra": 1}` | `Extra inputs are not permitted` |
+| `{"repository_url": "https://github.com/pallets/itsdangerous", "dry_run": "maybe"}` | `Input should be a valid boolean, unable to interpret input` |
+| `{"repository_url": "https://github.com/pallets/itsdangerous", "sandbox_execution": true}` on a server that does not allow it | HTTP 400 `this server does not allow running repository code; set SKOPEO_ALLOW_CASE_EXECUTION=true to permit it per case` |
 | chat question for an unknown investigation id | `404 investigation not found` |
 
-Repository content itself is also an input, and is treated strictly as **untrusted data**: it is never executed unless sandboxed execution is enabled, and text passed to the LLM is wrapped as untrusted so instructions inside the repository (prompt injection) are not followed.
+Repository content itself is also an input, and is treated strictly as **untrusted data**: it is never executed unless execution is both allowed by the server and chosen for the case, and text passed to the LLM is wrapped as untrusted so instructions inside the repository (prompt injection) are not followed.

@@ -7,6 +7,7 @@ For every investigation Skopeo produces a **risk report**: findings backed by ev
 | Field | Type | Content |
 | --- | --- | --- |
 | `investigation_id`, `repository`, `repository_url`, `branch`, `commit_sha` | string | what was analysed (exact commit) |
+| `options` | object | this case's guardrails: `dry_run`, `sandbox_execution` (`null` = server default) |
 | `status` | enum | `completed` · `completed_with_limitations` (some capability unavailable, stated in `coverage`) · `failed` · `cancelled` |
 | `overall_risk` | `{score: 0–100, level}` | `level` ∈ `critical, high, medium, low, minimal` |
 | `findings[]` | Finding | `finding_id`, `agent`, `category` (security, dependency, code_quality, api_compatibility, testing, license, maintenance, performance), `rule_id`, `title`, `description`, `severity` (critical…info), `confidence` 0–1 with `confidence_factors[]`, `status` (proposed, correlated, challenged, verified, rejected, needs_more_evidence), `affected_files[]`, `evidence_ids[]`, `reasoning_summary`, `recommended_action` |
@@ -213,5 +214,22 @@ Response: the stored `question` and `answer` messages. The answer carries `agent
     ]
   }
 }```
+
+## 4. Upstream impact report (Projects → watches)
+
+For a watched open-source dependency, each check produces an impact report on the user's own project. Fields: `kind`, `base_ref` → `head_ref`, `impact_level` (none, low, medium, high, breaking), `summary`, `stats` (`changes`, `changes_by_kind` — removed, moved, signature, behavior, contract, module_removed, added — `breaking_changes`, `impacts`, `impacts_by_level`), and the affected call sites with file, line, the upstream change and a fix.
+
+**Real sample output** (project "Shopfront" watching `jpadilla/pyjwt`):
+
+```json
+{
+  "kind": "update", "trigger": "manual", "base_ref": "1.7.1", "head_ref": "master",
+  "impact_level": "breaking",
+  "summary": "jpadilla/pyjwt changed 49 public API element(s) (29 breaking) and added 50 between 1.7.1 → master (16231abfd1). 2 place(s) in Shopfront are affected across 1 file(s), 1 of them breaking. The most serious: Your call to `jwt.decode` will fail at shopfront/auth/middleware.py:26. Your manifest asks for pyjwt ==1.7.1 (requirements.txt).",
+  "stats": { "changes": 99, "breaking_changes": 29, "impacts": 2,
+             "changes_by_kind": { "removed": 18, "contract": 2, "moved": 3, "signature": 7, "module_removed": 5, "behavior": 14, "added": 50 },
+             "impacts_by_level": { "low": 1, "medium": 0, "high": 0, "breaking": 1 } }
+}
+```
 
 Other outputs: a Markdown report (`?format=markdown`), notifications (email, Slack, Discord, webhook) when a case finishes, and — for Projects — upstream impact reports that list the exact lines of the user's code affected by changes in a watched open-source dependency.
