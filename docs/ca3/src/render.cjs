@@ -1,7 +1,7 @@
 const { chromium } = require('/opt/npm-tools/node_modules/playwright');
 (async () => {
   const [src, out, title] = process.argv.slice(2);
-  const b = await chromium.launch();
+  const b = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined });
   const p = await b.newPage();
   await p.goto('file://' + require('path').resolve(src), { waitUntil: 'networkidle' });
   await p.pdf({ path: out, format: 'A4', printBackground: true, preferCSSPageSize: true,

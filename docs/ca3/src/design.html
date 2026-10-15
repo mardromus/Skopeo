@@ -1,28 +1,56 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Skopeo — Design Document</title><link rel="stylesheet" href="doc.css">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Skopeo — Design Document</title>
+<link rel="stylesheet" href="doc.css"><link rel="stylesheet" href="design.css">
 <style>.arch{border:none}</style></head><body>
-<div class="eyebrow">F0003 CA3 · Agentic AI · Design Document</div>
-<h1>Skopeo: design of a multi-agent repository risk analyst</h1>
-<p class="lede">Thirteen agents investigate a GitHub repository together: an orchestrator plans and re-plans, eight specialists gather evidence in parallel, and four coordination agents correlate, challenge, score and fix. They communicate through a shared Evidence Store (blackboard) and a persisted message log, and every decision is visible in the execution trace.</p>
-<div class="meta">
-<b>Team</b><span>Kushagra Goyal (<span class="mono">mardromus</span>) · Mayank Hete (<span class="mono">Rancidcake</span>)</span>
-<b>Repository</b><span>https://github.com/mardromus/Skopeo</span>
-<b>Pattern</b><span>Hierarchical orchestrator–worker over a blackboard, with adaptive routing and an adversarial verifier</span>
-<b>Framework</b><span>LangGraph StateGraph (Python 3.12+), FastAPI, React · LLM: Groq (openai/gpt-oss-120b, openai/gpt-oss-20b)</span>
-</div>
 
-<div class="kpis">
-<div><b>13 + 1</b><span>agents, plus a question router</span></div>
-<div><b>8</b><span>specialists running at once</span></div>
-<div><b>233</b><span>events in the submitted trace</span></div>
-<div><b>209</b><span>automated tests (SQLite and PostgreSQL)</span></div>
-</div>
+<section class="cover">
+  <div class="brand"><img src="../../logo.svg" alt=""><b>SKOPEO</b><span>F0003 CA3 · Agentic AI · Design document</span></div>
+  <div class="eyebrow">Multi-agent repository intelligence and risk analysis</div>
+  <h1>Skopeo: design of a multi-agent repository risk analyst that <em>proves what it finds</em></h1>
+  <p class="lede">Thirteen agents investigate a GitHub repository together: an orchestrator plans and re-plans, eight specialists gather evidence in parallel, and four coordination agents correlate, challenge, score and fix. They communicate through a shared Evidence Store (a blackboard) and a persisted message log. Every claim cites its evidence, every finding is cross-examined by a red team, and nothing reaches GitHub without a human.</p>
+  <div class="meta">
+    <b>Team</b><span class="team"><span>Kushagra Goyal (<span class="mono">mardromus</span>)</span><span>Mayank Hete (<span class="mono">Rancidcake</span>)</span><span>Abhilaksh Saini</span></span>
+    <b>Institute</b><span>Department of Computer Science and Engineering, Symbiosis Institute of Technology, Pune</span>
+    <b>Repository</b><span>https://github.com/mardromus/Skopeo</span>
+    <b>Pattern</b><span>Hierarchical orchestrator–worker over a blackboard, with adaptive routing and an adversarial verifier</span>
+    <b>Stack</b><span>LangGraph StateGraph (Python 3.12+), FastAPI, React · LLM: Groq (<span class="mono">openai/gpt-oss-120b</span>, <span class="mono">openai/gpt-oss-20b</span>) · PostgreSQL or SQLite</span>
+  </div>
+  <div class="kpis">
+    <div><b>13 + 1</b><span>agents, plus a question router</span></div>
+    <div><b>8</b><span>specialists running at once</span></div>
+    <div><b>233</b><span>events in the submitted trace</span></div>
+    <div><b>221</b><span>automated tests (SQLite and PostgreSQL)</span></div>
+  </div>
+  <div class="toc">
+    <div><i>01</i>Architecture and data flow</div>
+    <div><i>02</i>Agents, roles and responsibilities</div>
+    <div><i>03</i>Orchestration pattern and messages</div>
+    <div><i>04</i>Evidence of agentic behaviour</div>
+    <div><i>05</i>Ask the agents</div>
+    <div><i>06</i>Human control and guardrails</div>
+    <div><i>07</i>Upstream watches and notifications</div>
+    <div><i>08</i>Input and output</div>
+    <div><i>09</i>Technology choices</div>
+    <div><i>10</i>Robustness and safety</div>
+    <div><i>11</i>Deployment</div>
+    <div><i>12</i>Engineering practice and limitations</div>
+  </div>
+</section>
 
-<h2>1. Architecture and data flow</h2>
+<h2><span class="n">01</span>Architecture and data flow</h2>
+<div class="flow">
+  <div><i>01</i><b>Intake</b>Validate the URL, clone at a commit, record the guardrails.</div>
+  <div><i>02</i><b>Plan</b>Profile the repository; choose agents, with a reason for each.</div>
+  <div><i>03</i><b>Investigate</b>Eight specialists run in parallel and write evidence.</div>
+  <div><i>04</i><b>Correlate</b>Link findings into compound risks and contradictions.</div>
+  <div class="rt"><i>05</i><b>Red team</b>Challenge every finding; verify, reject or ask for more.</div>
+  <div><i>06</i><b>Score &amp; act</b>Rank P0–P4; propose fixes that wait for approval.</div>
+</div>
+<p class="note">The orchestrator reviews the blackboard after every phase, so steps 3–5 can repeat: follow-ups, retries and benchmarks are scheduled when the evidence calls for them.</p>
 <figure><img class="arch" src="arch.svg" alt="Architecture diagram"><figcaption>Figure 1. Every agent and every connection. Specialists never call each other: they write findings, evidence and follow-up requests to the Evidence Store, which the orchestrator reads at every review and the coordination agents read and write.</figcaption></figure>
 
-<p><b>How a request flows.</b> The user submits a GitHub repository (or picks one after signing in with GitHub). The API validates it and opens a case. The <b>Orchestrator</b> profiles the repository and plans which specialists to run and why (it records a reason for every agent selected or skipped). LangGraph fans the tasks out with <span class="mono">Send</span>, so the specialists run in parallel; each posts findings, the evidence behind them, and requests for follow-up work to the Evidence Store. After every phase the orchestrator <b>reviews</b> the blackboard and decides the next step: dispatch more work (follow-ups, retries, benchmarks), correlate, verify, assess or finish. The <b>Correlation</b> agent links findings across specialists; the <b>Red-Team</b> agent challenges each finding and either verifies it, rejects it, or sends it back for more evidence; the <b>Risk</b> agent scores only verified findings; the <b>Recommendation</b> agent writes fixes and proposes GitHub actions that wait for human approval. After the case, the <b>Ask-the-agents router</b> sends each user question to the agent that owns the topic.</p>
+<p><b>How a request flows.</b> The user submits a GitHub repository (or picks one after signing in with GitHub) and chooses the case's guardrails: dry run, whether approved actions may reach GitHub, and whether repository code may execute. The API validates the request and opens a case. The <b>Orchestrator</b> profiles the repository and plans which specialists to run and why (it records a reason for every agent selected or skipped). LangGraph fans the tasks out with <span class="mono">Send</span>, so the specialists run in parallel; each posts findings, the evidence behind them, and requests for follow-up work to the Evidence Store. After every phase the orchestrator <b>reviews</b> the blackboard and decides the next step: dispatch more work (follow-ups, retries, benchmarks), correlate, verify, assess or finish. The <b>Correlation</b> agent links findings across specialists; the <b>Red-Team</b> agent challenges each finding and either verifies it, rejects it, or sends it back for more evidence; the <b>Risk</b> agent scores only verified findings; the <b>Recommendation</b> agent writes fixes and proposes GitHub actions that wait for human approval. After the case, the <b>Ask-the-agents router</b> sends each user question to the agent that owns the topic.</p>
 
-<h2>2. Agents, roles and responsibilities</h2>
+<h2><span class="n">02</span>Agents, roles and responsibilities</h2>
 <table>
 <tr><th style="width:17%">Agent</th><th style="width:36%">Responsibility</th><th style="width:27%">Tools it uses</th><th style="width:20%">Decisions it makes</th></tr>
 <tr><td><b>Orchestrator</b></td><td>Profiles the repository, plans per repository, reviews after every phase, accepts or declines other agents' requests, schedules follow-ups and retries, re-plans, routes the graph, enforces budgets and the deadline.</td><td>Repository profile, blackboard queries, budgets</td><td><span class="mono">orchestrator.plan</span>, <span class="mono">orchestrator.review</span> (LLM, reasoning model)</td></tr>
@@ -42,16 +70,15 @@
 </table>
 <p class="small">Code: <span class="mono">backend/app/agents/</span> (one module per agent; <span class="mono">registry.py</span> is the only place names map to classes), <span class="mono">backend/app/chat/service.py</span> (router). Full specifications: <span class="mono">docs/agent-specifications.md</span>.</p>
 
-<h2>3. Orchestration pattern</h2>
+<h2><span class="n">03</span>Orchestration pattern and messages</h2>
 <p><b>Named pattern: hierarchical orchestrator–worker over a blackboard.</b> The orchestrator issues <span class="mono">AgentTask</span>s (agent, objective, mode, strategy, focus, trigger, attempt, round); workers return <span class="mono">TaskResult</span>s. Workers do not call each other: they publish to the Evidence Store, and later work is driven by what is on the board. That is how one agent's discovery changes another agent's task.</p>
 <figure><img src="graph.svg" alt="LangGraph state machine"><figcaption>Figure 2. The LangGraph state machine. <span class="mono">review</span> runs after every phase and returns one of dispatch · correlate · verify · assess · finalize.</figcaption></figure>
-<h3>Why this pattern</h3>
-<ul>
-<li><b>Orchestrator–worker</b> because the work needed is only known after the first round: a vulnerable library in the login path calls for three new tasks, a crashed agent for a degraded retry, an unmeasured performance claim for a benchmark. A fixed pipeline cannot express this.</li>
-<li><b>Blackboard</b> because thirteen agents passing results directly would need 156 pairwise channels; a single typed store gives every agent the same evidence, makes every write auditable, and lets an agent added later (the chat router) reuse all of it.</li>
-<li><b>Adversarial verifier</b> because the specialists' tools produce false positives; a separate agent whose only job is to disprove findings is what removes them before scoring.</li>
-<li><b>Parallel fan-out</b> because the specialists are independent; LangGraph <span class="mono">Send</span> runs eight at once, and the next review starts when the whole superstep completes.</li>
-</ul>
+<div class="cards two">
+  <div class="card"><span class="tag">Why orchestrator–worker</span><p>The work needed is only known after the first round: a vulnerable library in the login path calls for three new tasks, a crashed agent for a degraded retry, an unmeasured performance claim for a benchmark. A fixed pipeline cannot express this.</p></div>
+  <div class="card"><span class="tag">Why a blackboard</span><p>Thirteen agents passing results directly would need 156 pairwise channels. One typed store gives every agent the same evidence, makes every write auditable, and let a later agent (the chat router) reuse all of it.</p></div>
+  <div class="card"><span class="tag">Why an adversarial verifier</span><p>The specialists' tools produce false positives. A separate agent whose only job is to disprove findings removes them before scoring.</p></div>
+  <div class="card"><span class="tag">Why parallel fan-out</span><p>The specialists are independent; LangGraph <span class="mono">Send</span> runs eight at once, and the next review starts when the whole superstep completes.</p></div>
+</div>
 <h3>How agents communicate</h3>
 <table>
 <tr><th>Message</th><th>From → to</th><th>Effect</th></tr>
@@ -66,7 +93,7 @@
 </table>
 <p>Every message is a persisted <span class="mono">execution_events</span> row (sender, receiver, type, message, payload, timestamp, sequence number). The UI's Execution trace tab and the submitted trace read this table; nothing is written for display only.</p>
 
-<h2>4. Evidence of agentic behaviour (from the submitted trace)</h2>
+<h2><span class="n">04</span>Evidence of agentic behaviour</h2>
 <p>Numbers in brackets are event sequence numbers in the submitted execution trace (reference repository, 15 Oct 2026).</p>
 <table>
 <tr><th style="width:18%">Behaviour</th><th>What happened in the run</th></tr>
@@ -79,40 +106,72 @@
 <tr><td>Cross-agent reasoning</td><td>Four agents' findings become one compound risk, "vulnerable PyJWT in authentication code with insufficient tests", ×1.75, scored P0 (94.5) <span class="ev">[090]</span>, <span class="ev">[152]</span>.</td></tr>
 <tr><td>Memory</td><td>Graph state (round, pending tasks, reviewed ids, completed-task keys for de-duplication, blackboard version at last correlation/verification) plus the persistent blackboard; a later round re-correlates only because new evidence arrived.</td></tr>
 </table>
+<div class="callout"><b>Where the LLM decides, and how it is kept safe.</b> Agents never call a model directly. They call <span class="mono">LLMProvider.decide()</span> with a Pydantic output schema, trusted structured state, repository text marked as untrusted, and a deterministic policy. The model's answer must validate against the schema and the agent's guardrails (the orchestrator may only route to the five allowed steps; the red team may not reject a finding unless one of its checks failed; the chat may cite only finding ids that exist). If the model fails, times out, returns invalid output or the per-case call budget is spent, the policy decides and the trace records <span class="mono">policy-fallback</span>. Every decision records who made it (<span class="mono">llm:&lt;model&gt;</span> or <span class="mono">policy</span>). The submitted trace was captured without a model key, so its decisions show <span class="mono">policy</span>; the deployed site runs the same graph with Groq.</div>
 
-<h3>Where the LLM decides, and how it is kept safe</h3>
-<p>Agents never call a model directly. They call <span class="mono">LLMProvider.decide()</span> with a Pydantic output schema, trusted structured state, repository text marked as untrusted, and a deterministic policy. The model's answer must validate against the schema and the agent's guardrails (for example, the orchestrator may only route to the five allowed steps; the red team may not reject a finding unless one of its checks failed; the chat may cite only finding ids that exist). If the model fails, times out, returns invalid output or the per-case call budget is spent, the policy decides and the trace records <span class="mono">policy-fallback</span>. Every decision records who made it (<span class="mono">llm:&lt;model&gt;</span> or <span class="mono">policy</span>), so the evaluator can see which decisions came from the model. The submitted trace was captured without a model key, so its decisions show <span class="mono">policy</span>; the deployed site runs the same graph with Groq.</p>
-
-<h2>5. Ask the agents (designated-agent answers)</h2>
-<p>After an investigation, a user can ask questions in the case's <i>Ask the agents</i> tab. The router scores the question against each agent's domain (and, with Groq, asks the fast model to choose, validated against the list of real agents). The chosen agent then answers <b>only</b> from what it recorded: its findings, their evidence and verification, and code excerpts from the clone. In the submitted trace, "What should I fix first?" went to the Recommendation agent, "Is the JWT handling safe?" to the Security agent, "Which findings did the red team reject?" to the Verification agent and a license question to the License agent, each answer citing real findings.</p>
+<h2><span class="n">05</span>Ask the agents</h2>
+<div class="figrow">
+<div>
+<p>After an investigation, a user can ask questions in the case's <i>Ask the agents</i> tab. The router scores the question against each agent's domain (and, with Groq, asks the fast model to choose, validated against the list of real agents). The chosen agent then answers <b>only</b> from what it recorded: its findings, their evidence and verification, and code excerpts from the clone. Every cited finding id is checked against the case before the answer is shown.</p>
+<p>In the submitted trace, "What should I fix first?" went to the Recommendation agent, "Is the JWT handling safe?" to the Security agent, "Which findings did the red team reject?" to the Verification agent and a license question to the License agent, each answer citing real findings. Conversations are stored per user and per case.</p>
+</div>
 <figure><img src="ask.png" alt="Ask the agents"><figcaption>Figure 3. A question routed to the Recommendation agent, with the routing reason and the findings it relied on.</figcaption></figure>
+</div>
 
-<h2>6. Input and output</h2>
-<p><b>Input</b> (<span class="mono">POST /api/investigations</span>, schema <span class="mono">InvestigationCreate</span>): <span class="mono">repository_url</span> (https GitHub URL only), <span class="mono">branch</span> (validated ref, default <span class="mono">main</span>), <span class="mono">analysis_depth</span> (<span class="mono">quick | standard | deep</span>), <span class="mono">enable_github_actions</span> (bool). Unknown fields are rejected. Questions: <span class="mono">POST /api/investigations/{id}/chat {"question", "agent"?}</span>. Repository import after GitHub sign-in: <span class="mono">POST /api/github/import</span>.</p>
-<p><b>Output</b> (<span class="mono">GET /api/investigations/{id}/report</span>): status, overall risk, findings (with evidence ids, confidence factors and status), the red team's verifications, correlations, risks P0–P4, recommendations, action proposals, agent requests, a per-agent coverage table and the full event trace. Full schemas and real samples are in the submitted Input and Output Definitions.</p>
+<h2><span class="n">06</span>Human control and guardrails</h2>
+<p>Skopeo can act on GitHub and can, if allowed, run a repository's own tests. Both are off by default and both stay under the user's control at three levels.</p>
+<div class="figrow">
+<div>
+<div class="cards two" style="grid-template-columns:1fr">
+  <div class="card"><span class="tag">Dry run · three levels</span><p>A personal default saved on the account (the <i>dry run</i> switch in the header); a choice in the pop-up shown before every case starts, from the home page or a GitHub import; and a switch on the case page that can be flipped while the case runs, which decides what the next approval does.</p></div>
+  <div class="card"><span class="tag">Named human approval</span><p>Recommended fixes become proposed GitHub issues and draft pull requests. Each needs a named approval; with dry run on the approval is recorded and nothing leaves the server. Skopeo never merges, deploys, deletes files or rotates credentials.</p></div>
+  <div class="card"><span class="tag">Code execution</span><p>Off by default: agents read code but never run it. Changing the setting asks for confirmation twice, and the server refuses it unless <span class="mono">SKOPEO_ALLOW_CASE_EXECUTION</span> is set, so a shared deployment cannot be made to run untrusted code.</p></div>
+  <div class="card"><span class="tag">Private repositories</span><p>Imported with the owner's GitHub token, which is stored encrypted (Fernet). Private cases are visible only to their owner; others receive 404.</p></div>
+</div>
+</div>
+<figure><img src="case-options.png" alt="Case options pop-up"><figcaption>Figure 4. The pop-up shown before every case: dry run, GitHub actions and code execution for this case.</figcaption></figure>
+</div>
+
+<h2><span class="n">07</span>Upstream watches and notifications</h2>
+<p>A <b>project</b> is the user's own code: a GitHub repository or uploaded source files and manifests. A <b>watch</b> follows an open-source library that project depends on. On each check (hourly, daily, weekly or on demand) Skopeo diffs the library's public API between the version the project pins and the new release (removed and moved symbols, changed signatures, changed behaviour and contracts, additions) and maps every change to the call sites in the project.</p>
+<div class="figrow">
+<figure><img src="impact.png" alt="Upstream impact report"><figcaption>Figure 5. Watching <span class="mono">jpadilla/pyjwt</span>: 49 public API elements changed between 1.7.1 and 2.15.1 (29 breaking); the project's call to <span class="mono">jwt.decode</span> at <span class="mono">shopfront/auth/middleware.py:26</span> will fail because <span class="mono">algorithms</span> is now required.</figcaption></figure>
+<div>
+<table>
+<tr><th>Channel</th><th>Delivery</th></tr>
+<tr><td>Email</td><td>SMTP, or HTTPS APIs (Brevo, Resend) on hosts that block SMTP ports; addresses are verified with a code</td></tr>
+<tr><td>Slack, Discord</td><td>Incoming webhooks with formatted messages</td></tr>
+<tr><td>Webhook</td><td>JSON payload signed with HMAC-SHA256 (<span class="mono">X-Skopeo-Signature</span>), public destinations only</td></tr>
+</table>
+<p>Rules choose which events reach which channel: case finished or failed, high-priority risk found, an upstream change that affects the project, a failed watch check. Every delivery is logged with its status.</p>
+</div>
+</div>
+
+<h2><span class="n">08</span>Input and output</h2>
+<p><b>Input</b> (<span class="mono">POST /api/investigations</span>, schema <span class="mono">InvestigationCreate</span>): <span class="mono">repository_url</span> (https GitHub URL only), <span class="mono">branch</span> (validated ref, default <span class="mono">main</span>), <span class="mono">analysis_depth</span> (<span class="mono">quick | standard | deep</span>), <span class="mono">enable_github_actions</span> (bool), and optional per-case <span class="mono">dry_run</span> and <span class="mono">sandbox_execution</span> (null keeps the user's or server's default). Unknown fields are rejected. Related endpoints: questions <span class="mono">POST /api/investigations/{id}/chat</span>; switching dry run <span class="mono">PATCH /api/investigations/{id}/options</span>; personal defaults <span class="mono">PUT /api/auth/preferences</span>; repository import <span class="mono">POST /api/github/import</span>.</p>
+<p><b>Output</b> (<span class="mono">GET /api/investigations/{id}/report</span>, also as Markdown): status, overall risk, findings (with evidence ids, confidence factors and status), the red team's verifications, correlations, risks P0–P4, recommendations, action proposals, agent requests, a per-agent coverage table and the full event trace. Full schemas and real samples are in the submitted Input and Output Definitions.</p>
 <pre>{ "repository_url": "https://github.com/pallets/itsdangerous", "branch": "main",
-  "analysis_depth": "standard", "enable_github_actions": false }
-→ 202 { "investigation_id": "…", "status": "queued", … }
+  "analysis_depth": "standard", "enable_github_actions": false, "dry_run": true }
+→ 202 { "investigation_id": "…", "status": "queued", "options": { "dry_run": true, "sandbox_execution": null }, … }
 → report: { "status": "completed_with_limitations", "overall_risk": {"score": 97.8, "level": "critical"},
             "findings": [ … 24 … ], "verifications": [ … ], "correlations": [ … ], "risks": [ … ], "events": [ … 233 … ] }
             (report figures from the reference run in the trace)</pre>
 
-<h2>7. Technology choices</h2>
+<h2><span class="n">09</span>Technology choices</h2>
 <table>
 <tr><th style="width:22%">Choice</th><th>Why</th></tr>
-<tr><td>LangGraph</td><td>An explicit state machine with conditional edges (the orchestrator's routing), <span class="mono">Send</span> fan-out/fan-in for parallel specialists, reducers to merge parallel results, and recursion limits. We need the control flow to be decided at run time, which a chain or a no-code workflow tool cannot do.</td></tr>
+<tr><td>LangGraph</td><td>An explicit state machine with conditional edges (the orchestrator's routing), <span class="mono">Send</span> fan-out/fan-in for parallel specialists, reducers to merge parallel results, and recursion limits. The control flow is decided at run time, which a chain or a no-code workflow tool cannot do.</td></tr>
 <tr><td>Groq, <span class="mono">openai/gpt-oss-120b</span> for reasoning</td><td>Planning, review/routing, red-team judgements and chat answers need careful reasoning; Groq serves this open-weight model fast enough to keep a live case interactive, with JSON-mode structured output.</td></tr>
 <tr><td>Groq, <span class="mono">openai/gpt-oss-20b</span> for fast tasks</td><td>Correlation assessment, code review summaries, recommendation wording and question routing are short, frequent calls where latency and rate limits matter more.</td></tr>
 <tr><td>Provider abstraction + deterministic policies</td><td>One interface for Groq, OpenAI, any OpenAI-compatible server, or no model at all; agents keep working (and stay testable) when the model is down or rate-limited.</td></tr>
 <tr><td>FastAPI + Pydantic 2</td><td>Typed schemas end to end; the same models validate API input and every LLM output.</td></tr>
 <tr><td>SQLAlchemy 2 + Alembic; SQLite or PostgreSQL</td><td>A real relational blackboard with migrations. SQLite needs no setup locally; PostgreSQL (free Neon) keeps data on hosts without a persistent disk.</td></tr>
 <tr><td>Deterministic tools first (AST, OSV, pytest, coverage, git)</td><td>Evidence comes from tools; the LLM judges and explains it, which keeps findings reproducible and checkable by the red team.</td></tr>
-<tr><td>React + TypeScript + Vite</td><td>A typed client mirroring the API: live trace, agent timeline, findings, rulings and chat.</td></tr>
-<tr><td>Firebase Authentication</td><td>Google and GitHub sign-in without storing passwords; the API verifies ID tokens itself.</td></tr>
+<tr><td>React + TypeScript + Vite</td><td>A typed client mirroring the API: live trace, agent timeline, findings, rulings, chat, projects and notifications, in light and dark themes.</td></tr>
+<tr><td>Firebase Authentication</td><td>Google and GitHub sign-in without storing passwords; the API verifies ID tokens itself, with no service account.</td></tr>
 <tr><td>Docker, Render, Neon</td><td>One container serves UI and API; free hosting with a free PostgreSQL database so data survives restarts.</td></tr>
 </table>
 
-<h2 class="pb">8. Robustness and safety</h2>
+<h2><span class="n">10</span>Robustness and safety</h2>
 <table>
 <tr><th style="width:30%">Situation</th><th>Behaviour</th></tr>
 <tr><td>Invalid input</td><td>Rejected with HTTP 422 before any agent runs (non-GitHub URL, bad branch, unknown field, invalid depth).</td></tr>
@@ -120,27 +179,45 @@
 <tr><td>LLM unavailable, invalid or over budget</td><td>The deterministic policy decides and the trace says so.</td></tr>
 <tr><td>A claim cannot be settled</td><td>It stays "needs more evidence" and is excluded from the risk score.</td></tr>
 <tr><td>Runaway investigation</td><td>Round limits, per-agent iteration, tool-call and time budgets, a deadline guard that routes to assessment, a hard timeout; users can cancel.</td></tr>
-<tr><td>Hostile repository content</td><td>Treated as data, never instructions; no shell, allowlisted argv commands with limits; untrusted code is not executed unless sandboxing is enabled; secrets redacted everywhere; GitHub actions need approval and <span class="mono">DRY_RUN</span> is on by default.</td></tr>
-<tr><td>Server restart</td><td>Cases left running are marked interrupted; with PostgreSQL, accounts and cases persist.</td></tr>
+<tr><td>Hostile repository content</td><td>Treated as data, never instructions; no shell, allowlisted argv commands with limits and a stripped environment; untrusted code is not executed unless execution is allowed and chosen; secrets redacted everywhere.</td></tr>
+<tr><td>Outbound actions</td><td>GitHub actions need a named approval and respect dry run; webhooks are restricted to public destinations; credentials and tokens never appear in logs or error messages.</td></tr>
+<tr><td>Abuse of a public deployment</td><td>Optional access key for scans, per-client rate limits, a strict Content-Security-Policy, owner-only private cases.</td></tr>
+<tr><td>Server restart</td><td>Cases left running are marked interrupted; with PostgreSQL, accounts, cases, projects and watches persist.</td></tr>
 </table>
 
-<h2>9. Engineering practice</h2>
-<ul>
-<li><b>Structure:</b> <span class="mono">backend/app/{agents, graph, llm, chat, services, tools, security, api, models, schemas, watch, notifications}</span>, <span class="mono">frontend/src</span>, <span class="mono">examples/</span> (reference repository), <span class="mono">docs/</span>.</li>
-<li><b>Tests:</b> 209 automated tests (unit, integration, end-to-end API) covering agents, the full multi-agent run, fault isolation, verification, prompt injection, GitHub import, chat routing and the database; they pass on SQLite and PostgreSQL. CI runs lint, tests, the frontend build and a container smoke test.</li>
-<li><b>Hygiene:</b> no secrets in the repository (<span class="mono">.env</span> is ignored; keys come from the host), Ruff and ESLint clean, Alembic migrations for every schema change.</li>
-</ul>
+<h2><span class="n">11</span>Deployment</h2>
+<div class="deploy">
+  <div><div class="box"><b>Browser</b>React UI · Google / GitHub sign-in</div></div>
+  <div class="grp"><span>Render · free web service</span>
+    <div class="box"><b>Skopeo container</b>FastAPI serves the API and the built UI on <span class="mono">$PORT</span>; one worker runs cases in background threads</div>
+    <div class="box"><b>Health check</b><span class="mono">/api/health</span>; migrations run on start</div>
+  </div>
+  <div>
+    <div class="box store"><b>Neon PostgreSQL</b><span class="mono">DATABASE_URL</span> · survives restarts</div>
+    <div class="box"><b>Groq</b><span class="mono">GROQ_API_KEY</span> · live reasoning</div>
+    <div class="box"><b>Firebase Auth · GitHub</b>sign-in, clone, issues and draft PRs</div>
+    <div class="box"><b>Brevo / SMTP</b>email alerts</div>
+  </div>
+</div>
+<p class="note">Everything is configured through environment variables (<span class="mono">render.yaml</span> declares them); the step-by-step guide is <span class="mono">docs/deployment.md</span>. Without a model key the same container runs with deterministic policies.</p>
 
-<h2>10. Limitations</h2>
+<h2><span class="n">12</span>Engineering practice and limitations</h2>
+<div class="cards">
+  <div class="card"><span class="tag">Structure</span><p><span class="mono">backend/app/{agents, graph, llm, chat, services, tools, security, api, models, schemas, watch, notifications}</span>, <span class="mono">frontend/src</span>, <span class="mono">examples/</span> (reference repository), <span class="mono">docs/</span>.</p></div>
+  <div class="card"><span class="tag">Tests</span><p>221 automated tests (unit, integration, end-to-end API): agents, the full multi-agent run, fault isolation, verification, prompt injection, GitHub import, chat routing, case options, email delivery and the database. They pass on SQLite and PostgreSQL.</p></div>
+  <div class="card"><span class="tag">Hygiene</span><p>No secrets in the repository (keys come from the host), Ruff and ESLint clean, TypeScript strict, an Alembic migration for every schema change.</p></div>
+</div>
+<h3>Limitations</h3>
 <ul>
 <li>Deep static analysis is Python-first; other languages get manifest, advisory, license and pattern coverage.</li>
-<li>Test execution of real repositories requires sandboxed execution to be enabled; otherwise the test agent is static.</li>
+<li>Test execution of real repositories requires execution to be allowed and chosen; otherwise the test agent is static.</li>
 <li>Reachability is import-graph based; dynamic imports can be missed (reported as inconclusive).</li>
 <li>Without a model key the agents' judgement comes from transparent rule-based policies; the event flow and state transitions are the same.</li>
+<li>The free Render plan sleeps after 15 minutes without traffic, so the first request after a pause waits about a minute.</li>
 </ul>
 
-<h2>Appendix: screenshots of the running system</h2>
-<figure><img src="agents.png" alt="Agent timeline"><figcaption>Figure 4. Agent timeline of the traced case: eight specialists in parallel, the failed performance run (hatched) and its retry, follow-ups, correlation, two red-team rounds, benchmarks, risk and recommendation.</figcaption></figure>
-<figure><img src="redteam.png" alt="Red-team rulings"><figcaption>Figure 5. Red-team rulings with the checks behind each decision.</figcaption></figure>
-<figure><img src="trace.png" alt="Execution trace"><figcaption>Figure 6. The execution trace view: sender → receiver for every message.</figcaption></figure>
+<h2 class="pb"><span class="n">A</span>Screenshots of the running system</h2>
+<figure><img src="agents.png" alt="Agent timeline"><figcaption>Figure 6. Agent timeline of the traced case: eight specialists in parallel, the failed performance run (hatched) and its retry, follow-ups, correlation, two red-team rounds, benchmarks, risk and recommendation.</figcaption></figure>
+<figure><img src="redteam.png" alt="Red-team rulings"><figcaption>Figure 7. Red-team rulings with the checks behind each decision.</figcaption></figure>
+<figure><img src="trace.png" alt="Execution trace"><figcaption>Figure 8. The execution trace view: sender → receiver for every message.</figcaption></figure>
 </body></html>

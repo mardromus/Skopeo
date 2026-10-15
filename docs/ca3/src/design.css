@@ -1,0 +1,51 @@
+/* Design-document layer on top of doc.css: cover page, numbered sections, cards. */
+:root { --paper: #f3f4f6; --crit: #b3261e; --high: #c2531a; --med: #8f6a00; --low: #2b62c2; --ok: #1c7533; }
+
+/* cover */
+.cover { display: block; break-after: page; }
+.brand { display: flex; align-items: center; gap: 9pt; margin-bottom: 10mm; }
+.brand img { width: 26pt; height: 26pt; border: none; }
+.brand b { font-size: 12pt; letter-spacing: 0.32em; }
+.brand span { margin-left: auto; font-size: 8.5pt; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.cover h1 { font-size: 30pt; line-height: 1.08; letter-spacing: -0.02em; margin: 6pt 0 10pt; max-width: 150mm; }
+.cover h1 em { font-style: normal; color: var(--accent); }
+.cover .lede { font-size: 12pt; max-width: 150mm; line-height: 1.5; }
+.cover .meta { margin-top: 7mm; grid-template-columns: 30mm 1fr; padding: 10pt 12pt; gap: 4pt 14pt; font-size: 9.6pt; }
+.team { display: flex; flex-direction: column; gap: 1.5pt; }
+.cover .kpis { margin-top: 5mm; }
+.cover .kpis div { padding: 8pt 10pt; }
+.cover .kpis b { font-size: 20pt; color: var(--accent); letter-spacing: -0.02em; }
+.toc { margin-top: 7mm; display: grid; grid-template-columns: 1fr 1fr; grid-auto-flow: column; grid-template-rows: repeat(6, auto); column-gap: 12mm; break-inside: avoid; font-size: 9.2pt; padding-top: 5mm; border-top: 0.6pt solid var(--line); }
+.toc div { display: flex; gap: 8pt; padding: 2pt 0; break-inside: avoid; }
+.toc i { font-style: normal; color: var(--accent); font-weight: 600; width: 16pt; font-variant-numeric: tabular-nums; }
+
+/* numbered section headings */
+h2 { border-top: none; display: flex; align-items: baseline; gap: 9pt; font-size: 14.5pt; margin-top: 20pt; padding-top: 0; letter-spacing: -0.01em; }
+h2 .n { font-size: 9pt; font-weight: 700; color: #fff; background: var(--accent); border-radius: 3pt; padding: 1.5pt 5pt; letter-spacing: 0.04em; position: relative; top: -1.5pt; }
+h2.pb { break-before: page; margin-top: 0; }
+
+/* tables */
+tr:nth-child(even) td { background: #fafbfc; }
+th { background: var(--paper); border-bottom: 0.9pt solid var(--ink); }
+
+/* cards and diagrams */
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7pt; margin: 6pt 0 11pt; }
+.cards.two { grid-template-columns: 1fr 1fr; }
+.card { border: 0.6pt solid var(--line); border-radius: 5pt; padding: 7pt 9pt; break-inside: avoid; background: #fff; }
+.card h4 { margin: 0 0 3pt; font-size: 9.8pt; }
+.card p { margin: 0; font-size: 8.8pt; color: var(--ink2); }
+.card .tag { font-size: 7.4pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: 2pt; }
+.flow { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5pt; margin: 6pt 0 4pt; }
+.flow div { border: 0.6pt solid var(--line); border-radius: 5pt; padding: 6pt 7pt; font-size: 8.4pt; color: var(--ink2); background: #fff; }
+.flow b { display: block; color: var(--ink); font-size: 9.2pt; margin-bottom: 1pt; }
+.flow i { font-style: normal; font-size: 7.5pt; font-weight: 700; color: var(--accent); letter-spacing: 0.08em; }
+.flow .rt { background: #fbeeed; border-color: #f0cdc9; }
+.deploy { display: grid; grid-template-columns: 1fr 1.5fr 1.2fr; gap: 9pt; align-items: center; margin: 6pt 0 4pt; }
+.deploy .box { border: 0.6pt solid var(--line); border-radius: 5pt; padding: 6pt 8pt; font-size: 8.6pt; color: var(--ink2); background: #fff; margin: 3pt 0; }
+.deploy .box b { color: var(--ink); display: block; font-size: 9.2pt; }
+.deploy .grp { border: 0.9pt dashed var(--line); border-radius: 7pt; padding: 7pt; background: var(--paper); }
+.deploy .grp > span { font-size: 7.5pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+.deploy .store b { color: var(--med); }
+.pill { display: inline-block; font-size: 7.4pt; font-weight: 700; padding: 0.5pt 4pt; border-radius: 2.5pt; color: #fff; background: var(--crit); letter-spacing: 0.04em; }
+.figrow { display: grid; grid-template-columns: 1fr 1fr; gap: 9pt; align-items: start; }
+.note { font-size: 8.6pt; color: var(--muted); }
