@@ -1149,9 +1149,9 @@
     "sender": "test_reliability_agent",
     "receiver": "blackboard",
     "event_type": "tool_executed",
-    "summary": "test_reliability_agent executed python -B -m coverage run --data-file=/tmp/claude-0/-home-claude-skopeo/ae5ac9f1-2a34-589b-a566-78c054655430/scratchpad/cap/ws/a2d2d2d9-32ba-420e-af12-d187dee772af/artifacts/.coverage --source=shopfront -m pytest -q -rfE -p no:cacheprovider --no-header --color=no tests",
+    "summary": "test_reliability_agent executed python -B -m coverage run --data-file=<workspace>/a2d2d2d9-32ba-420e-af12-d187dee772af/artifacts/.coverage --source=shopfront -m pytest -q -rfE -p no:cacheprovider --no-header --color=no tests",
     "payload": {
-     "command": "python -B -m coverage run --data-file=/tmp/claude-0/-home-claude-skopeo/ae5ac9f1-2a34-589b-a566-78c054655430/scratchpad/cap/ws/a2d2d2d9-32ba-420e-af12-d187dee772af/artifacts/.coverage --source=shopfront -m pytest -q -rfE -p no:cacheprovider --no-header --color=no tests",
+     "command": "python -B -m coverage run --data-file=<workspace>/a2d2d2d9-32ba-420e-af12-d187dee772af/artifacts/.coverage --source=shopfront -m pytest -q -rfE -p no:cacheprovider --no-header --color=no tests",
      "exit_code": 1,
      "duration_ms": 1152,
      "timed_out": false,
@@ -1179,7 +1179,7 @@
     "event_type": "agent_message",
     "summary": "Executed test suite: 1 failed, 6 passed in 0.04s (exit code 1, 1152 ms)",
     "payload": {
-     "command": "python -B -m coverage run --data-file=/tmp/claude-0/-home-claude-skopeo/ae5ac9f1-2a34-589b-a566-78c054655430/scratchpad/cap/ws/a2d2d2d9-32ba-420e-af12-d187dee772af/artifacts/.coverage --source=shopfront -m pytest -q -rfE -p no:cacheprovider --no-header --color=no tests",
+     "command": "python -B -m coverage run --data-file=<workspace>/a2d2d2d9-32ba-420e-af12-d187dee772af/artifacts/.coverage --source=shopfront -m pytest -q -rfE -p no:cacheprovider --no-header --color=no tests",
      "exit_code": 1,
      "duration_ms": 1152,
      "counts": {

@@ -89,7 +89,7 @@
 - **[050] `license_agent` → `orchestrator`** (`agent_completed`): License Compliance Agent completed in 119 ms: 2 finding(s) published, 0 enriched
 - **[051] `code_quality_agent` → `blackboard`** (`evidence_added`): Maintainability review attached to build_sales_report (policy)
 - **[052] `code_quality_agent` → `orchestrator`** (`agent_completed`): Code Quality Agent completed in 160 ms: 3 finding(s) published, 1 enriched
-- **[053] `test_reliability_agent` → `blackboard`** (`tool_executed`): test_reliability_agent executed python -B -m coverage run --data-file=/tmp/claude-0/-home-claude-skopeo/ae5ac9f1-2a34-589b-a566-78c054655430/scratchpad/cap/ws/a2d2d2d9-32ba-420e-af12-d187dee772af/artifacts/.coverage --source=shopfront -m pytest -q -rfE -p no:cacheprovider --no-header --color=no tests
+- **[053] `test_reliability_agent` → `blackboard`** (`tool_executed`): test_reliability_agent executed python -B -m coverage run --data-file=<workspace>/a2d2d2d9-32ba-420e-af12-d187dee772af/artifacts/.coverage --source=shopfront -m pytest -q -rfE -p no:cacheprovider --no-header --color=no tests
 - **[054] `test_reliability_agent` → `orchestrator`** (`agent_message`): Executed test suite: 1 failed, 6 passed in 0.04s (exit code 1, 1152 ms)
 - **[055] `test_reliability_agent` → `blackboard`** (`finding_created`): MEDIUM testing: Failing test: tests/test_pricing.py::test_format_price_pads_single_digit_cents
 - **[056] `test_reliability_agent` → `blackboard`** (`evidence_added`): Coverage run confirms shopfront/auth/middleware.py at 0% coverage
