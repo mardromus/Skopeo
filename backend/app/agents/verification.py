@@ -665,6 +665,10 @@ class VerificationAgent(Agent):
                 raise ValueError("rejection requires at least one failing check")
             if j.decision == VerificationDecision.VERIFIED and any(c.supports == "rejection" and c.outcome == "fail" for c in checks):
                 raise ValueError("cannot verify while a rejection-supporting check failed")
+            if j.decision == VerificationDecision.NEEDS_MORE_EVIDENCE and not any(c.outcome in ("fail", "inconclusive") for c in checks):
+                # asking for more evidence must point at a check that did not hold; when every check passed,
+                # the deterministic ruling stands
+                raise ValueError("more evidence requires at least one failing or inconclusive check")
             return j
 
         decision = ctx.decide(

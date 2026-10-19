@@ -104,3 +104,36 @@ def test_llm_cannot_finish_a_case_without_risk_assessment(monkeypatch):
         svc.shutdown()
     assert report["overall_risk"]["score"] is not None
     assert any(e["event_type"] == "risk_assessed" for e in report["events"])
+
+
+def test_red_team_llm_cannot_withhold_verification_when_every_check_passes(monkeypatch):
+    from app.schemas.common import VerificationDecision
+
+    class Doubter(EagerReplanner):
+        def decide(self, request, schema, policy, validate=None):
+            value = policy()
+            if request.task_type == "verification.judge":
+                value = value.model_copy(update={"decision": VerificationDecision.NEEDS_MORE_EVIDENCE})
+                try:
+                    value = validate(value) if validate else value
+                except ValueError:
+                    value = policy()
+                decision = LLMDecision(value=value, decided_by="llm:test")
+                self.usage.record(request.task_type, decision)
+                return decision
+            if validate is not None:
+                value = validate(value)
+            decision = LLMDecision(value=value, decided_by="llm:test")
+            self.usage.record(request.task_type, decision)
+            return decision
+
+    monkeypatch.setattr(investigation_service, "create_provider", lambda settings: Doubter())
+    svc = InvestigationService(get_settings())
+    try:
+        iid = svc.create_demo(DemoInvestigationCreate(fault_injection=False, step_delay_ms=0))
+        svc.run_sync(iid)
+        report = build_report(svc.store, iid)
+    finally:
+        svc.shutdown()
+    pyjwt = next(f for f in report["findings"] if f["title"].startswith("PyJWT 1.7.1 is affected"))
+    assert pyjwt["status"] == "verified"
