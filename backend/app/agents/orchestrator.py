@@ -558,6 +558,10 @@ class OrchestratorAgent(Agent):
     def _guard_next_step(self, ctx: AgentContext, inp: ReviewInput, step: str, tasks: list[AgentTask]) -> str:
         if inp.cancelled:
             return "finalize"
+        if step == "finalize":
+            # a case is only finished through risk assessment: finalize from a review would skip
+            # scoring, recommendations and the human-approval gate
+            step = "assess"
         if step == "dispatch" and not tasks:
             step = (
                 "correlate" if inp.blackboard_version > inp.last_correlated_version else "verify" if inp.pending_verification else "assess"

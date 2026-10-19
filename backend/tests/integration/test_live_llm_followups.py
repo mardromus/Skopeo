@@ -80,3 +80,27 @@ def test_accepted_request_without_tasks_gets_policy_followups(monkeypatch):
         svc.shutdown()
     modes = {(e["sender"], (e.get("payload") or {}).get("mode")) for e in report["events"] if e["event_type"] == "agent_started"}
     assert ("security_agent", "dependency_usage") in modes
+
+
+def test_llm_cannot_finish_a_case_without_risk_assessment(monkeypatch):
+    class Hasty(EagerReplanner):
+        def decide(self, request, schema, policy, validate=None):
+            value = policy()
+            if request.task_type == "orchestrator.review" and getattr(value, "next_step", None) in ("verify", "assess"):
+                value.next_step = "finalize"
+            if validate is not None:
+                value = validate(value)
+            decision = LLMDecision(value=value, decided_by="llm:test")
+            self.usage.record(request.task_type, decision)
+            return decision
+
+    monkeypatch.setattr(investigation_service, "create_provider", lambda settings: Hasty())
+    svc = InvestigationService(get_settings())
+    try:
+        iid = svc.create_demo(DemoInvestigationCreate(fault_injection=False, step_delay_ms=0))
+        svc.run_sync(iid)
+        report = build_report(svc.store, iid)
+    finally:
+        svc.shutdown()
+    assert report["overall_risk"]["score"] is not None
+    assert any(e["event_type"] == "risk_assessed" for e in report["events"])
