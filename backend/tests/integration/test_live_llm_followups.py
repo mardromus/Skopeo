@@ -53,3 +53,30 @@ def test_full_reruns_are_refused_and_findings_are_not_duplicated(monkeypatch):
         e["sender"] for e in report["events"] if e["event_type"] == "agent_started" and (e.get("payload") or {}).get("mode") == "full"
     )
     assert full_runs["security_agent"] == 1 and full_runs["license_agent"] <= 1
+    # the dependency agent's impact-analysis request is still answered with targeted follow-ups
+    modes = {(e["sender"], (e.get("payload") or {}).get("mode")) for e in report["events"] if e["event_type"] == "agent_started"}
+    assert ("security_agent", "dependency_usage") in modes
+
+
+def test_accepted_request_without_tasks_gets_policy_followups(monkeypatch):
+    class AcceptOnly(EagerReplanner):
+        def decide(self, request, schema, policy, validate=None):
+            value = policy()
+            if request.task_type == "orchestrator.review":
+                value.follow_ups = [f for f in value.follow_ups if not f.request_id]
+            if validate is not None:
+                value = validate(value)
+            decision = LLMDecision(value=value, decided_by="llm:test")
+            self.usage.record(request.task_type, decision)
+            return decision
+
+    monkeypatch.setattr(investigation_service, "create_provider", lambda settings: AcceptOnly())
+    svc = InvestigationService(get_settings())
+    try:
+        iid = svc.create_demo(DemoInvestigationCreate(fault_injection=False, step_delay_ms=0))
+        svc.run_sync(iid)
+        report = build_report(svc.store, iid)
+    finally:
+        svc.shutdown()
+    modes = {(e["sender"], (e.get("payload") or {}).get("mode")) for e in report["events"] if e["event_type"] == "agent_started"}
+    assert ("security_agent", "dependency_usage") in modes

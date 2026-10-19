@@ -302,6 +302,13 @@ class OrchestratorAgent(Agent):
                     seen_full.add(f.agent)
                 kept.append(f)
             d.follow_ups = kept
+            # an accepted request must lead to work: if the model accepted one without a usable task,
+            # take the targeted follow-ups the policy would assign to it
+            accepted = {r.request_id for r in d.request_decisions if r.accept}
+            covered = {f.request_id for f in d.follow_ups if f.request_id}
+            if accepted - covered:
+                fallback = self._rule_review(ctx, inp)[0]
+                d.follow_ups += [f for f in fallback.follow_ups if f.request_id in accepted - covered]
             d.request_decisions = [r for r in d.request_decisions if r.request_id in ids]
             d.retries = [r for r in d.retries if r.task_id in {x.task_id for x in inp.new_results}]
             return d
