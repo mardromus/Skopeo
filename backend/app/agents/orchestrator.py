@@ -287,13 +287,21 @@ class OrchestratorAgent(Agent):
 
         def validate(d: ReviewDecision) -> ReviewDecision:
             ids = {r.request_id for r in inp.open_requests}
-            d.follow_ups = [
-                f
-                for f in d.follow_ups
-                if f.agent in SPECIALIST_CLASSES
-                and f.mode in SPECIALIST_CLASSES[f.agent].modes
-                and (f.request_id is None or f.request_id in ids)
-            ]
+            full_done = {k.split("|", 1)[0] for k in inp.completed_task_keys if k.split("|")[1:2] == ["full"]}
+            kept, seen_full = [], set()
+            for f in d.follow_ups:
+                if f.agent not in SPECIALIST_CLASSES or f.mode not in SPECIALIST_CLASSES[f.agent].modes:
+                    continue
+                if f.request_id is not None and f.request_id not in ids:
+                    continue
+                if f.mode == "full":
+                    # a follow-up must add something new: never re-run a whole agent that already finished,
+                    # and never schedule the same agent's full run twice in one review
+                    if f.agent in full_done or f.agent in seen_full:
+                        continue
+                    seen_full.add(f.agent)
+                kept.append(f)
+            d.follow_ups = kept
             d.request_decisions = [r for r in d.request_decisions if r.request_id in ids]
             d.retries = [r for r in d.retries if r.task_id in {x.task_id for x in inp.new_results}]
             return d

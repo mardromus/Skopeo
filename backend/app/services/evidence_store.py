@@ -366,6 +366,9 @@ class EvidenceStore:
     ) -> FindingOut:
         if not evidence and not draft.is_hypothesis:
             raise MissingEvidenceError(f"finding '{draft.title}' has no evidence and is not marked as a hypothesis")
+        existing = self.find_duplicate_finding(investigation_id, agent, draft)
+        if existing is not None:
+            return existing
         attrs = dict(draft.attributes)
         conf_inputs = attrs.setdefault("confidence_inputs", {})
         if draft.category == "performance" and attrs.get("measurement") == "static_suspect":
@@ -410,6 +413,24 @@ class EvidenceStore:
             out = _finding_out(f, ids)
         self.increment_run_findings(run_id)
         return out
+
+    def find_duplicate_finding(self, investigation_id: str, agent: str, draft: FindingDraft) -> FindingOut | None:
+        """The same agent reporting the same rule, title and files again (e.g. a repeated run) is one finding."""
+        title = redact(draft.title)
+        with session_scope() as s:
+            rows = s.scalars(
+                select(Finding).where(
+                    Finding.investigation_id == investigation_id,
+                    Finding.agent == agent,
+                    Finding.rule_id == draft.rule_id,
+                    Finding.title == title,
+                )
+            ).all()
+            for f in rows:
+                if sorted(f.affected_files or []) == sorted(draft.affected_files or []):
+                    ids = [e.id for e in s.scalars(select(Evidence).where(Evidence.finding_id == f.id)).all()]
+                    return _finding_out(f, ids)
+        return None
 
     @staticmethod
     def _evidence_row(

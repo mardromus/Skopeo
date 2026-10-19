@@ -159,6 +159,10 @@ class AgentContext:
 
     # ----------------------------------------------------------- blackboard
     def publish(self, draft: FindingDraft, evidence: list[EvidenceDraft]) -> FindingOut:
+        existing = self.store.find_duplicate_finding(self.investigation_id, self.agent, draft)
+        if existing is not None:
+            self.message("blackboard", f"Already recorded, not duplicated: {existing.title}", payload={"finding_id": existing.finding_id})
+            return existing
         hashes = [self.tools.line_hash(e.file, e.line_start, e.line_end) if e.file else None for e in evidence]
         draft.attributes.setdefault("commit_sha", self.repo.commit_sha)
         finding = self.store.add_finding(self.investigation_id, self.agent, self.run_id, draft, evidence, hashes)
