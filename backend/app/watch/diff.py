@@ -140,9 +140,32 @@ def diff_surfaces(old: dict[str, Any], new: dict[str, Any]) -> list[dict[str, An
     for q in new_syms:
         new_by_tail.setdefault(q.rsplit(".", 1)[-1], []).append(q)
 
+    def inherited(name: str, candidates: list[str]) -> bool:
+        """``Cls.meth`` vanished but ``Cls`` still exists and inherits ``meth`` from a base that now defines it."""
+        owner, _, meth = name.rpartition(".")
+        cls = new_syms.get(owner)
+        if not cls or cls.get("kind") != "class":
+            return False
+        holders = {c.rpartition(".")[0].rsplit(".", 1)[-1] for c in candidates if c.rsplit(".", 1)[-1] == meth}
+        seen: set[str] = set()
+        queue = [b.rsplit(".", 1)[-1] for b in cls.get("bases") or []]
+        while queue:
+            base = queue.pop()
+            if base in seen:
+                continue
+            seen.add(base)
+            if base in holders:
+                return True
+            for q, sym in new_syms.items():
+                if sym.get("kind") == "class" and q.rsplit(".", 1)[-1] == base:
+                    queue.extend(b.rsplit(".", 1)[-1] for b in sym.get("bases") or [])
+        return False
+
     for name, o in old_syms.items():
         target = o.get("target", name)
         n = new_syms.get(name)
+        if n is None and o.get("kind") in ("method", "function") and inherited(name, new_by_tail.get(name.rsplit(".", 1)[-1], [])):
+            continue
         if n is None:
             same = [q for q in new_by_tail.get(name.rsplit(".", 1)[-1], []) if new_syms[q]["kind"] == o["kind"] and q not in old_syms]
             if same:
