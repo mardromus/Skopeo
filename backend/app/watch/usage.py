@@ -15,7 +15,7 @@ import tomllib
 from collections.abc import Iterable
 from typing import Any
 
-from app.tools.manifests import _python_requirement, normalize_name
+from app.tools.manifests import _python_requirement, is_requirements_file, normalize_name
 from app.watch.surface import matching_paren, split_top_level
 
 PY_SUFFIXES = (".py",)
@@ -261,7 +261,7 @@ def find_pinned_version(files: Iterable[tuple[str, str]], package_name: str | No
                         "version": exact.group(1) if exact else None,
                         "floor": floor.group(1) if floor else None,
                     }
-        elif ecosystem != "npm" and re.fullmatch(r"requirements[^/]*\.txt", name):
+        elif ecosystem != "npm" and is_requirements_file(path):
             for i, raw in enumerate(text.splitlines(), 1):
                 dep = _python_requirement(raw, path, i)
                 if dep and dep.name == wanted:

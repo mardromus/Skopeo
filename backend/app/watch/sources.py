@@ -11,6 +11,7 @@ from app.config import Settings
 from app.security.url_validation import validate_branch, validate_repository_url
 from app.services.repository_ingestion import _git_safety_flags, git_auth_env
 from app.tools.command_runner import SafeCommandRunner
+from app.tools.manifests import is_requirements_file
 
 PROJECT_FILE_SUFFIXES = (".py", ".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx", ".mts", ".cts")
 PROJECT_MANIFESTS = re.compile(r"^(requirements[^/]*\.txt|pyproject\.toml|setup\.cfg|Pipfile|package\.json)$")
@@ -131,12 +132,13 @@ def read_project_tree(root: Path) -> list[tuple[str, str]]:
                 if entry.name not in PROJECT_EXCLUDED_DIRS and not entry.name.startswith("."):
                     stack.append(entry)
                 continue
-            if not (entry.name.endswith(PROJECT_FILE_SUFFIXES) or PROJECT_MANIFESTS.match(entry.name)):
+            rel = entry.relative_to(root).as_posix()
+            if not (entry.name.endswith(PROJECT_FILE_SUFFIXES) or PROJECT_MANIFESTS.match(entry.name) or is_requirements_file(rel)):
                 continue
             try:
                 if entry.stat().st_size > MAX_PROJECT_FILE_BYTES:
                     continue
-                out.append((entry.relative_to(root).as_posix(), entry.read_text(encoding="utf-8", errors="replace")))
+                out.append((rel, entry.read_text(encoding="utf-8", errors="replace")))
             except OSError:
                 continue
     return out

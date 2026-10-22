@@ -64,6 +64,19 @@ class Dependency:
         return asdict(self)
 
 
+_REQ_NAME_RE = re.compile(r"requirements[^/]*\.txt")
+
+
+def is_requirements_file(rel: str) -> bool:
+    """``requirements*.txt`` anywhere, or any ``.txt`` inside a ``requirements/`` directory."""
+    parts = PurePosixPath(rel.replace("\\", "/")).parts
+    if not parts:
+        return False
+    if _REQ_NAME_RE.fullmatch(parts[-1]):
+        return True
+    return parts[-1].endswith(".txt") and len(parts) >= 2 and parts[-2] in ("requirements", "reqs")
+
+
 def normalize_name(name: str, ecosystem: str) -> str:
     if ecosystem == "PyPI":
         return re.sub(r"[-_.]+", "-", name).lower()
@@ -346,7 +359,7 @@ def parse_dependencies(tools: RepositoryTools) -> list[Dependency]:
         name = Path(rel).name
         if "/" in rel and rel.count("/") > 3:
             continue  # nested vendored manifests are out of scope
-        if re.fullmatch(r"requirements[^/]*\.txt", name):
+        if is_requirements_file(rel):
             deps.extend(_parse_requirements(tools, rel, seen_req))
         elif name == "pyproject.toml":
             deps.extend(_parse_pyproject(tools, rel))
@@ -375,6 +388,6 @@ def detect_ecosystems(files: list[str]) -> list[str]:
         name = Path(f).name
         if name in ECOSYSTEM_BY_MANIFEST:
             ecos.add(ECOSYSTEM_BY_MANIFEST[name])
-        elif re.fullmatch(r"requirements[^/]*\.txt", name):
+        elif is_requirements_file(f):
             ecos.add("PyPI")
     return sorted(ecos)
