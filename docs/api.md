@@ -22,7 +22,8 @@ Base path `/api`. Interactive OpenAPI docs are served by FastAPI at `/docs` and 
 | `GET` | `/investigations/{id}/events` | execution trace; `?after_seq=` for incremental polling |
 | `POST` | `/investigations/{id}/cancel` | request cancellation |
 | `POST` | `/investigations/{id}/approve-action` | approve or reject a proposal |
-| `GET` | `/investigations/{id}/report` | `?format=json` (output schema) or `?format=markdown` |
+| `GET` | `/investigations/{id}/diff` | what changed since an earlier case of the same repository; `?against=<id>` picks the baseline (see below) |
+| `GET` | `/investigations/{id}/report` | `?format=json` (output schema), `?format=markdown` or `?format=sarif` (SARIF 2.1.0, see below) |
 
 ## Input
 
@@ -170,3 +171,63 @@ An impact:
 ```
 
 `GET /api/investigations?mine=true` lists the investigations the caller started.
+
+## SARIF export
+
+`GET /api/investigations/{id}/report?format=sarif` returns the case as a
+[SARIF 2.1.0](https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html) log
+(`application/sarif+json`), so the verified output of the agents can be uploaded to GitHub Code
+Scanning, opened in the VS Code SARIF viewer or fed to any CI dashboard.
+
+* One `run` per investigation; the tool driver is `Skopeo`.
+* One rule per `agent/rule_id` pair, with the finding's description and recommended action as help text.
+* **Verified** findings become results. Their `level` follows severity (critical/high = `error`,
+  medium = `warning`, low/info = `note`) and `security-severity` is set for GitHub's alert buckets.
+* **Rejected** findings are exported too, with a SARIF `suppression` whose justification is the
+  red team's reasoning. Viewers hide them by default; the audit trail is kept.
+* Findings that still need more evidence are left out, as they are left out of the risk score.
+* Locations come from the evidence (file and line range), then the finding's affected files.
+  Repository-wide findings are anchored on the repository root so every result stays valid.
+* `partialFingerprints` are computed from agent, rule, subject and files (never from ids or
+  timestamps), so the same problem is tracked as one alert across investigations.
+
+```bash
+curl -s "http://localhost:8000/api/investigations/$ID/report?format=sarif" -o skopeo.sarif
+gh api repos/OWNER/REPO/code-scanning/sarifs -f commit_sha=$SHA -f ref=refs/heads/main \
+   -f sarif="$(gzip -c skopeo.sarif | base64 -w0)"
+```
+
+## Case diff
+
+`GET /api/investigations/{id}/diff` compares a case with an earlier one of the same repository, so
+a team can see what it fixed and what it broke between two scans.
+
+* The baseline is `?against=<id>` (the older case). Without it, Skopeo picks the most recent
+  finished case of the same repository URL and branch created before this one, and answers `404`
+  when there is none. Private cases are never offered to people who may not read them.
+* Both cases must be finished (`completed` or `completed_with_limitations`), otherwise `409`.
+* Only **verified** findings and risks are compared, so the diff reports change, not red-team churn.
+* Findings are matched by a fingerprint of agent, rule, subject and affected files. Ids and
+  timestamps are never used, because every case creates new ones.
+
+```json
+{
+  "baseline": {"investigation_id": "...", "overall_risk": {"score": 94.5, "level": "critical"}},
+  "current":  {"investigation_id": "...", "overall_risk": {"score": 61.0, "level": "high"}},
+  "same_repository": true,
+  "overall_risk": {"baseline": {"score": 94.5}, "current": {"score": 61.0}, "delta": -33.5},
+  "findings": {
+    "new": [], "resolved": [], "persisting": [],
+    "counts": {"baseline": 20, "current": 17, "new": 1, "resolved": 4, "persisting": 16, "escalated": 0, "relaxed": 1}
+  },
+  "severity": {"baseline": {"critical": 2}, "current": {"critical": 0}},
+  "by_agent": {"dependency_agent": {"new": 0, "resolved": 3}},
+  "risks": {"appeared": [], "disappeared": [], "changed": [], "priorities": {"P0": {"baseline": 1, "current": 0, "delta": -1}}},
+  "verdict": "improved",
+  "headline": "Improved: 1 new, 4 resolved, 16 unchanged-or-persisting; risk score -33.5."
+}
+```
+
+`persisting` entries carry the current finding, the id of the matching baseline finding and a
+`changes` object that lists a changed severity (with `escalated` / `relaxed`), a confidence move of
+0.05 or more, or a changed title. `verdict` is `improved`, `regressed`, `mixed` or `unchanged`.

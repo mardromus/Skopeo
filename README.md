@@ -287,8 +287,8 @@ cd frontend && npm run lint && npm run build
 
 `POST /api/investigations`, `POST /api/demo/investigations`, `GET /api/investigations/{id}` and
 `/agents`, `/findings`, `/evidence`, `/correlations`, `/verifications`, `/risks`,
-`/recommendations`, `/actions`, `/requests`, `/events`, `/report?format=json|markdown`,
-`POST /cancel`, `POST /approve-action`, `GET /api/health`.
+`/recommendations`, `/actions`, `/requests`, `/events`, `/report?format=json|markdown|sarif`,
+`GET /diff?against=` (what changed since an earlier case), `POST /cancel`, `POST /approve-action`, `GET /api/health`.
 Accounts and watches: `GET /api/auth/config`, `GET|DELETE /api/auth/me`,
 `/api/notifications/{catalog,channels,rules,deliveries}` (+ `channels/{id}/verify|resend|test|rotate-secret`),
 `/api/projects` (+ `/{id}/files`, `/{id}/watches`), `/api/watches/{id}` (+ `/check`, `/reports`),
@@ -343,7 +343,7 @@ More in [docs/design-document.md](docs/design-document.md#18-limitations).
 * Language servers / tree-sitter for JS, Go and Java data flow; execution of their test suites in the sandbox.
 * Profiling (py-spy) and `pytest-benchmark` result ingestion for performance measurement.
 * SARIF import so existing scanners can feed the blackboard as evidence sources.
-* Incremental re-investigation on new commits, diffing findings between cases.
+* Incremental re-investigation on new commits.
 * Server-sent events instead of polling; organisations and shared projects.
 * PostgreSQL + a job queue for horizontal scaling.
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel, ConfigDict
 
 from app import __version__
@@ -28,8 +28,10 @@ from app.schemas.investigation import (
     RiskOut,
 )
 from app.services.actions import ActionError, decide_action
+from app.services.case_diff import DiffError, diff_investigations, find_baseline
 from app.services.investigation_service import InvestigationService
 from app.services.report import build_markdown, build_report
+from app.services.sarif import build_sarif
 
 router = APIRouter(prefix="/api")
 
@@ -297,7 +299,7 @@ def approve_action(investigation_id: str, body: ApproveActionRequest, request: R
 
 
 @router.get("/investigations/{investigation_id}/report")
-def report(investigation_id: str, request: Request, format: Literal["json", "markdown"] = "json"):
+def report(investigation_id: str, request: Request, format: Literal["json", "markdown", "sarif"] = "json"):
     _get(request, investigation_id)
     store = _svc(request).store
     if format == "markdown":
@@ -306,4 +308,38 @@ def report(investigation_id: str, request: Request, format: Literal["json", "mar
             media_type="text/markdown",
             headers={"Content-Disposition": f'attachment; filename="skopeo-{investigation_id[:8]}.md"'},
         )
+    if format == "sarif":
+        return JSONResponse(
+            build_sarif(store, investigation_id),
+            media_type="application/sarif+json",
+            headers={"Content-Disposition": f'attachment; filename="skopeo-{investigation_id[:8]}.sarif"'},
+        )
     return build_report(store, investigation_id)
+
+
+@router.get("/investigations/{investigation_id}/diff")
+def diff(
+    investigation_id: str,
+    request: Request,
+    against: str | None = Query(None, min_length=8, max_length=64, description="baseline investigation id (the older case)"),
+) -> dict[str, Any]:
+    """What changed since an earlier case of the same repository: new, resolved and persisting findings.
+
+    Without ``against`` the baseline is the most recent finished case of the same repository and
+    branch that was created before this one. Only verified findings and risks are compared.
+    """
+    current = _get(request, investigation_id)
+    store = _svc(request).store
+    if against:
+        baseline = _get(request, against)
+    else:
+        viewer = _viewer_id(request)
+        baseline = find_baseline(store, current, can_see=lambda inv: visible(inv, viewer))
+        if baseline is None:
+            raise HTTPException(status_code=404, detail="no earlier finished investigation of this repository and branch to compare with")
+    try:
+        return diff_investigations(store, baseline.id, current.id)
+    except DiffError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="investigation not found") from exc
