@@ -287,7 +287,7 @@ cd frontend && npm run lint && npm run build
 
 `POST /api/investigations`, `POST /api/demo/investigations`, `GET /api/investigations/{id}` and
 `/agents`, `/findings`, `/evidence`, `/correlations`, `/verifications`, `/risks`,
-`/recommendations`, `/actions`, `/requests`, `/events`, `/report?format=json|markdown`,
+`/recommendations`, `/actions`, `/requests`, `/events`, `/report?format=json|markdown|sarif`,
 `POST /cancel`, `POST /approve-action`, `GET /api/health`.
 Accounts and watches: `GET /api/auth/config`, `GET|DELETE /api/auth/me`,
 `/api/notifications/{catalog,channels,rules,deliveries}` (+ `channels/{id}/verify|resend|test|rotate-secret`),

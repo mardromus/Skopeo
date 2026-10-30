@@ -22,7 +22,7 @@ Base path `/api`. Interactive OpenAPI docs are served by FastAPI at `/docs` and 
 | `GET` | `/investigations/{id}/events` | execution trace; `?after_seq=` for incremental polling |
 | `POST` | `/investigations/{id}/cancel` | request cancellation |
 | `POST` | `/investigations/{id}/approve-action` | approve or reject a proposal |
-| `GET` | `/investigations/{id}/report` | `?format=json` (output schema) or `?format=markdown` |
+| `GET` | `/investigations/{id}/report` | `?format=json` (output schema), `?format=markdown` or `?format=sarif` (SARIF 2.1.0, see below) |
 
 ## Input
 
@@ -170,3 +170,28 @@ An impact:
 ```
 
 `GET /api/investigations?mine=true` lists the investigations the caller started.
+
+## SARIF export
+
+`GET /api/investigations/{id}/report?format=sarif` returns the case as a
+[SARIF 2.1.0](https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html) log
+(`application/sarif+json`), so the verified output of the agents can be uploaded to GitHub Code
+Scanning, opened in the VS Code SARIF viewer or fed to any CI dashboard.
+
+* One `run` per investigation; the tool driver is `Skopeo`.
+* One rule per `agent/rule_id` pair, with the finding's description and recommended action as help text.
+* **Verified** findings become results. Their `level` follows severity (critical/high = `error`,
+  medium = `warning`, low/info = `note`) and `security-severity` is set for GitHub's alert buckets.
+* **Rejected** findings are exported too, with a SARIF `suppression` whose justification is the
+  red team's reasoning. Viewers hide them by default; the audit trail is kept.
+* Findings that still need more evidence are left out, as they are left out of the risk score.
+* Locations come from the evidence (file and line range), then the finding's affected files.
+  Repository-wide findings are anchored on the repository root so every result stays valid.
+* `partialFingerprints` are computed from agent, rule, subject and files (never from ids or
+  timestamps), so the same problem is tracked as one alert across investigations.
+
+```bash
+curl -s "http://localhost:8000/api/investigations/$ID/report?format=sarif" -o skopeo.sarif
+gh api repos/OWNER/REPO/code-scanning/sarifs -f commit_sha=$SHA -f ref=refs/heads/main \
+   -f sarif="$(gzip -c skopeo.sarif | base64 -w0)"
+```

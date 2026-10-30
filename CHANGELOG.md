@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- SARIF 2.1.0 export of a case (`GET /api/investigations/{id}/report?format=sarif`): verified findings as results, red-team rejections as suppressed results, stable fingerprints for Code Scanning.
 - Architecture Decision Records (`docs/adr/`) documenting blackboard architecture, red-team verification, and dual-database strategy.
 - Specialist agent authoring and extension tutorial (`docs/adding-an-agent.md`).
 - REST API cURL cheat sheet (`docs/api-cheat-sheet.md`).

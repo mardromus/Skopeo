@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from pydantic import BaseModel, ConfigDict
 
 from app import __version__
@@ -30,6 +30,7 @@ from app.schemas.investigation import (
 from app.services.actions import ActionError, decide_action
 from app.services.investigation_service import InvestigationService
 from app.services.report import build_markdown, build_report
+from app.services.sarif import build_sarif
 
 router = APIRouter(prefix="/api")
 
@@ -297,7 +298,7 @@ def approve_action(investigation_id: str, body: ApproveActionRequest, request: R
 
 
 @router.get("/investigations/{investigation_id}/report")
-def report(investigation_id: str, request: Request, format: Literal["json", "markdown"] = "json"):
+def report(investigation_id: str, request: Request, format: Literal["json", "markdown", "sarif"] = "json"):
     _get(request, investigation_id)
     store = _svc(request).store
     if format == "markdown":
@@ -305,5 +306,11 @@ def report(investigation_id: str, request: Request, format: Literal["json", "mar
             build_markdown(store, investigation_id),
             media_type="text/markdown",
             headers={"Content-Disposition": f'attachment; filename="skopeo-{investigation_id[:8]}.md"'},
+        )
+    if format == "sarif":
+        return JSONResponse(
+            build_sarif(store, investigation_id),
+            media_type="application/sarif+json",
+            headers={"Content-Disposition": f'attachment; filename="skopeo-{investigation_id[:8]}.sarif"'},
         )
     return build_report(store, investigation_id)
