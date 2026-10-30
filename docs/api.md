@@ -22,6 +22,7 @@ Base path `/api`. Interactive OpenAPI docs are served by FastAPI at `/docs` and 
 | `GET` | `/investigations/{id}/events` | execution trace; `?after_seq=` for incremental polling |
 | `POST` | `/investigations/{id}/cancel` | request cancellation |
 | `POST` | `/investigations/{id}/approve-action` | approve or reject a proposal |
+| `GET` | `/investigations/{id}/diff` | what changed since an earlier case of the same repository; `?against=<id>` picks the baseline (see below) |
 | `GET` | `/investigations/{id}/report` | `?format=json` (output schema), `?format=markdown` or `?format=sarif` (SARIF 2.1.0, see below) |
 
 ## Input
@@ -195,3 +196,38 @@ curl -s "http://localhost:8000/api/investigations/$ID/report?format=sarif" -o sk
 gh api repos/OWNER/REPO/code-scanning/sarifs -f commit_sha=$SHA -f ref=refs/heads/main \
    -f sarif="$(gzip -c skopeo.sarif | base64 -w0)"
 ```
+
+## Case diff
+
+`GET /api/investigations/{id}/diff` compares a case with an earlier one of the same repository, so
+a team can see what it fixed and what it broke between two scans.
+
+* The baseline is `?against=<id>` (the older case). Without it, Skopeo picks the most recent
+  finished case of the same repository URL and branch created before this one, and answers `404`
+  when there is none. Private cases are never offered to people who may not read them.
+* Both cases must be finished (`completed` or `completed_with_limitations`), otherwise `409`.
+* Only **verified** findings and risks are compared, so the diff reports change, not red-team churn.
+* Findings are matched by a fingerprint of agent, rule, subject and affected files. Ids and
+  timestamps are never used, because every case creates new ones.
+
+```json
+{
+  "baseline": {"investigation_id": "...", "overall_risk": {"score": 94.5, "level": "critical"}},
+  "current":  {"investigation_id": "...", "overall_risk": {"score": 61.0, "level": "high"}},
+  "same_repository": true,
+  "overall_risk": {"baseline": {"score": 94.5}, "current": {"score": 61.0}, "delta": -33.5},
+  "findings": {
+    "new": [], "resolved": [], "persisting": [],
+    "counts": {"baseline": 20, "current": 17, "new": 1, "resolved": 4, "persisting": 16, "escalated": 0, "relaxed": 1}
+  },
+  "severity": {"baseline": {"critical": 2}, "current": {"critical": 0}},
+  "by_agent": {"dependency_agent": {"new": 0, "resolved": 3}},
+  "risks": {"appeared": [], "disappeared": [], "changed": [], "priorities": {"P0": {"baseline": 1, "current": 0, "delta": -1}}},
+  "verdict": "improved",
+  "headline": "Improved: 1 new, 4 resolved, 16 unchanged-or-persisting; risk score -33.5."
+}
+```
+
+`persisting` entries carry the current finding, the id of the matching baseline finding and a
+`changes` object that lists a changed severity (with `escalated` / `relaxed`), a confidence move of
+0.05 or more, or a changed title. `verdict` is `improved`, `regressed`, `mixed` or `unchanged`.
